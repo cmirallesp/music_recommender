@@ -1,2 +1,2 @@
-# music_recomender
+# music_recommender
 Repository for CN and IDSS project
