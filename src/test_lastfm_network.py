@@ -16,6 +16,13 @@ class TestLastfmNetwork(unittest.TestCase):
         self.assertTrue(self.lastfm_net.friends(2, 275))
         self.assertFalse(self.lastfm_net.friends(2, 2))
 
+    def test_artits(self):
+        weight = 13883
+        self.assertEqual(
+            weight,
+            self.lastfm_net.times_user_listen_artist(2, 51)
+        )
+
 
 if __name__ == '__main__':
     unittest.main()

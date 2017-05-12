@@ -1,4 +1,5 @@
 import networkx as nx
+import pdb
 
 
 class LastfmNetwork(object):
@@ -19,31 +20,34 @@ class LastfmNetwork(object):
         return "a_{}".format(id)
 
     def _build_user_friends(self, user_friends):
-        added = {}
+        processed = {}
         for uid, fid in user_friends.values:
             k = self.key_user(uid)
             k2 = self.key_user(fid)
 
-            if k in added:
-                v1 = added[k]
-            else:
+            if k not in processed:
                 self._graph.add_node(k, type="user")
-                v1 = self._graph.node[k]
+                processed[k] = k
 
-                added[k] = v1
-
-            if k2 in added:
-                v2 = added[k2]
-            else:
+            if k2 not in processed:
                 self._graph.add_node(k2, type="user")
-                v2 = self._graph.node[k2]
-
-                added[k2] = v2
+                processed[k2] = k2
 
             self._graph.add_edge(k, k2)
 
     def _build_user_artists(self, user_artists):
-        raise False
+        processed = {}
+        for uid, aid, weight in user_artists.values:
+            ku = self.key_user(uid)
+            ka = self.key_artist(aid)
+
+            if ka not in processed:
+                self._graph.add_node(ka, type="artist")
+                v2 = self._graph.node[ka]
+
+                processed[ka] = v2
+
+            self._graph.add_edge(ku, ka, weight=weight)
 
     def _build_user_taggedartists(self, user_taggedartists):
         raise False
@@ -54,6 +58,14 @@ class LastfmNetwork(object):
             self.key_user(user_id2)
         )
 
-    def times_user_listened_artist(self, user_id, artist_id):
+    def times_user_listen_artist(self, user_id, artist_id):
         # returns the weight between user_id and artists id
-        raise False
+        ku = self.key_user(user_id)
+        ka = self.key_artist(artist_id)
+        try:
+            result = self._graph[ku][ka]
+
+        except Exception:
+            result = None
+
+        return result['weight']
