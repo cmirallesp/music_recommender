@@ -16,7 +16,7 @@ class LastfmNetwork(object):
         return "u_{}".format(id)
 
     def key_artist(self, id):
-        return "l_{}".format(id)
+        return "a_{}".format(id)
 
     def _build_user_friends(self, user_friends):
         added = {}
