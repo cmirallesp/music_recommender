@@ -9,6 +9,8 @@ class LastfmNetwork(object):
         # multilayer graph to hold the entire data
         self._graph = nx.Graph(directed=False)
         self._build_user_friends(user_friends)
+        self._build_user_artists(user_artists)
+        # self._build_user_taggedartists(user_taggedartists)
 
     def key_user(self, id):
         return "u_{}".format(id)
@@ -40,8 +42,18 @@ class LastfmNetwork(object):
 
             self._graph.add_edge(k, k2)
 
+    def _build_user_artists(self, user_artists):
+        raise False
+
+    def _build_user_taggedartists(self, user_taggedartists):
+        raise False
+
     def friends(self, user_id1, user_id2):
         return self._graph.has_edge(
             self.key_user(user_id1),
             self.key_user(user_id2)
         )
+
+    def times_user_listened_artist(self, user_id, artist_id):
+        # returns the weight between user_id and artists id
+        raise False
