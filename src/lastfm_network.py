@@ -1,5 +1,7 @@
 import networkx as nx
-import pandas as pd
+
+import os.path
+import os
 
 
 class LastfmNetwork(object):
@@ -9,12 +11,16 @@ class LastfmNetwork(object):
         super(LastfmNetwork, self).__init__()
         # multilayer graph to hold the entire data
         self._graph = nx.Graph(directed=False)
-        self._build_user_friends(user_friends)
-        self._build_user_artists(user_artists)
-        
-        # Sort user_taggedartists by tagID to accelerate edges creation
-        user_taggedartists = user_taggedartists.sort_values('tagID')
-        self._build_user_taggedartists(user_taggedartists)
+        if os.path.isfile("network.net"):
+            self._graph = nx.Graph(nx.read_pajek("network.net"))
+        else:
+            self._build_user_friends(user_friends)
+            self._build_user_artists(user_artists)
+            # Sort user_taggedartists by tagID to accelerate edges creation
+            user_taggedartists = user_taggedartists.sort_values('tagID')
+            self._build_user_taggedartists(user_taggedartists)
+            nx.write_pajek(self._graph, "network.net")
+
         print self._graph.size()
 
     def key_user(self, id):
@@ -55,28 +61,31 @@ class LastfmNetwork(object):
 
     def _build_user_taggedartists(self, user_taggedartists):
         tags = user_taggedartists.tagID.unique()
+        old_tag = -1
         for tag in tags:
+            print "processing tag:{}/{}".format(tag, len(tags))
             # Obtain subtables of artists that share the same tag
-            subtable = user_taggedartists.loc[user_taggedartists['tagID']==tag]
-
+            subtable = user_taggedartists.loc[user_taggedartists['tagID'] == tag]
             for _, aid1, _, _, _, _ in subtable.values:
                 for _, aid2, _, _, _, _ in subtable.values:
-                    if aid1!=aid2:
+                    if aid1 != aid2:
                         k = self.key_artist(aid1)
                         k2 = self.key_artist(aid2)
-                        
+
                         if self._graph.has_edge(k, k2):
                             self._graph[k][k2]['weight'] += 1
                         else:
-                            self._graph.add_edge(k,k2,weight=1)
-                
+                            self._graph.add_edge(k, k2, weight=1)
+            if old_tag != -1:
+                os.remove("network.t{}".format(old_tag))
+            nx.write_pajek(self._graph, "network.t{}".format(tag))
+            old_tag = tag
 
     def friends(self, user_id1, user_id2):
         return self._graph.has_edge(
             self.key_user(user_id1),
             self.key_user(user_id2)
         )
-
 
     def times_user_listen_artist(self, user_id, artist_id):
         # returns the weight between user_id and artists id
