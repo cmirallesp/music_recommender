@@ -9,7 +9,7 @@ class TestLastfmNetwork(unittest.TestCase):
         self.lastfm_net = LastfmNetwork(
             user_friends=pd.read_table('../data/user_friends.dat'),
             user_artists=pd.read_table('../data/user_artists.dat'),
-            user_taggedartists=pd.read_table('../data/user_friends.dat')
+            user_taggedartists=pd.read_table('../data/user_taggedartists.dat')
         )
 
     def test_friends(self):

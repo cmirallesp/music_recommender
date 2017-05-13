@@ -1,5 +1,5 @@
 import networkx as nx
-import pdb
+import pandas as pd
 
 
 class LastfmNetwork(object):
@@ -11,7 +11,11 @@ class LastfmNetwork(object):
         self._graph = nx.Graph(directed=False)
         self._build_user_friends(user_friends)
         self._build_user_artists(user_artists)
-        # self._build_user_taggedartists(user_taggedartists)
+        
+        # Sort user_taggedartists by tagID to accelerate edges creation
+        user_taggedartists = user_taggedartists.sort_values('tagID')
+        self._build_user_taggedartists(user_taggedartists)
+        print self._graph.size()
 
     def key_user(self, id):
         return "u_{}".format(id)
@@ -50,13 +54,29 @@ class LastfmNetwork(object):
             self._graph.add_edge(ku, ka, weight=weight)
 
     def _build_user_taggedartists(self, user_taggedartists):
-        raise False
+        tags = user_taggedartists.tagID.unique()
+        for tag in tags:
+            # Obtain subtables of artists that share the same tag
+            subtable = user_taggedartists.loc[user_taggedartists['tagID']==tag]
+
+            for _, aid1, _, _, _, _ in subtable.values:
+                for _, aid2, _, _, _, _ in subtable.values:
+                    if aid1!=aid2:
+                        k = self.key_artist(aid1)
+                        k2 = self.key_artist(aid2)
+                        
+                        if self._graph.has_edge(k, k2):
+                            self._graph[k][k2]['weight'] += 1
+                        else:
+                            self._graph.add_edge(k,k2,weight=1)
+                
 
     def friends(self, user_id1, user_id2):
         return self._graph.has_edge(
             self.key_user(user_id1),
             self.key_user(user_id2)
         )
+
 
     def times_user_listen_artist(self, user_id, artist_id):
         # returns the weight between user_id and artists id
