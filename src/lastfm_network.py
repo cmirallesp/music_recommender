@@ -1,7 +1,10 @@
 import networkx as nx
-
+import pandas as pd
+import numpy as np
+import pdb
 import os.path
 import os
+import time
 
 
 class LastfmNetwork(object):
@@ -16,8 +19,6 @@ class LastfmNetwork(object):
         else:
             self._build_user_friends(user_friends)
             self._build_user_artists(user_artists)
-            # Sort user_taggedartists by tagID to accelerate edges creation
-            user_taggedartists = user_taggedartists.sort_values('tagID')
             self._build_user_taggedartists(user_taggedartists)
             nx.write_pajek(self._graph, "network.net")
 
@@ -60,26 +61,29 @@ class LastfmNetwork(object):
             self._graph.add_edge(ku, ka, weight=weight)
 
     def _build_user_taggedartists(self, user_taggedartists):
-        tags = user_taggedartists.tagID.unique()
-        old_tag = -1
+        processed = {}
+        tags = user_taggedartists.groupby('tagID').groups
+        n_tags = len(tags)
         for tag in tags:
-            print "processing tag:{}/{}".format(tag, len(tags))
-            # Obtain subtables of artists that share the same tag
-            subtable = user_taggedartists.loc[user_taggedartists['tagID'] == tag]
-            for _, aid1, _, _, _, _ in subtable.values:
-                for _, aid2, _, _, _, _ in subtable.values:
-                    if aid1 != aid2:
-                        k = self.key_artist(aid1)
-                        k2 = self.key_artist(aid2)
+            artists = tags[tag]
+            n = len(artists)
+            print("processing tag {}/{}"
+                  "n_artists {} n_artists^2:{}"
+                  ).format(tag, n_tags, n, n**2)
+            start = time.clock()
+            for i in range(0, len(artists)):
+                for j in range(i + 1, len(artists)):
+                    k = self.key_artist(artists[i])
+                    k2 = self.key_artist(artists[j])
+                    both = "{}{}".format(k, k2)
+                    if both in processed:
+                        # if self._graph.has_edge(k, k2):
+                        self._graph[k][k2]['weight'] += 1
+                    else:
+                        processed[both] = 1
+                        self._graph.add_edge(k, k2, weight=1)
 
-                        if self._graph.has_edge(k, k2):
-                            self._graph[k][k2]['weight'] += 1
-                        else:
-                            self._graph.add_edge(k, k2, weight=1)
-            if old_tag != -1:
-                os.remove("network.t{}".format(old_tag))
-            nx.write_pajek(self._graph, "network.t{}".format(tag))
-            old_tag = tag
+            print "processed t: {}".format(time.clock() - start)
 
     def friends(self, user_id1, user_id2):
         return self._graph.has_edge(
