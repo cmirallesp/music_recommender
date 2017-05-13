@@ -61,7 +61,7 @@ class LastfmNetwork(object):
 
     def _build_user_taggedartists(self, user_taggedartists):
         tags = user_taggedartists.tagID.unique()
-        old_tag = -1
+
         for tag in tags:
             print "processing tag:{}/{}".format(tag, len(tags))
             # Obtain subtables of artists that share the same tag
@@ -76,10 +76,6 @@ class LastfmNetwork(object):
                             self._graph[k][k2]['weight'] += 1
                         else:
                             self._graph.add_edge(k, k2, weight=1)
-            if old_tag != -1:
-                os.remove("network.t{}".format(old_tag))
-            nx.write_pajek(self._graph, "network.t{}".format(tag))
-            old_tag = tag
 
     def friends(self, user_id1, user_id2):
         return self._graph.has_edge(
