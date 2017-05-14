@@ -5,17 +5,18 @@ import networkx as nx
 
 
 def plot(d, name):
+
     degree = np.array(d)
     num_bins = 15
     k_min = degree.min()
     k_max = degree.max()
-
+    plt.figure()
     bins = np.linspace(k_min, k_max + 1, num_bins)
     plt.title("{}:{}".format("PDF", title))
     count, bins, rem = plt.hist(degree, bins=bins,
                                 label='Empirical distribution')
 
-    plt.savefig('{}.png'.format(name))
+    plt.savefig('plots/{}.png'.format(name))
 
     plt.figure()
     bins = np.logspace(np.log10(k_min), np.log10(k_max), num_bins + 1)
@@ -23,7 +24,7 @@ def plot(d, name):
     plt.title("{}:{}".format("PDF", title))
     count, bins, rem = plt.hist(degree, bins=bins, log=True,
                                 label='Empirical distribution')
-    plt.savefig('{}_log.png'.format(name))
+    plt.savefig('plots/{}_log.png'.format(name))
 
 
 net = LastfmNetwork(
@@ -37,12 +38,12 @@ for tag_id in net.tags_iter():
 print "max degree:{}".format(max(d1))
 plot(d1, "tag_dregree")
 
-d = []
+d2 = []
 for artist_id in net.artists_iter():
-    d.append(nx.degree(net.network(), artist_id))
+    d2.append(nx.degree(net.network(), artist_id))
 plot(d2, "artists_degree")
 
 d3 = []
-for artist_id in net.artists_iter():
-    d3.append(nx.degree(net.network(), artist_id))
-plot(d3, "artists_degree")
+for user_id in net.users_iter():
+    d3.append(nx.degree(net.network(), user_id))
+plot(d3, "user_degree")
