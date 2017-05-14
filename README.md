@@ -1,5 +1,5 @@
 # music_recommender
-Repository for CN and IDSS project
+Repository for music recomender project
 
 
 
