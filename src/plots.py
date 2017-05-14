@@ -37,7 +37,12 @@ for tag_id in net.tags_iter():
 print "max degree:{}".format(max(d1))
 plot(d1, "tag_dregree")
 
-# d = []
-# for artist_id in net.artists_iter():
-#     d.append(nx.degree(net.network(), artist_id))
-# plot(d2)
+d = []
+for artist_id in net.artists_iter():
+    d.append(nx.degree(net.network(), artist_id))
+plot(d2, "artists_degree")
+
+d3 = []
+for artist_id in net.artists_iter():
+    d3.append(nx.degree(net.network(), artist_id))
+plot(d3, "artists_degree")

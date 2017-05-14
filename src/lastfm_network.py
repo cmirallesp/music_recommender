@@ -18,6 +18,8 @@ class LastfmNetwork(object):
         # nx.write_pajek(self._graph, "network.net")
 
         # print self._graph.size()
+    def network(self):
+        return self._graph
 
     def key_user(self, id):
         return "u_{}".format(id)
@@ -42,7 +44,7 @@ class LastfmNetwork(object):
                 self._graph.add_node(k2, type="user")
                 processed[k2] = k2
 
-            self._graph.add_edge(k, k2)
+            self._graph.add_edge(k, k2, type='uu')
 
     def _build_user_artists(self, user_artists):
         processed = {}
@@ -108,6 +110,21 @@ class LastfmNetwork(object):
             result = None
 
         return result['weight']
+
+    def artists_iter(self):
+        for id1 in self._graph.nodes_iter():
+            if "a_" in id1:
+                yield id1
+
+    def tags_iter(self):
+        for id1 in self._graph.nodes_iter():
+            if "t_" in id1:
+                yield id1
+
+    def users_iter(self):
+        for id1 in self._graph.nodes_iter():
+            if "u_" in id1:
+                yield id1
 
     def artists_sharing_more_tags(self, artist_id):
         raise False
