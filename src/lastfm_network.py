@@ -1,6 +1,4 @@
 import networkx as nx
-import pandas as pd
-import numpy as np
 import pdb
 import os.path
 import os
@@ -15,20 +13,26 @@ class LastfmNetwork(object):
         # multilayer graph to hold the entire data
         self._graph = nx.Graph(directed=False)
         if os.path.isfile("network.net"):
+            start = time.clock()
+
             self._graph = nx.Graph(nx.read_pajek("network.net"))
+            print "network readed in t:{}".format(time.clock() - start)
         else:
             self._build_user_friends(user_friends)
             self._build_user_artists(user_artists)
-            self._build_user_taggedartists(user_taggedartists)
-            nx.write_pajek(self._graph, "network.net")
+            self._build_user_tag_artists(user_taggedartists)
+            # nx.write_pajek(self._graph, "network.net")
 
-        print self._graph.size()
+        # print self._graph.size()
 
     def key_user(self, id):
         return "u_{}".format(id)
 
     def key_artist(self, id):
         return "a_{}".format(id)
+
+    def key_tag(self, id):
+        return "t_{}".format(id)
 
     def _build_user_friends(self, user_friends):
         processed = {}
@@ -58,34 +62,23 @@ class LastfmNetwork(object):
 
                 processed[ka] = v2
 
-            self._graph.add_edge(ku, ka, weight=weight)
+            self._graph.add_edge(ku, ka, weight=weight, type='ua')
 
-    def _build_user_taggedartists(self, user_taggedartists):
-        processed = {}
+    def _build_user_tag_artists(self, user_taggedartists):
         tags = user_taggedartists.groupby('tagID').groups
-        n_tags = len(tags)
+        start = time.clock()
         for tag in tags:
+            kt = self.key_tag(tag)
+            self._graph.add_node(kt)
             artists = tags[tag]
-            n = len(artists)
-            print("processing tag {}/{}"
-                  "n_artists {} n_artists^2:{}"
-                  ).format(tag, n_tags, n, n**2)
-            start = time.clock()
-            for i in range(0, len(artists)):
-                for j in range(i + 1, len(artists)):
-                    k = self.key_artist(artists[i])
-                    k2 = self.key_artist(artists[j])
-                    both = "{}{}".format(k, k2)
-                    if both in processed:
-                        # if self._graph.has_edge(k, k2):
-                        self._graph[k][k2]['weight'] += 1
-                    else:
-                        processed[both] = 1
-                        self._graph.add_edge(k, k2, weight=1)
 
-            print "processed t: {}".format(time.clock() - start)
+            for aid in artists:
+                ka = self.key_artist(aid)
+                self._graph.add_edge(kt, ka, type='ta')
+        print "network processed in t:{}".format(time.clock() - start)
 
     def friends(self, user_id1, user_id2):
+        print "friends"
         return self._graph.has_edge(
             self.key_user(user_id1),
             self.key_user(user_id2)
@@ -93,6 +86,7 @@ class LastfmNetwork(object):
 
     def times_user_listen_artist(self, user_id, artist_id):
         # returns the weight between user_id and artists id
+        print "times_user_listen_artist"
         ku = self.key_user(user_id)
         ka = self.key_artist(artist_id)
         try:
@@ -102,3 +96,16 @@ class LastfmNetwork(object):
             result = None
 
         return result['weight']
+
+    def artists_sharing_more_tags(self, artist_id):
+        raise False
+        # ka = self.key_artist(artist_id)
+        # while True:
+        #     # edges artist_id - user_id | tag_id
+        #     for _, _id in self._graph.edges_iter(ka):
+        #         ee = self._graph[ka][_id]
+        #         if ee['type'] == 'ta':  # tag-artist edge
+        #             tag_id = _id
+        #             artists_of_tag = self._graph[tag_id].keys
+
+        #             pdb.set_trace()
