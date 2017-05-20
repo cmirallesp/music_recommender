@@ -9,6 +9,8 @@ class TestLastfmNetwork(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.lastfm_net = LastfmNetwork(
+            artists=pd.read_table('../data/artists.dat'),
+            tags=pd.read_table('../data/tags.dat'),
             user_friends=pd.read_table('../data/user_friends.dat'),
             user_artists=pd.read_table('../data/user_artists.dat'),
             user_taggedartists=pd.read_table('../data/user_taggedartists.dat')
@@ -27,6 +29,10 @@ class TestLastfmNetwork(unittest.TestCase):
 
     def test_artits_sharing_more_tags(self):
         self.lastfm_net.artists_sharing_more_tags(53)
+
+    # def test_draw(self):
+    #     self.lastfm_net.draw()
+
 
 if __name__ == '__main__':
     unittest.main()

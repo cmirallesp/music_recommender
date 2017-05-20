@@ -1,17 +1,32 @@
+import logging
+from logging import info
+from sets import Set
+import numpy as np
 import networkx as nx
-import pdb
-import os.path
-import os
+
 import time
+import matplotlib.pyplot as plt
+import pdb
 
 
 class LastfmNetwork(object):
     """docstring for LastfmNetwork"""
 
-    def __init__(self, user_friends, user_artists, user_taggedartists):
+    def __init__(self, artists, tags,
+                 user_friends, user_artists, user_taggedartists):
         super(LastfmNetwork, self).__init__()
+        logging.basicConfig(filename='logging.log',
+                            level=logging.DEBUG,
+                            format=('%(asctime)-15s'
+                                    '%(funcName)s %(message)s'))
+
         # multilayer graph to hold the entire data
         self._graph = nx.Graph(directed=False)
+
+        self.artists_id = Set([aid for aid in artists['id']])
+        self.users_id = np.unique(user_friends['userID'].as_matrix())
+        self.tags_id = Set([tid for tid in tags['tagID']])
+
         self._build_user_friends(user_friends)
         self._build_user_artists(user_artists)
         self._build_user_tag_artists(user_taggedartists)
@@ -31,32 +46,31 @@ class LastfmNetwork(object):
         return "t_{}".format(id)
 
     def _build_user_friends(self, user_friends):
-        processed = {}
         for uid, fid in user_friends.values:
+            if uid not in self.users_id:
+                info("User not found: {}".format(uid))
+                continue
+            if fid not in self.users_id:
+                info("User friend not found: {}".format(uid))
+                continue
+
             k = self.key_user(uid)
             k2 = self.key_user(fid)
-
-            if k not in processed:
-                self._graph.add_node(k, type="user")
-                processed[k] = k
-
-            if k2 not in processed:
-                self._graph.add_node(k2, type="user")
-                processed[k2] = k2
 
             self._graph.add_edge(k, k2, type='uu')
 
     def _build_user_artists(self, user_artists):
-        processed = {}
         for uid, aid, weight in user_artists.values:
+            if uid not in self.users_id:
+                info("User not found: {}".format(uid))
+                continue
+
+            if aid not in self.artists_id:
+                info("Artist not found:{}".format(aid))
+                continue
+
             ku = self.key_user(uid)
             ka = self.key_artist(aid)
-
-            if ka not in processed:
-                self._graph.add_node(ka, type="artist")
-                v2 = self._graph.node[ka]
-
-                processed[ka] = v2
 
             self._graph.add_edge(ku, ka, weight=weight, type='ua')
 
@@ -84,15 +98,21 @@ class LastfmNetwork(object):
         for tag in tags:
             kt = self.key_tag(tag)
             self._graph.add_node(kt)
-            artists = tags[tag]
+            uta_rows = tags[tag]
+
+            artists = user_taggedartists.iloc[uta_rows]['artistID']
 
             for aid in artists:
+                if aid not in self.artists_id:
+                    info("Artist not found:{}".format(aid))
+                    continue
+
                 ka = self.key_artist(aid)
                 self._graph.add_edge(kt, ka, type='ta')
-        print "network processed in t:{}".format(time.clock() - start)
+        info("network processed in t:{}".format(time.clock() - start))
 
     def friends(self, user_id1, user_id2):
-        print "friends"
+        info("friends")
         return self._graph.has_edge(
             self.key_user(user_id1),
             self.key_user(user_id2)
@@ -100,7 +120,7 @@ class LastfmNetwork(object):
 
     def times_user_listen_artist(self, user_id, artist_id):
         # returns the weight between user_id and artists id
-        print "times_user_listen_artist"
+        info("times_user_listen_artist")
         ku = self.key_user(user_id)
         ka = self.key_artist(artist_id)
         try:
@@ -125,6 +145,13 @@ class LastfmNetwork(object):
         for id1 in self._graph.nodes_iter():
             if "u_" in id1:
                 yield id1
+
+    def draw(self):
+        print "=====>1"
+        nx.draw(self._graph)
+        print "=====>2"
+        plt.show()
+        # plt.save("plots/network.png")
 
     def artists_sharing_more_tags(self, artist_id):
         raise False
