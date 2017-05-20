@@ -30,29 +30,61 @@ class LastfmNetwork(object):
                                     '%(funcName)s %(message)s'))
 
         # multilayer graph to hold the entire data
-        self._graph = nx.Graph(directed=False)
+        self._graph = nx.DiGraph()
 
         self.artists_id = Set([aid for aid in artists['id']])
-        self.users_id = np.unique(user_friends['userID'].as_matrix())
+        self.users_id = Set(np.unique(user_friends['userID'].as_matrix()))
         self.tags_id = Set([tid for tid in tags['tagID']])
 
         self._build_user_friends(user_friends)
         self._build_user_artists(user_artists)
-        self._build_user_tag_artists(user_taggedartists)
+        # self._build_user_tag_artists(user_taggedartists)
+        self._normalize_weights_friendship()
         # nx.write_pajek(self._graph, "network.net")
 
         # print self._graph.size()
     def network(self):
         return self._graph
 
-    def key_user(self, id):
-        return "u_{}".format(id)
+    def key_user(self, _id):
+        if isinstance(_id, str) and "u_" in _id:
+            return _id
+        else:
+            return "u_{}".format(_id)
 
-    def key_artist(self, id):
-        return "a_{}".format(id)
+    def key_artist(self, _id):
+        if isinstance(_id, str) and "a_" in _id:
+            return _id
+        else:
+            return "a_{}".format(_id)
 
-    def key_tag(self, id):
-        return "t_{}".format(id)
+    def key_tag(self, _id):
+        if isinstance(_id, str) and "t_" in str(_id):
+            return _id
+        else:
+            return "t_{}".format(_id)
+
+    def _normalize_weights_friendship(self):
+        for uid in self.users_iter():
+            friend_ids = list(self.my_friends_iter(uid))
+            N = len(friend_ids) * 1.
+            for f_id in friend_ids:
+                self._graph[uid][f_id]['weight'] /= N
+
+    def _normalize_weights_listeners(self):
+        for aid in self.artists_iter():
+            sum_ = 0
+            for uid in self.my_listeners_iter(aid):
+                sum_ += self._graph[aid][uid]['weight']
+
+            for user_id in self.my_listeners_iter(aid):
+                self._graph[aid][user_id]['weight'] /= sum_
+
+    def _normalize_weights_my_artists(self):
+        for uid in self.users_iter():
+            sum_ = self.total_my_artists_weights(uid)
+            for artist_id in self.my_artists_iter(uid):
+                self._graph[uid][artist_id] /= sum_
 
     def _build_user_friends(self, user_friends):
         for uid, fid in user_friends.values:
@@ -66,7 +98,7 @@ class LastfmNetwork(object):
             k = self.key_user(uid)
             k2 = self.key_user(fid)
 
-            self._graph.add_edge(k, k2, type='uu')
+            self._graph.add_edge(k, k2, weight=1., type='uu')
 
     def _build_user_artists(self, user_artists):
         for uid, aid, weight in user_artists.values:
@@ -82,24 +114,7 @@ class LastfmNetwork(object):
             ka = self.key_artist(aid)
 
             self._graph.add_edge(ku, ka, weight=weight, type='ua')
-
-    # def _build_user_taggedartists(self, user_taggedartists):
-    #     tags = user_taggedartists.tagID.unique()
-
-    #     for tag in tags:
-    #         print "processing tag:{}/{}".format(tag, len(tags))
-    #         # Obtain subtables of artists that share the same tag
-    #         subtable = user_taggedartists.loc[user_taggedartists['tagID'] == tag]
-    #         for _, aid1, _, _, _, _ in subtable.values:
-    #             for _, aid2, _, _, _, _ in subtable.values:
-    #                 if aid1 != aid2:
-    #                     k = self.key_artist(aid1)
-    #                     k2 = self.key_artist(aid2)
-
-    #                     if self._graph.has_edge(k, k2):
-    #                         self._graph[k][k2]['weight'] += 1
-    #                     else:
-    #                         self._graph.add_edge(k, k2, weight=1)
+            self._graph.add_edge(ka, ku, weight=weight, type='au')
 
     def _build_user_tag_artists(self, user_taggedartists):
         tags = user_taggedartists.groupby('tagID').groups
@@ -120,12 +135,83 @@ class LastfmNetwork(object):
                 self._graph.add_edge(kt, ka, type='ta')
         info("network processed in t:{}".format(time.clock() - start))
 
-    def friends(self, user_id1, user_id2):
-        info("friends")
+    def listeners_weight(self, artist_id, user_id):
+        id1 = self.key_artist(artist_id)
+        id2 = self.key_user(user_id)
+        return self._edge_weight(id1, id2)
+
+    def number_of_listeners(self, artist_id):
+        return len(list(self.my_listeners_iter(self.key_artist(artist_id))))
+
+    def total_my_artists_weights(self, user_id):
+        sum_ = 0
+        for artist_id in self.my_artists_iter(user_id):
+            sum_ += self._graph[user_id][artist_id]['weight']
+        return sum_
+
+    def friendship_weight(self, u1_id, u2_id):
+        id1 = self.key_user(u1_id)
+        id2 = self.key_user(u2_id)
+        return self._edge_weight(id1, id2)
+
+    def number_of_friends(self, user_id):
+        return len(list(self.my_friends_iter(user_id)))
+
+    def _edge_weight(self, n1_id, n2_id):
+        if not self._graph.has_edge(n1_id, n2_id):
+            return None
+        else:
+            return self._graph[n1_id][n2_id]['weight']
+
+    def are_friends(self, user_id1, user_id2):
+        info("are_friends")
         return self._graph.has_edge(
             self.key_user(user_id1),
             self.key_user(user_id2)
         )
+
+    def is_my_listener(self, artist_id, user_id):
+        info("is_my_listener")
+        return self.key_user(user_id) in list(self.my_listeners_iter(artist_id))
+
+    def is_my_artist(self, user_id, artist_id):
+        info("is_my_artist")
+        return self.key_artist(artist_id) in list(self.my_artists_iter(user_id))
+
+    def _my_edges(self, node_id, prefix):
+        # given a node_id in the network returns an iterator
+        # of nodes connected to me with the passed prefix (=u_|a_|t_)
+        info("_my_edges")
+
+        if self._graph.has_node(node_id):
+            for _id in self._graph.edge[node_id]:
+                if prefix in _id:
+                    yield _id
+
+    def my_friends_iter(self, user_id):
+        info("my_friends_iter")
+        for friend_id in self._my_edges(self.key_user(user_id), "u_"):
+            yield friend_id
+
+    def my_listeners_iter(self, artist_id):
+        info("my_listeners_iter")
+        for user_id in self._my_edges(self.key_artist(artist_id), "u_"):
+            yield user_id
+
+    def my_artists_iter(self, user_id):
+        info("my_artists_iter")
+        for artist_id in self._my_edges(self.key_user(user_id), "a_"):
+            yield artist_id
+
+    def check_friendship(self):
+        ok = True
+        for uid_1 in self.users_iter():
+            for uid_2 in self.my_friends_iter(uid_1):
+                if not self._graph.has_edge(uid_2, uid_1):
+                    info("{}-{} but not {}-{}".format(uid_1, uid_2,
+                                                      uid_2, uid_1))
+                    ok = False
+        return ok
 
     def times_user_listen_artist(self, user_id, artist_id):
         # returns the weight between user_id and artists id
@@ -155,14 +241,12 @@ class LastfmNetwork(object):
             if "u_" in id1:
                 yield id1
 
+# DEGREES PER TYPE
     def degree_artist_tag(self, artist_id):
         return self._degree(artist_id, "t_")
 
     def degree_artist_user(self, artist_id):
         return self._degree(artist_id, "u_")
-
-    def degree_tag_tag(self, tag_id):
-        return self._degree(tag_id, "t_")
 
     def degree_tag_artist(self, tag_id):
         return self._degree(tag_id, "a_")
@@ -182,20 +266,7 @@ class LastfmNetwork(object):
 
     def draw(self):
         print "=====>1"
-        nx.draw(self._graph)
+        nx.draw_random(self._graph)
         print "=====>2"
-        plt.show()
-        # plt.save("plots/network.png")
-
-    def artists_sharing_more_tags(self, artist_id):
-        raise False
-        # ka = self.key_artist(artist_id)
-        # while True:
-        #     # edges artist_id - user_id | tag_id
-        #     for _, _id in self._graph.edges_iter(ka):
-        #         ee = self._graph[ka][_id]
-        #         if ee['type'] == 'ta':  # tag-artist edge
-        #             tag_id = _id
-        #             artists_of_tag = self._graph[tag_id].keys
-
-        #             pdb.set_trace()
+        # plt.show()
+        plt.savefig("plots/network.png")
