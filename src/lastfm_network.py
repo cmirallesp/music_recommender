@@ -3,14 +3,23 @@ from logging import info
 from sets import Set
 import numpy as np
 import networkx as nx
-
 import time
 import matplotlib.pyplot as plt
+import pandas as pd
 import pdb
 
 
 class LastfmNetwork(object):
     """docstring for LastfmNetwork"""
+    @classmethod
+    def instance(cls):
+        return cls(
+            artists=pd.read_table('../data/artists.dat'),
+            tags=pd.read_table('../data/tags.dat'),
+            user_friends=pd.read_table('../data/user_friends.dat'),
+            user_artists=pd.read_table('../data/user_artists.dat'),
+            user_taggedartists=pd.read_table('../data/user_taggedartists.dat')
+        )
 
     def __init__(self, artists, tags,
                  user_friends, user_artists, user_taggedartists):
@@ -145,6 +154,31 @@ class LastfmNetwork(object):
         for id1 in self._graph.nodes_iter():
             if "u_" in id1:
                 yield id1
+
+    def degree_artist_tag(self, artist_id):
+        return self._degree(artist_id, "t_")
+
+    def degree_artist_user(self, artist_id):
+        return self._degree(artist_id, "u_")
+
+    def degree_tag_tag(self, tag_id):
+        return self._degree(tag_id, "t_")
+
+    def degree_tag_artist(self, tag_id):
+        return self._degree(tag_id, "a_")
+
+    def degree_user_user(self, user_id):
+        return self._degree(user_id, "u_")
+
+    def degree_user_artist(self, user_id):
+        return self._degree(user_id, "a_")
+
+    def _degree(self, id1, prefix):
+        degree = 0
+        for id2 in self._graph.edge[id1]:
+            if prefix in id2:
+                degree += 1
+        return degree
 
     def draw(self):
         print "=====>1"
