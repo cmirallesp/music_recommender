@@ -39,13 +39,26 @@ class TestLastfmNetwork(unittest.TestCase):
         self.assertEqual(1. / self.lastfm_net.number_of_friends(2),
                          self.lastfm_net.friendship_weight(2, 275))
 
-    def test_listeners_weight(self):
-        self.assertTrue(self.lastfm_net.is_my_listener(18730, 2100))
+    def test_my_artists_weight(self):
+        # Ensure that networks normalized weights have been normalized
+        # after being created
+        self.assertTrue(self.lastfm_net.is_my_artist(2100, 18730))
         self.assertEqual(
             (self.lastfm_net.ua_weight(2100, 18730) /
                 self.lastfm_net.total_my_artists_weights(2100)
              ),
             self.lastfm_net.ua_normalized_weight(2100, 18730)
+        )
+
+    def test_my_listeners_weight(self):
+        # Ensure that networks normalized weights have been normalized
+        # after being created
+        self.assertTrue(self.lastfm_net.is_my_listener(18730, 2100))
+        self.assertEqual(
+            (self.lastfm_net.au_weight(18730, 2100) /
+                self.lastfm_net.total_my_listeners_weights(18730)
+             ),
+            self.lastfm_net.au_normalized_weight(18730, 2100)
         )
 
 if __name__ == '__main__':
