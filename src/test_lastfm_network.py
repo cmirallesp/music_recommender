@@ -36,7 +36,7 @@ class TestLastfmNetwork(unittest.TestCase):
 
     def test_friendship_normalized_weights(self):
         # ensure that normalized weights of the user 2 sums 1
-        sum_ = sum(list(self.lastfm_net.user_user_normalized_weights(2)))
+        sum_ = sum(list(self.lastfm_net.user_user_normalized_weights_iter(2)))
         self.assertEqual(1.0, round(sum_))
 
     def test_friendship_weight(self):
@@ -81,8 +81,10 @@ class TestLastfmNetwork(unittest.TestCase):
         )
 
     def test_my_tags_normalized_weights(self):
-        # Ensure that normalized weights of the tag 12648 sums 1
-        sum_ = sum(list(self.lastfm_net.artist_tags_normalized_weights_iter(12648)))
+        # Ensure that normalized weights of the artist 12648 sums 1
+        sum_ = sum(list(
+            self.lastfm_net.artist_tags_normalized_weights_iter(12648)
+        ))
         self.assertEqual(1.0, round(sum_))
 
     def test_my_tags_normalized_weight(self):
@@ -92,6 +94,22 @@ class TestLastfmNetwork(unittest.TestCase):
                 self.lastfm_net.total_artist_tags_weights(16437)
              ),
             self.lastfm_net.artist_tag_normalized_weight(16437, 3335)
+        )
+
+    def test_tags_artists_normalized_weights(self):
+        # Ensure that normalized weights of the tag 3335 sums 1
+        sum_ = sum(list(
+            self.lastfm_net.tags_artists_normalized_weights_iter(3335)
+        ))
+        self.assertEqual(1.0, round(sum_))
+
+    def test_tags_normalized_weight(self):
+        self.assertTrue(self.lastfm_net.is_my_artist_2(3335, 16437))
+        self.assertEqual(
+            (self.lastfm_net.tag_artist_weight(3335, 16437) /
+                self.lastfm_net.total_tag_artists_weights(3335)
+             ),
+            self.lastfm_net.tag_artist_normalized_weight(3335, 16437)
         )
 
 if __name__ == '__main__':
