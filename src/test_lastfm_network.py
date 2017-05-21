@@ -37,7 +37,7 @@ class TestLastfmNetwork(unittest.TestCase):
     def test_friendship_weight(self):
         self.assertTrue(self.lastfm_net.are_friends(2, 275))
         self.assertEqual(1. / self.lastfm_net.number_of_friends(2),
-                         self.lastfm_net.friendship_weight(2, 275))
+                         self.lastfm_net.friendship_normalized_weight(2, 275))
 
     def test_my_artists_weight(self):
         # Ensure that networks normalized weights have been normalized

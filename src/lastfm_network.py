@@ -25,7 +25,7 @@ class LastfmNetwork(object):
                  user_friends, user_artists, user_taggedartists):
         super(LastfmNetwork, self).__init__()
         logging.basicConfig(filename='logging.log',
-                            level=logging.DEBUG,
+                            level=logging.WARNING,
                             format=('%(asctime)-15s'
                                     '%(funcName)s %(message)s'))
 
@@ -38,7 +38,8 @@ class LastfmNetwork(object):
 
         self._build_user_friends(user_friends)
         self._build_user_artists(user_artists)
-        # self._build_user_tag_artists(user_taggedartists)
+        self._build_user_tag_artists(user_taggedartists)
+
         self._normalize_weights_friendship()
         self._normalize_weights_my_artists()
         self._normalize_weights_my_listeners()
@@ -69,9 +70,10 @@ class LastfmNetwork(object):
     def _normalize_weights_friendship(self):
         for uid in self.users_iter():
             friend_ids = list(self.my_friends_iter(uid))
-            N = len(friend_ids) * 1.
+            N = len(friend_ids)
             for f_id in friend_ids:
-                self._graph[uid][f_id]['weight'] /= N
+                w = self.friendship_weight(uid, f_id)
+                self._graph[uid][f_id]['norm_weight'] = w / N
 
     def _normalize_weights_my_listeners(self):
         # For each artist in the network normlizes their weights
@@ -183,6 +185,11 @@ class LastfmNetwork(object):
         id1 = self.key_user(u1_id)
         id2 = self.key_user(u2_id)
         return self._edge_weight(id1, id2)
+
+    def friendship_normalized_weight(self, u1_id, u2_id):
+        id1 = self.key_user(u1_id)
+        id2 = self.key_user(u2_id)
+        return self._edge_normalized_weight(id1, id2)
 
     def number_of_friends(self, user_id):
         return len(list(self.my_friends_iter(user_id)))
