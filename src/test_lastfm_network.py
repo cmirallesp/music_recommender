@@ -41,9 +41,12 @@ class TestLastfmNetwork(unittest.TestCase):
 
     def test_listeners_weight(self):
         self.assertTrue(self.lastfm_net.is_my_listener(18730, 2100))
-        self.assertEqual(1. / self.lastfm_net.total_my_artists_weights(18730),
-                         self.lastfm_net.listeners_weight(18730, 2100)
-                         )
+        self.assertEqual(
+            (self.lastfm_net.ua_weight(2100, 18730) /
+                self.lastfm_net.total_my_artists_weights(2100)
+             ),
+            self.lastfm_net.ua_normalized_weight(2100, 18730)
+        )
 
 if __name__ == '__main__':
     unittest.main()

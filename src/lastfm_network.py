@@ -40,6 +40,7 @@ class LastfmNetwork(object):
         self._build_user_artists(user_artists)
         # self._build_user_tag_artists(user_taggedartists)
         self._normalize_weights_friendship()
+        self._normalize_weights_my_artists()
         # nx.write_pajek(self._graph, "network.net")
 
         # print self._graph.size()
@@ -78,13 +79,16 @@ class LastfmNetwork(object):
                 sum_ += self._graph[aid][uid]['weight']
 
             for user_id in self.my_listeners_iter(aid):
-                self._graph[aid][user_id]['weight'] /= sum_
+                weight = self._graph[aid][user_id]['weight']
+                self._graph[aid][user_id]['norm_weight'] = weight / sum_
 
     def _normalize_weights_my_artists(self):
         for uid in self.users_iter():
             sum_ = self.total_my_artists_weights(uid)
+            info("s:{}, ma:{}".format(sum_, list(self.my_artists_iter(uid))))
             for artist_id in self.my_artists_iter(uid):
-                self._graph[uid][artist_id] /= sum_
+                weight = self._graph[uid][artist_id]['weight']
+                self._graph[uid][artist_id]['norm_weight'] = weight / sum_
 
     def _build_user_friends(self, user_friends):
         for uid, fid in user_friends.values:
@@ -135,18 +139,38 @@ class LastfmNetwork(object):
                 self._graph.add_edge(kt, ka, type='ta')
         info("network processed in t:{}".format(time.clock() - start))
 
-    def listeners_weight(self, artist_id, user_id):
+    def au_weight(self, artist_id, user_id):
         id1 = self.key_artist(artist_id)
         id2 = self.key_user(user_id)
         return self._edge_weight(id1, id2)
+
+    def ua_weight(self, user_id, artist_id):
+        id1 = self.key_user(user_id)
+        id2 = self.key_artist(artist_id)
+        return self._edge_weight(id1, id2)
+
+    def ua_normalized_weight(self, user_id, artist_id):
+        id1 = self.key_user(user_id)
+        id2 = self.key_artist(artist_id)
+        return self._edge_normalized_weight(id1, id2)
 
     def number_of_listeners(self, artist_id):
         return len(list(self.my_listeners_iter(self.key_artist(artist_id))))
 
     def total_my_artists_weights(self, user_id):
         sum_ = 0
+        k_user_id = self.key_user(user_id)
         for artist_id in self.my_artists_iter(user_id):
-            sum_ += self._graph[user_id][artist_id]['weight']
+            sum_ += self._edge_weight(k_user_id, artist_id)
+
+        return sum_
+
+    def total_my_listeners_weights(self, artist_id):
+        sum_ = 0
+        for user_id in self.my_listeners_iter(artist_id):
+            sum_ += self._edge_weight(artist_id, user_id)
+        info("s:{}, ma:{}".format(sum_,
+                                  list(self.my_listeners_iter(artist_id))))
         return sum_
 
     def friendship_weight(self, u1_id, u2_id):
@@ -157,12 +181,6 @@ class LastfmNetwork(object):
     def number_of_friends(self, user_id):
         return len(list(self.my_friends_iter(user_id)))
 
-    def _edge_weight(self, n1_id, n2_id):
-        if not self._graph.has_edge(n1_id, n2_id):
-            return None
-        else:
-            return self._graph[n1_id][n2_id]['weight']
-
     def are_friends(self, user_id1, user_id2):
         info("are_friends")
         return self._graph.has_edge(
@@ -172,11 +190,31 @@ class LastfmNetwork(object):
 
     def is_my_listener(self, artist_id, user_id):
         info("is_my_listener")
-        return self.key_user(user_id) in list(self.my_listeners_iter(artist_id))
+        _uid = self.key_user(user_id)
+        for uid in self.my_listeners_iter(artist_id):
+            if _uid == uid:
+                return True
+        return False
 
     def is_my_artist(self, user_id, artist_id):
         info("is_my_artist")
-        return self.key_artist(artist_id) in list(self.my_artists_iter(user_id))
+        _aid = self.key_artist(artist_id)
+        for aid in self.my_artists_iter(user_id):
+            if _aid == aid:
+                return True
+        return False
+
+    def _edge_weight(self, id1, id2):
+        if not self._graph.has_edge(id1, id2):
+            return None
+        else:
+            return self._graph[id1][id2]['weight']
+
+    def _edge_normalized_weight(self, id1, id2):
+        if not self._graph.has_edge(id1, id2):
+            return None
+        else:
+            return self._graph[id1][id2]['norm_weight']
 
     def _my_edges(self, node_id, prefix):
         # given a node_id in the network returns an iterator
@@ -192,6 +230,11 @@ class LastfmNetwork(object):
         info("my_friends_iter")
         for friend_id in self._my_edges(self.key_user(user_id), "u_"):
             yield friend_id
+
+        def artists_weight(self, user_id, artist_id):
+            id1 = self.key_user(user_id)
+            id2 = self.key_artist(artist_id)
+            return self._edge_weight(id1, id2)
 
     def my_listeners_iter(self, artist_id):
         info("my_listeners_iter")
