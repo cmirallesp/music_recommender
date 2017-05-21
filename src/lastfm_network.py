@@ -43,6 +43,7 @@ class LastfmNetwork(object):
         self._normalize_weights_friendship()
         self._normalize_weights_my_artists()
         self._normalize_weights_my_listeners()
+
         # nx.write_pajek(self._graph, "network.net")
 
         # print self._graph.size()
@@ -161,6 +162,18 @@ class LastfmNetwork(object):
         id1 = self.key_user(user_id)
         id2 = self.key_artist(artist_id)
         return self._edge_normalized_weight(id1, id2)
+
+    def my_listeners_normalized_weights(self, artist_id):
+        for uid in self.my_listeners_iter(artist_id):
+            yield self.au_normalized_weight(artist_id, uid)
+
+    def my_artists_normalized_weights(self, user_id):
+        for aid in self.my_artists_iter(user_id):
+            yield self.ua_normalized_weight(user_id, aid)
+
+    def my_friendship_normalized_weights(self, user_id):
+        for fid in self.my_friends_iter(user_id):
+            yield self.friendship_normalized_weight(user_id, fid)
 
     def number_of_listeners(self, artist_id):
         return len(list(self.my_listeners_iter(self.key_artist(artist_id))))
