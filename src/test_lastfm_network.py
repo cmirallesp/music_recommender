@@ -80,6 +80,19 @@ class TestLastfmNetwork(unittest.TestCase):
             self.lastfm_net.artist_user_normalized_weight(18730, 2100)
         )
 
+    def test_my_tags_normalized_weights(self):
+        # Ensure that normalized weights of the tag 12648 sums 1
+        sum_ = sum(list(self.lastfm_net.artist_tags_normalized_weights_iter(12648)))
+        self.assertEqual(1.0, round(sum_))
+
+    def test_my_tags_normalized_weight(self):
+        self.assertTrue(self.lastfm_net.is_my_tag(16437, 3335))
+        self.assertEqual(
+            (self.lastfm_net.artist_tag_weight(16437, 3335) /
+                self.lastfm_net.total_artist_tags_weights(16437)
+             ),
+            self.lastfm_net.artist_tag_normalized_weight(16437, 3335)
+        )
 
 if __name__ == '__main__':
     unittest.main()

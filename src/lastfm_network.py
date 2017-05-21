@@ -43,7 +43,7 @@ class LastfmNetwork(object):
         self._normalize_weights_friendship()
         self._normalize_weights_my_artists()
         self._normalize_weights_my_listeners()
-
+        self._normalize_weights_my_tags()
         # nx.write_pajek(self._graph, "network.net")
 
         # print self._graph.size()
@@ -94,14 +94,21 @@ class LastfmNetwork(object):
                 weight = self.user_artist_weight(uid, artist_id)
                 self._graph[uid][artist_id]['norm_weight'] = weight / sum_
 
-    def _nromalize_weights_my_tags(self):
-        # For each artist in the network normalizes their wieghts
-        # with respect to their tags
-        for aid in self.artits_iter():
-            sum_ = self.total_my_tags_weights(aid)
+    def _normalize_weights_my_tags(self):
+        # set the weight in absoulte
+        for aid in self.artists_iter():
             for tag_id in self.artist_tags_iter(aid):
-                weight = self.at_weight(aid)
-                self._graph[aid][tag_id]['nowm_weight'] = weight / sum_
+                n_artists = len(list(self.tag_artists_iter(tag_id)))
+                # the weight of an edge artist-tag is the
+                #  number of artists associated to the tag
+                self._graph[aid][tag_id]['weight'] = n_artists
+        # normalized weight
+        for aid in self.artists_iter():
+            sum_ = self.total_artist_tags_weights(aid)
+            for tag_id in self.artist_tags_iter(aid):
+                self._graph[aid][tag_id]['norm_weight'] = (
+                    self._graph[aid][tag_id]['weight'] / sum_
+                )
 
     def _build_user_friends(self, user_friends):
         for uid, fid in user_friends.values:
@@ -150,6 +157,7 @@ class LastfmNetwork(object):
 
                 ka = self.key_artist(aid)
                 self._graph.add_edge(kt, ka, type='ta')
+                self._graph.add_edge(ka, kt, type='at')
         info("network processed in t:{}".format(time.clock() - start))
 
     def artist_user_weight(self, artist_id, user_id):
@@ -172,6 +180,11 @@ class LastfmNetwork(object):
         id2 = self.key_tag(tag_id)
         return self._edge_weight(id1, id2)
 
+    def artist_tag_normalized_weight(self, artist_id, tag_id):
+        id1 = self.key_artist(artist_id)
+        id2 = self.key_tag(tag_id)
+        return self._edge_normalized_weight(id1, id2)
+
     def user_artist_normalized_weight(self, user_id, artist_id):
         id1 = self.key_user(user_id)
         id2 = self.key_artist(artist_id)
@@ -184,6 +197,10 @@ class LastfmNetwork(object):
     def user_artist_normalized_weights_iter(self, user_id):
         for aid in self.user_artists_iter(user_id):
             yield self.user_artist_normalized_weight(user_id, aid)
+
+    def artist_tags_normalized_weights_iter(self, tag_id):
+        for aid in self.artist_tags_iter(tag_id):
+            yield self.artist_tag_normalized_weight(tag_id, aid)
 
     def user_user_normalized_weights(self, user_id):
         for fid in self.user_user_iter(user_id):
@@ -205,6 +222,14 @@ class LastfmNetwork(object):
         k_artist_id = self.key_artist(artist_id)
         for k_user_id in self.artist_users_iter(artist_id):
             sum_ += self._edge_weight(k_artist_id, k_user_id)
+
+        return sum_
+
+    def total_artist_tags_weights(self, artist_id):
+        sum_ = 0
+        k_artist_id = self.key_artist(artist_id)
+        for tags_id in self.artist_tags_iter(artist_id):
+            sum_ += self._edge_weight(k_artist_id, tags_id)
 
         return sum_
 
@@ -236,10 +261,17 @@ class LastfmNetwork(object):
         return False
 
     def is_my_artist(self, user_id, artist_id):
-
         _aid = self.key_artist(artist_id)
         for aid in self.user_artists_iter(user_id):
             if _aid == aid:
+                return True
+        return False
+
+    def is_my_tag(self, artist_id, tag_id):
+        _tid = self.key_tag(tag_id)
+
+        for tid in self.artist_tags_iter(artist_id):
+            if _tid == tid:
                 return True
         return False
 
@@ -282,7 +314,7 @@ class LastfmNetwork(object):
             yield artist_id
 
     def artist_tags_iter(self, artist_id):
-        for tag_id in self._my_edges(self.key_tag(artist_id), 't_'):
+        for tag_id in self._my_edges(self.key_artist(artist_id), 't_'):
             yield tag_id
 
     def artists_iter(self):
