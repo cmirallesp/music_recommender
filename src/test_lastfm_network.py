@@ -1,6 +1,7 @@
 from lastfm_network import *
 
 import unittest
+from random_walk import RandomWalker
 
 
 class TestLastfmNetwork(unittest.TestCase):
@@ -118,6 +119,14 @@ class TestLastfmNetwork(unittest.TestCase):
         sum_friends = sum(list(self.lastfm_net.user_user_walking_weights_iter(2)))
         sum_artists = sum(list(self.lastfm_net.user_artist_walking_weights_iter(2)))
         self.assertEqual(1.0, round(sum_friends+sum_artists))
+        
+    def test_betweenness_returned(self):
+        # Ensure that the random walker returns a non-empty dictionary.
+        source = [5]
+        targets = [10, 20, 30]
+        rw = RandomWalker(self.lastfm_net._graph, source, targets)
+        bets = rw.centralities()
+        self.assertTrue(bets is dict and len(bets)>0)
 
 if __name__ == '__main__':
     unittest.main()
