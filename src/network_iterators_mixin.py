@@ -49,13 +49,32 @@ class NetworkIteratorsMixin(object):
             yield self.artist_tag_normalized_weight(tag_id, aid)
 
     def tags_artists_normalized_weights_iter(self, tag_id):
-
         for aid in self.tag_artists_iter(tag_id):
             yield self.tag_artist_normalized_weight(tag_id, aid)
 
     def user_user_normalized_weights_iter(self, user_id):
         for fid in self.user_user_iter(user_id):
             yield self.user_user_normalized_weight(user_id, fid)
+            
+    def artist_user_walking_weights_iter(self, artist_id):
+        for uid in self.artist_users_iter(artist_id):
+            yield self.artist_user_walking_weight(artist_id, uid)
+
+    def user_artist_walking_weights_iter(self, user_id):
+        for aid in self.user_artists_iter(user_id):
+            yield self.user_artist_walking_weight(user_id, aid)
+
+    def artist_tags_walking_weights_iter(self, tag_id):
+        for aid in self.artist_tags_iter(tag_id):
+            yield self.artist_tag_walking_weight(tag_id, aid)
+
+    def tags_artists_walking_weights_iter(self, tag_id):
+        for aid in self.tag_artists_iter(tag_id):
+            yield self.tag_artist_walking_weight(tag_id, aid)
+
+    def user_user_walking_weights_iter(self, user_id):
+        for fid in self.user_user_iter(user_id):
+            yield self.user_user_walking_weight(user_id, fid)
 
     def _my_edges(self, node_id, prefix):
         # given a node_id in the network returns an iterator

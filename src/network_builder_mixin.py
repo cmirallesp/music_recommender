@@ -16,16 +16,20 @@ class NetworkBuilderMixin(object):
             N = len(friend_ids)
             for f_id in friend_ids:
                 w = self.user_user_weight(uid, f_id)
-                self._graph[uid][f_id]['norm_weight'] = w / N
-
+                norm_w = w / N
+                self._graph[uid][f_id]['norm_weight'] = norm_w
+                self._graph[uid][f_id]['walking_weight'] = norm_w * self.r  
+                
     def _normalize_weights_artist_user(self):
-        # For each artist in the network normlizes their weights
+        # For each artist in the network normalizes their weights
         # with respect to their listeners
         for aid in self.artists_iter():
             sum_ = self.total_artist_users_weights(aid)
             for user_id in self.artist_users_iter(aid):
                 weight = self.artist_user_weight(aid, user_id)
-                self._graph[aid][user_id]['norm_weight'] = weight / sum_
+                norm_w = weight / sum_
+                self._graph[aid][user_id]['norm_weight'] = norm_w
+                self._graph[aid][user_id]['walking_weight'] = norm_w
 
     def _normalize_weights_user_artist(self):
         # For each user in the network normalizes their weights
@@ -34,7 +38,9 @@ class NetworkBuilderMixin(object):
             sum_ = self.total_user_artists_weights(uid)
             for artist_id in self.user_artists_iter(uid):
                 weight = self.user_artist_weight(uid, artist_id)
-                self._graph[uid][artist_id]['norm_weight'] = weight / sum_
+                norm_w = weight / sum_
+                self._graph[uid][artist_id]['norm_weight'] = norm_w
+                self._graph[uid][artist_id]['walking_weight'] = norm_w * (1-self.r)
 
     def _normalize_weights_artist_tag(self):
         # set the absoulte weight
@@ -51,9 +57,12 @@ class NetworkBuilderMixin(object):
                 self._graph[aid][tag_id]['norm_weight'] = (
                     self._graph[aid][tag_id]['weight'] / sum_
                 )
+                self._graph[aid][tag_id]['walking_weight'] = (
+                    self._graph[aid][tag_id]['norm_weight']
+                )
 
     def _normalize_weights_tag_artist(self):
-        # set the absoulte weight
+        # set the absolute weight
         for tid in self.tags_iter():
             for aid in self.tag_artists_iter(tid):
                 listened = self.total_artist_users_weights(aid)
@@ -63,6 +72,9 @@ class NetworkBuilderMixin(object):
             for aid in self.tag_artists_iter(tid):
                 self._graph[tid][aid]['norm_weight'] = (
                     self._graph[tid][aid]['weight'] / sum_
+                )
+                self._graph[tid][aid]['walking_weight'] = (
+                    self._graph[tid][aid]['norm_weight']
                 )
 
     def _build_user_friends(self, user_friends):

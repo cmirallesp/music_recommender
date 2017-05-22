@@ -111,6 +111,13 @@ class TestLastfmNetwork(unittest.TestCase):
              ),
             self.lastfm_net.tag_artist_normalized_weight(3335, 16437)
         )
+        
+    def test_user_walking_weights(self):
+        # Ensure that walking weights of all edges going from user 2
+        # sum 1 (both user-artist and user-user)
+        sum_friends = sum(list(self.lastfm_net.user_user_walking_weights_iter(2)))
+        sum_artists = sum(list(self.lastfm_net.user_artist_walking_weights_iter(2)))
+        self.assertEqual(1.0, round(sum_friends+sum_artists))
 
 if __name__ == '__main__':
     unittest.main()

@@ -25,7 +25,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         )
 
     def __init__(self, artists, tags,
-                 user_friends, user_artists, user_taggedartists):
+                 user_friends, user_artists, user_taggedartists, r=0.1):
         super(LastfmNetwork, self).__init__()
         logging.basicConfig(filename='logging.log',
                             level=logging.WARNING,
@@ -38,7 +38,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         else:
             # multilayer graph to hold the entire data
             self._graph = nx.DiGraph()
-
+            self.r = r
             self.artists_id = Set([aid for aid in artists['id']])
             self.users_id = Set(np.unique(user_friends['userID'].as_matrix()))
             self.tags_id = Set([tid for tid in tags['tagID']])
@@ -52,6 +52,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             self._normalize_weights_artist_user()
             self._normalize_weights_artist_tag()
             self._normalize_weights_tag_artist()
+            
             nx.nx.write_gpickle(self._graph, "network.pickle")
             # nx.write_pajek(self._graph, "network.net")
 
@@ -86,6 +87,11 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         id1 = self.key_artist(artist_id)
         id2 = self.key_user(user_id)
         return self._edge_normalized_weight(id1, id2)
+    
+    def artist_user_walking_weight(self, artist_id, user_id):
+        id1 = self.key_artist(artist_id)
+        id2 = self.key_user(user_id)
+        return self._edge_walking_weight(id1, id2)
 
     def user_artist_weight(self, user_id, artist_id):
         id1 = self.key_user(user_id)
@@ -106,16 +112,31 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         id1 = self.key_artist(artist_id)
         id2 = self.key_tag(tag_id)
         return self._edge_normalized_weight(id1, id2)
+    
+    def artist_tag_walking_weight(self, artist_id, tag_id):
+        id1 = self.key_artist(artist_id)
+        id2 = self.key_tag(tag_id)
+        return self._edge_walking_weight(id1, id2)
 
     def tag_artist_normalized_weight(self, tag_id, artist_id):
         id1 = self.key_tag(tag_id)
         id2 = self.key_artist(artist_id)
         return self._edge_normalized_weight(id1, id2)
+    
+    def tag_artist_walking_weight(self, tag_id, artist_id):
+        id1 = self.key_tag(tag_id)
+        id2 = self.key_artist(artist_id)
+        return self._edge_walking_weight(id1, id2)
 
     def user_artist_normalized_weight(self, user_id, artist_id):
         id1 = self.key_user(user_id)
         id2 = self.key_artist(artist_id)
         return self._edge_normalized_weight(id1, id2)
+    
+    def user_artist_walking_weight(self, user_id, artist_id):
+        id1 = self.key_user(user_id)
+        id2 = self.key_artist(artist_id)
+        return self._edge_walking_weight(id1, id2)
 
     def number_of_listeners(self, artist_id):
         return len(list(self.artist_users_iter(self.key_artist(artist_id))))
@@ -161,6 +182,11 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         id1 = self.key_user(u1_id)
         id2 = self.key_user(u2_id)
         return self._edge_normalized_weight(id1, id2)
+    
+    def user_user_walking_weight(self, u1_id, u2_id):
+        id1 = self.key_user(u1_id)
+        id2 = self.key_user(u2_id)
+        return self._edge_walking_weight(id1, id2)
 
     def number_of_friends(self, user_id):
         return len(list(self.user_user_iter(user_id)))
@@ -212,6 +238,12 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             return None
         else:
             return self._graph[id1][id2]['norm_weight']
+        
+    def _edge_walking_weight(self, id1, id2):
+        if not self._graph.has_edge(id1, id2):
+            return None
+        else:
+            return self._graph[id1][id2]['walking_weight']
 
     def check_friendship(self):
         ok = True
