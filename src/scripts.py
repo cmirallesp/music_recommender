@@ -7,3 +7,10 @@ artists = pd.read_table('../data/artists.dat')
 
 g = user_taggedartists[["userID", "artistID", "tagID"]].groupby(["userID", "artistID", "tagID"])
 g.filter(lambda x: len(x) > 1)
+
+g = user_taggedartists[["artistID", "tagID"]].groupby(["artistID", "tagID"])
+g.filter(lambda x: len(x) > 1)
+
+
+from lastfm_network import LastfmNetwork
+net = LastfmNetwork.instance()

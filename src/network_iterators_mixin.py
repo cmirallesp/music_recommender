@@ -55,7 +55,7 @@ class NetworkIteratorsMixin(object):
     def user_user_normalized_weights_iter(self, user_id):
         for fid in self.user_user_iter(user_id):
             yield self.user_user_normalized_weight(user_id, fid)
-            
+
     def artist_user_walking_weights_iter(self, artist_id):
         for uid in self.artist_users_iter(artist_id):
             yield self.artist_user_walking_weight(artist_id, uid)

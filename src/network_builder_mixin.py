@@ -18,8 +18,8 @@ class NetworkBuilderMixin(object):
                 w = self.user_user_weight(uid, f_id)
                 norm_w = w / N
                 self._graph[uid][f_id]['norm_weight'] = norm_w
-                self._graph[uid][f_id]['walking_weight'] = norm_w * self.r  
-                
+                self._graph[uid][f_id]['walking_weight'] = norm_w * self.r
+
     def _normalize_weights_artist_user(self):
         # For each artist in the network normalizes their weights
         # with respect to their listeners
@@ -40,42 +40,28 @@ class NetworkBuilderMixin(object):
                 weight = self.user_artist_weight(uid, artist_id)
                 norm_w = weight / sum_
                 self._graph[uid][artist_id]['norm_weight'] = norm_w
-                self._graph[uid][artist_id]['walking_weight'] = norm_w * (1-self.r)
+                self._graph[uid][artist_id]['walking_weight'] = norm_w * (1 - self.r)
 
     def _normalize_weights_artist_tag(self):
         # set the absoulte weight
         for aid in self.artists_iter():
-            for tag_id in self.artist_tags_iter(aid):
-                n_artists = len(list(self.tag_artists_iter(tag_id)))
-                # the weight of an edge artist-tag is the
-                #  number of artists associated to the tag
-                self._graph[aid][tag_id]['weight'] = n_artists
-        # normalized weight
-        for aid in self.artists_iter():
             sum_ = self.total_artist_tags_weights(aid)
             for tag_id in self.artist_tags_iter(aid):
-                self._graph[aid][tag_id]['norm_weight'] = (
-                    self._graph[aid][tag_id]['weight'] / sum_
-                )
-                self._graph[aid][tag_id]['walking_weight'] = (
-                    self._graph[aid][tag_id]['norm_weight']
-                )
+                weight = self.artist_tag_weight(aid, tag_id)
+                norm_w = weight / sum_
+
+                self._graph[aid][tag_id]['norm_weight'] = norm_w
+                self._graph[aid][tag_id]['walking_weight'] = norm_w
 
     def _normalize_weights_tag_artist(self):
         # set the absolute weight
         for tid in self.tags_iter():
-            for aid in self.tag_artists_iter(tid):
-                listened = self.total_artist_users_weights(aid)
-                self._graph[tid][aid]['weight'] = listened
-        for tid in self.tags_iter():
             sum_ = self.total_tag_artists_weights(tid)
             for aid in self.tag_artists_iter(tid):
-                self._graph[tid][aid]['norm_weight'] = (
-                    self._graph[tid][aid]['weight'] / sum_
-                )
-                self._graph[tid][aid]['walking_weight'] = (
-                    self._graph[tid][aid]['norm_weight']
-                )
+                weight = self.tag_artist_weight(tid, aid)
+                norm_w = weight / sum_
+                self._graph[tid][aid]['norm_weight'] = norm_w
+                self._graph[tid][aid]['walking_weight'] = norm_w
 
     def _build_user_friends(self, user_friends):
         for uid, fid in user_friends.values:
@@ -108,21 +94,22 @@ class NetworkBuilderMixin(object):
             self._graph.add_edge(ka, ku, weight=weight, type='au')
 
     def _build_user_tag_artists(self, user_taggedartists):
-        tags = user_taggedartists.groupby('tagID').groups
         start = time.clock()
-        for tag in tags:
+        tags_artists = user_taggedartists.groupby(['tagID', 'artistID']).groups
+
+        for (tag, artist) in tags_artists:
+
             kt = self.key_tag(tag)
             self._graph.add_node(kt)
-            uta_rows = tags[tag]
 
-            artists = user_taggedartists.iloc[uta_rows]['artistID']
+            if artist not in self.artists_id:
+                info("Artist not found:{}".format(artist))
+                continue
 
-            for aid in artists:
-                if aid not in self.artists_id:
-                    info("Artist not found:{}".format(aid))
-                    continue
+            weight = tags_artists[(tag, artist)].shape[0]
 
-                ka = self.key_artist(aid)
-                self._graph.add_edge(kt, ka, type='ta')
-                self._graph.add_edge(ka, kt, type='at')
+            ka = self.key_artist(artist)
+            self._graph.add_edge(kt, ka, weight=weight, type='ta')
+            self._graph.add_edge(ka, kt, weight=weight, type='at')
+
         info("network processed in t:{}".format(time.clock() - start))

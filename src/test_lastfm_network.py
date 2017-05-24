@@ -112,21 +112,30 @@ class TestLastfmNetwork(unittest.TestCase):
              ),
             self.lastfm_net.tag_artist_normalized_weight(3335, 16437)
         )
-        
+
+    def test_tag_artist_weight(self):
+        self.assertTrue(self.lastfm_net.is_my_artist_2(4365, 8322))
+        self.assertEqual(3, self.lastfm_net.tag_artist_weight(4365, 8322))
+
     def test_user_walking_weights(self):
         # Ensure that walking weights of all edges going from user 2
         # sum 1 (both user-artist and user-user)
-        sum_friends = sum(list(self.lastfm_net.user_user_walking_weights_iter(2)))
-        sum_artists = sum(list(self.lastfm_net.user_artist_walking_weights_iter(2)))
-        self.assertEqual(1.0, round(sum_friends+sum_artists))
-        
+        sum_friends = sum(
+            list(self.lastfm_net.user_user_walking_weights_iter(2))
+        )
+        sum_artists = sum(
+            list(self.lastfm_net.user_artist_walking_weights_iter(2))
+        )
+        self.assertEqual(1.0, round(sum_friends + sum_artists))
+
     def test_betweenness_returned(self):
         # Ensure that the random walker returns a non-empty dictionary.
         source = [5]
         targets = [10, 20, 30]
         rw = RandomWalker(self.lastfm_net._graph, source, targets)
         bets = rw.centralities()
-        self.assertTrue(bets is dict and len(bets)>0)
+        self.assertTrue(bets is dict and len(bets) > 0)
+
 
 if __name__ == '__main__':
     unittest.main()
