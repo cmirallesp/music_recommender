@@ -31,7 +31,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
                             level=logging.WARNING,
                             format=('%(asctime)-15s'
                                     '%(funcName)s %(message)s'))
-
+        self._artists_tags = None
         if os.path.isfile('network.pickle'):
             # self._graph = nx.read_pajek("network.net")
             self._graph = nx.read_gpickle("network.pickle")
@@ -293,6 +293,27 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             if prefix in id2:
                 degree += 1
         return degree
+
+    def disconnected_tags(self):
+        result = []
+        for tid in self.tags_iter():
+            if nx.degree(self._graph, tid) == 0:
+                result.append(tid)
+        return result
+
+    def disconnected_artists(self):
+        result = []
+        for aid in self.artists_iter():
+            if nx.degree(self._graph, aid) == 0:
+                result.append(aid)
+        return result
+
+    def disconnected_users(self):
+        result = []
+        for uid in self.users_iter():
+            if nx.degree(self._graph, uid) == 0:
+                result.append(uid)
+        return result
 
     def draw(self):
         print "=====>1"
