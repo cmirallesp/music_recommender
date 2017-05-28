@@ -1,0 +1,80 @@
+\documentclass[12pt]{article}
+%\usepackage[english]{babel}
+%\usepackage{natbib}
+\usepackage{url}
+%\usepackage[utf8x]{inputenc}
+%\usepackage{amsmath}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+%\usepackage{parskip}
+\usepackage{fancyhdr}
+\usepackage{vmargin}
+\setmarginsrb{3 cm}{2.5 cm}{3 cm}{2.5 cm}{1 cm}{1.5 cm}{1 cm}{1.5 cm}
+
+\title{Music Recommender}								% Title
+\author{Guillermo,
+	Javier,
+	Carles Miralles
+}
+\date{\today}											% Date
+
+\makeatletter
+\let\thetitle\@title
+\let\theauthor\@author
+\let\thedate\@date
+\makeatother
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\theauthor}
+\lhead{\thetitle}
+\cfoot{\thepage}
+
+\begin{document}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{titlepage}
+	\centering
+%    \vspace*{0.2 cm}
+    \includegraphics[scale = 0.5]{logo.jpg}\\[1.0 cm]	% University Logo
+    \textsc{\LARGE Master in Artificial Intelligence}\\[1 cm]	% University Name
+	\textsc{\Large UPC-UB-URV}\\[0.5 cm]				% Course Code
+
+	\rule{\linewidth}{0.2 mm} \\[0.4 cm]
+	{ \huge \bfseries \thetitle}\\
+	\rule{\linewidth}{0.2 mm} \\[1.25 cm]
+
+
+	
+	\begin{minipage}[centering]{1\textwidth}
+		\centering
+		\large
+		\emph{Authors:}\\
+		Guillermo Bernárdez \\
+		Carles Miralles \\
+		Javier Jorba\\
+	\end{minipage}\\[1cm]
+	
+	{\large\thedate}\\
+ 
+	\vfill
+	
+\end{titlepage}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\tableofcontents
+\pagebreak
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Intro}
+
+\hspace{1 cm}
+
+\newpage
+\bibliographystyle{plain}
+\bibliography{biblist}
+
+\end{document}
