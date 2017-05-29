@@ -106,7 +106,7 @@ class NetworkBuilderMixin(object):
                 info("Artist not found:{}".format(artist))
                 continue
 
-            weight = tags_artists[(tag, artist)].shape[0]
+            weight = len(tags_artists[(tag, artist)])
 
             ka = self.key_artist(artist)
             self._graph.add_edge(kt, ka, weight=weight, type='ta')
