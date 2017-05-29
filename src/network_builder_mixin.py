@@ -116,6 +116,32 @@ class NetworkBuilderMixin(object):
         
     def _calculate_user_similarities(self):
         self.user_similarities = np.zeros((len(self.users_id), len(self.users_id)))
+        for i, u1 in enumerate(self.users_iter()):
+            print i
+            for j, u2 in enumerate(self.users_iter()):
+                if j>i:
+                    break
+                elif j==i:
+                    self.user_similarities[i][j] = 1
+                else:
+                    self.user_similarities[i][j] = self._sim(u1,u2, self.user_artists_iter)
     
     def _calculate_tag_similarities(self):
         self.tag_similarities = np.zeros((len(self.tags_id), len(self.tags_id)))
+        for i, t1 in enumerate(self.tags_iter()):
+            print i
+            for j, t2 in enumerate(self.tags_iter()):
+                if j>i:
+                    break
+                elif j==i:
+                    self.tag_similarities[i][j] = 1
+                else:
+                    self.tag_similarities[i][j] = self._sim(t1,t2, self.tag_artists_iter)
+        
+    def _sim(self, elem1, elem2, members_iter):
+        cluster1 = set(members_iter(elem1))
+        cluster2 = set(members_iter(elem2))
+        inter = len(cluster1.intersection(cluster2))
+        diff1 = len(cluster1.difference(cluster2))
+        diff2 = len(cluster2.difference(cluster1))
+        return inter * 1.0 / (inter + diff1 + diff2)
