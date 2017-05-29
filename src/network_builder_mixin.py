@@ -1,4 +1,4 @@
-
+import numpy as np
 from logging import info
 import time
 
@@ -106,10 +106,16 @@ class NetworkBuilderMixin(object):
                 info("Artist not found:{}".format(artist))
                 continue
 
-            weight = tags_artists[(tag, artist)].shape[0]
+            weight = len(tags_artists[(tag, artist)])
 
             ka = self.key_artist(artist)
             self._graph.add_edge(kt, ka, weight=weight, type='ta')
             self._graph.add_edge(ka, kt, weight=weight, type='at')
 
         info("network processed in t:{}".format(time.clock() - start))
+        
+    def _calculate_user_similarities(self):
+        self.user_similarities = np.zeros((len(self.users_id), len(self.users_id)))
+    
+    def _calculate_tag_similarities(self):
+        self.tag_similarities = np.zeros((len(self.tags_id), len(self.tags_id)))

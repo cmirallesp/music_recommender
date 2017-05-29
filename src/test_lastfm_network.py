@@ -136,6 +136,20 @@ class TestLastfmNetwork(unittest.TestCase):
         bets = rw.centralities()
         self.assertTrue(bets is dict and len(bets) > 0)
 
-
+    def test_similarities_created(self):
+        n_users = len(self.lastfm_net.users_id)
+        self.assertEqual(n_users, self.lastfm_net.user_similarities.shape[0])
+        self.assertEqual(n_users, self.lastfm_net.user_similarities.shape[1])
+        
+        n_tags = len(self.lastfm_net.tags_id)
+        self.assertEqual(n_tags, self.lastfm_net.tag_similarities.shape[0])
+        self.assertEqual(n_tags, self.lastfm_net.tag_similarities.shape[1])
+        
+    def test_similarities_in_01(self):
+        self.assertEqual(0, sum(sum(self.lastfm_net.user_similarities<0)))
+        self.assertEqual(0, sum(sum(self.lastfm_net.user_similarities>1)))
+        self.assertEqual(0, sum(sum(self.lastfm_net.tag_similarities<0)))
+        self.assertEqual(0, sum(sum(self.lastfm_net.tag_similarities>1)))
+        
 if __name__ == '__main__':
     unittest.main()

@@ -32,16 +32,17 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
                             format=('%(asctime)-15s'
                                     '%(funcName)s %(message)s'))
         self._artists_tags = None
+        self.r = r
+        self.artists_id = Set([aid for aid in artists['id']])
+        self.users_id = Set(np.unique(user_friends['userID'].as_matrix()))
+        self.tags_id = Set([tid for tid in tags['tagID']])
+        
         if os.path.isfile('network.pickle'):
             # self._graph = nx.read_pajek("network.net")
             self._graph = nx.read_gpickle("network.pickle")
         else:
             # multilayer graph to hold the entire data
             self._graph = nx.DiGraph()
-            self.r = r
-            self.artists_id = Set([aid for aid in artists['id']])
-            self.users_id = Set(np.unique(user_friends['userID'].as_matrix()))
-            self.tags_id = Set([tid for tid in tags['tagID']])
 
             self._build_user_friends(user_friends)
             self._build_user_artists(user_artists)
@@ -55,8 +56,12 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
 
             nx.nx.write_gpickle(self._graph, "network.pickle")
             # nx.write_pajek(self._graph, "network.net")
-
+            
+        self._calculate_user_similarities()
+        self._calculate_tag_similarities()
+    
         # print self._graph.size()
+        
     def network(self):
         return self._graph
 
