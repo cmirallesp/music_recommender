@@ -1,3 +1,4 @@
+#coding: utf-8
 from network_builder_mixin import NetworkBuilderMixin
 from network_iterators_mixin import NetworkIteratorsMixin
 import logging
@@ -25,12 +26,14 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         )
 
     def __init__(self, artists, tags,
-                 user_friends, user_artists, user_taggedartists, r=0.1):
+                 user_friends, user_artists, user_taggedartists, r=0.1, preprocessing=True):
         super(LastfmNetwork, self).__init__()
         logging.basicConfig(filename='logging.log',
                             level=logging.WARNING,
                             format=('%(asctime)-15s'
                                     '%(funcName)s %(message)s'))
+        if preprocessing:
+            artists, tags, user_taggedartists = self.dataPreprocessing(artists, tags, user_taggedartists)
         self._artists_tags = None
         self.r = r
         self.artists_id = Set([aid for aid in artists['id']])
@@ -61,6 +64,53 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         self._calculate_tag_similarities()
     
         # print self._graph.size()
+        # nx.write_pajek(self._graph, "network.net")
+        # print self._graph.size()
+        
+    def dataPreprocessing(self, artists, tags, user_taggedartists):
+        # There are artistIDs that appear at user_taggedartists but not in artists; 
+        #we detect and remove these unknown artistIDs from user_taggedartists
+        knownArtists = pd.Series(artists.id.values, index=artists.id).to_dict()
+        user_taggedartists['artistID'] = user_taggedartists['artistID'].apply(lambda x: self.detectUnknownArtists(x, knownArtists))
+        user_taggedartists = user_taggedartists[user_taggedartists.artistID != -1]
+
+        # remove rows whose tag year is smaller than 2000 (outliers?)
+        user_taggedartists = user_taggedartists[user_taggedartists['year']>=2000]
+        
+        # tag preprocessing, removing whitespaces and symbols
+        tags['tagValue'] = tags['tagValue'].map(lambda x: self.tagPreprocessing(x))
+        
+        # group the tagIDs of the tags that ended up being the same into a single tagID
+        # we create a dictionary that performs this mapping
+        dictionaryTagIDs = {}
+        for tagValueIDs in tags.groupby(['tagValue']).groups.values():
+            for tagID in tagValueIDs:
+                dictionaryTagIDs[tagID]=tagValueIDs[0]
+        # apply the dictionary to user_taggedartists 
+        user_taggedartists['tagID'] = user_taggedartists['tagID'].apply(lambda x: self.applyDictionaryTagIDs(x, dictionaryTagIDs))
+        
+        return artists, tags, user_taggedartists
+        
+    def tagPreprocessing(self, tag):
+        #write every tag in lower case
+        tag = tag.lower()
+        #remove punctuation marks, symbols, whitespaces
+        punct_to_remove = list(' #%&\*+/<=>-\\^{|}~()[]:;\'`¡.,¿?!') # + ['\r', '\n', '\t'] 
+        for ch in punct_to_remove:
+            tag = tag.replace(ch, '')
+        return tag
+    
+    def applyDictionaryTagIDs(self, tagID, dictionarytagIDs):
+        try:
+            return dictionarytagIDs[tagID]
+        except:
+            return tagID
+        
+    def detectUnknownArtists(self, artistID, knownArtists):
+        try:
+            return knownArtists[artistID]
+        except:
+            return -1
         
     def network(self):
         return self._graph
