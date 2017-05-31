@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sp
 from logging import info
 import time
 
@@ -115,28 +116,43 @@ class NetworkBuilderMixin(object):
         info("network processed in t:{}".format(time.clock() - start))
         
     def _calculate_user_similarities(self):
-        self.user_similarities = np.zeros((len(self.users_id), len(self.users_id)))
+        #t1 = time.time()
+        user_sim_dense = np.zeros((len(self.users_id), len(self.users_id)))
         for i, u1 in enumerate(self.users_iter()):
-            print i
             for j, u2 in enumerate(self.users_iter()):
                 if j>i:
                     break
                 elif j==i:
-                    self.user_similarities[i][j] = 1
+                    user_sim_dense[i][j] = 1
                 else:
-                    self.user_similarities[i][j] = self._sim(u1,u2, self.user_artists_iter)
-    
-    def _calculate_tag_similarities(self):
-        self.tag_similarities = np.zeros((len(self.tags_id), len(self.tags_id)))
-        for i, t1 in enumerate(self.tags_iter()):
-            print i
-            for j, t2 in enumerate(self.tags_iter()):
+                    user_sim_dense[i][j] = self._sim(u1,u2, self.user_artists_iter)
+        self.user_similarities = sp.sparse.lil_matrix(user_sim_dense)
+        '''self.user_similarities = sp.sparse.lil_matrix((len(self.users_id), len(self.users_id)))
+        for i, u1 in enumerate(self.users_iter()):
+            for j, u2 in enumerate(self.users_iter()):
                 if j>i:
                     break
                 elif j==i:
-                    self.tag_similarities[i][j] = 1
+                    self.user_similarities[i,j] = 1
                 else:
-                    self.tag_similarities[i][j] = self._sim(t1,t2, self.tag_artists_iter)
+                    s = self._sim(u1,u2, self.user_artists_iter)
+                    if s>0:
+                        self.user_similarities[i,j] = s'''
+        #t2 = time.time()
+        #print t2-t1, 's'
+    
+    def _calculate_tag_similarities(self):
+        self.tag_similarities = sp.sparse.lil_matrix((len(self.tags_id), len(self.tags_id)))
+        for i, u1 in enumerate(self.tags_iter()):
+            for j, u2 in enumerate(self.tags_iter()):
+                if j>i:
+                    break
+                elif j==i:
+                    self.tag_similarities[i,j] = 1
+                else:
+                    s = self._sim(u1,u2, self.tag_artists_iter)
+                    if s>0:
+                        self.tag_similarities[i,j] = s
         
     def _sim(self, elem1, elem2, members_iter):
         cluster1 = set(members_iter(elem1))
