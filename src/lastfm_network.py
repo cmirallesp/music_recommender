@@ -65,6 +65,8 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             
             self._calculate_user_similarities()
             self._calculate_tag_similarities()
+            self._calculate_artist_similarities_over_users()
+            self._calculate_artist_similarities_over_tags()
             pickle.dump(self.user_similarities, open("user_sim.pickle", "wb"))
             pickle.dump(self.tag_similarities, open("tag_sim.pickle", "wb"))
     
@@ -329,7 +331,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             result = None
 
         return result['weight']
-
+    
 
 # DEGREES PER TYPE
     def degree_artist_tag(self, artist_id):
