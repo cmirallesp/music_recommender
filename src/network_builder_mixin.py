@@ -157,6 +157,34 @@ class NetworkBuilderMixin(object):
     def _calculate_artist_similarities_over_users(self):
         self.artist_similarities_users = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
     
+    '''    
+    def _calculate_artist_similarities_over_users(self):
+        self.artist_similarities_users = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
+        for i, a1 in enumerate(self.artists_iter()):
+            for j, a2 in enumerate(self.artists_iter()):
+                if j>i:
+                    break
+                elif j==i:
+                    self.artist_similarities_users[i,j] = 1
+                else:
+                    s = self._sim(a1, a2, self.artist_users_iter)
+                    if s>0:
+                        self.artist_similarities_users[i,j] = s
+    
+    def _calculate_artist_similarities_over_tags(self):
+        self.artist_similarities_tags = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
+        for i, a1 in enumerate(self.artists_iter()):
+            for j, a2 in enumerate(self.artists_iter()):
+                if j>i:
+                    break
+                elif j==i:
+                    self.artist_similarities_tags[i,j] = 1
+                else:
+                    s = self._sim(a1, a2, self.artist_tags_iter)
+                    if s>0:
+                        self.artist_similarities_tags[i,j] = s
+    '''
+    
     def _calculate_artist_similarities_over_tags(self):
         self.artist_similarities_tags = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
         
