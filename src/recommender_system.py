@@ -1,11 +1,13 @@
+from lastfm_network import *
+
 class RecommenderSystem(LastfmNetwork):
     
     def recommendation(self, referenceUser, kneighborhood=None, maxSimilarUsers=5):
         '''recommender script: given a userID, retrieves the recommended artists'''
         
         # We create dictionaries to move between node IDs and indices of similarity matrices
-        self.node2indexUserDict = {user: idx for idx,user in enumerate(r.users_iter())}
-        self.node2indexArtistDict = {artist: idx for idx,artist in enumerate(r.artists_iter())}
+        self.node2indexUserDict = {user: idx for idx,user in enumerate(self.users_iter())}
+        self.node2indexArtistDict = {artist: idx for idx,artist in enumerate(self.artists_iter())}
         
         # If requested, we only get the user k-neighborhood. If not, we consider all users.
         if kneighborhood:
@@ -40,6 +42,7 @@ class RecommenderSystem(LastfmNetwork):
             # We combine these candidates with the previously found ones
             candidateArtistList = self.combine_lists_of_candidate_artists(candidateArtistList, candidateArtists)
             
+        candidateArtistList = sorted(candidateArtistList, key=self.get_ordering_key, reverse=True)
         return candidateArtistList
     
     def get_kdistant_neighbors_by_type(self, centralNode, type='uu', k=1):
@@ -69,9 +72,9 @@ class RecommenderSystem(LastfmNetwork):
         '''given two artistIDs, return the computed similarity between them'''
         idx1, idx2 = self.node2indexArtistDict[node1], self.node2indexArtistDict[node2]
         if idx1 > idx2:
-            return self.artist_similarities_users[idx1, idx2]
+            return self.artist_similarities_tags[idx1, idx2]
         else:
-            return self.artist_similarities_users[idx2, idx1]
+            return self.artist_similarities_tags[idx2, idx1]
 
     def get_ordering_key(self, element):
         '''usefut function for obtaining the ordering key of lists of tuples'''
@@ -91,7 +94,7 @@ class RecommenderSystem(LastfmNetwork):
 
     def get_relevant_artists_from_user(self, user, userArtists, maxAccum=0.9):
         '''Retrieves the most listened artists'''
-        weightedUserArtists = [(artist, r._graph.get_edge_data(user,artist)['norm_weight']) 
+        weightedUserArtists = [(artist, self._graph.get_edge_data(user,artist)['norm_weight']) 
                                for artist in userArtists]
         relevantArtists, accum = [], 0.
         for artist, weight in sorted(weightedUserArtists, key=self.get_ordering_key, reverse=True):

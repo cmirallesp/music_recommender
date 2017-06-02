@@ -46,7 +46,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             self._graph = nx.read_gpickle("network.pickle")
             self.user_similarities = pickle.load(open("user_sim.pickle", "rb"))
             self.tag_similarities = pickle.load(open("tag_sim.pickle", "rb"))
-            self.artist_similarities_users = pickle.load(open("artist_sim_users.pickle", "rb"))
+            #self.artist_similarities_users = pickle.load(open("artist_sim_users.pickle", "rb"))
             self.artist_similarities_tags = pickle.load(open("artist_sim_tags.pickle", "rb"))
         else:
             # multilayer graph to hold the entire data
