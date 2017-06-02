@@ -153,11 +153,11 @@ class NetworkBuilderMixin(object):
                     s = self._sim(u1,u2, self.tag_artists_iter)
                     if s>0:
                         self.tag_similarities[i,j] = s
-                        
+    '''                    
     def _calculate_artist_similarities_over_users(self):
         self.artist_similarities_users = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
-    
-    '''    
+    '''
+                        
     def _calculate_artist_similarities_over_users(self):
         self.artist_similarities_users = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
         for i, a1 in enumerate(self.artists_iter()):
@@ -184,14 +184,19 @@ class NetworkBuilderMixin(object):
                     if s>0:
                         self.artist_similarities_tags[i,j] = s
     '''
-    
     def _calculate_artist_similarities_over_tags(self):
         self.artist_similarities_tags = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
-        
+    '''
+                            
     def _sim(self, elem1, elem2, members_iter):
         cluster1 = set(members_iter(elem1))
         cluster2 = set(members_iter(elem2))
         inter = len(cluster1.intersection(cluster2))
         diff1 = len(cluster1.difference(cluster2))
         diff2 = len(cluster2.difference(cluster1))
+        
+        denom = inter + diff1 + diff2
+        if denom==0:
+            # Case where one artist being compared has no tags
+            return 0
         return inter * 1.0 / (inter + diff1 + diff2)

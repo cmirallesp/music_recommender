@@ -12,7 +12,10 @@
 #g = user_taggedartists[["artistID", "tagID"]].groupby(["artistID", "tagID"])
 #g.filter(lambda x: len(x) > 1)
 
+#from lastfm_network import LastfmNetwork
+#net = LastfmNetwork.instance()
 
-from lastfm_network import LastfmNetwork
+from recommender_system import RecommenderSystem
 
-net = LastfmNetwork.instance()
+r = RecommenderSystem.instance()
+r.recommendation('u_1210')
