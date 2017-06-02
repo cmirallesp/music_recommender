@@ -147,6 +147,26 @@ class TestLastfmNetwork(unittest.TestCase):
         self.assertEqual(0, (self.lastfm_net.user_similarities>1).getnnz())
         self.assertEqual(0, (self.lastfm_net.tag_similarities<0).getnnz())
         self.assertEqual(0, (self.lastfm_net.tag_similarities>1).getnnz())
+    
+    '''    
+    def test_user_added_dynamically(self):
+        new_id = max(self.lastfm_net.users_id) + 1
+        self.lastfm_net.add_user([2, 5], {10:12, 20:31})
+        
+        # Network structure checks
+        self.assertTrue(new_id in self.lastfm_net.users_id)
+        self.assertTrue(self.lastfm_net.are_friends(new_id, 2))
+        self.assertTrue(self.lastfm_net.are_friends(new_id, 5))
+        self.assertFalse(self.lastfm_net.are_friends(new_id, 10))
+        self.assertTrue(self.lastfm_net.is_my_listener(10, new_id))
+        self.assertTrue(self.lastfm_net.is_my_artist(new_id, 10))
+        self.assertTrue(self.lastfm_net.is_my_listener(20, new_id))
+        self.assertTrue(self.lastfm_net.is_my_artist(new_id, 20))
+        
+        # Similarity checks
+        last = self.lastfm_net.user_similarities.shape[0]
+        self.assertEqual(0, self.lastfm_net.user_similarities[last,100])
+        self.assertEqual(1, self.lastfm_net.user_similarities[last,last])'''
         
 if __name__ == '__main__':
     unittest.main()

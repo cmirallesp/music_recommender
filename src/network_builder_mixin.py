@@ -195,3 +195,36 @@ class NetworkBuilderMixin(object):
         diff1 = len(cluster1.difference(cluster2))
         diff2 = len(cluster2.difference(cluster1))
         return inter * 1.0 / (inter + diff1 + diff2)
+    
+    def add_user(self, friends, listens):
+        # Update users existing in the system
+        new_id = max(self.users_id) + 1
+        self.users_id.add(new_id)
+        k = self.key_user(new_id)
+        
+        # Add friendship connections
+        for fid in friends:
+            k2 = self.key_user(fid)
+            self._graph.add_edge(k, k2, weight=1., type='uu')
+            
+        # Add listens connections
+        for aid, times in listens.iteritems():
+            ka = self.key_artist(aid)
+            self._graph.add_edge(k, ka, weight=times, type='ua')
+            self._graph.add_edge(ka, k, weight=times, type='au')
+        
+        # Update user similarity matrix
+        self.user_similarities._shape = (self.user_similarities._shape[0]+1, self.user_similarities._shape[1]+1)
+        old_rows = self.user_similarities.rows
+        new_row = np.array([self.user_similarities._shape[0]])
+        new_rows = np.concatenate((old_rows, new_row), 0)
+        self.user_similarities.rows = new_rows
+        for j, user in enumerate(self.users_iter()):
+            if j==self.user_similarities._shape[0]:
+                self.user_similarities[self.user_similarities._shape[0]-1, j] = 1.0
+            else:
+                print j
+                s = self._sim(k, user, self.user_artists_iter)
+                if s>0:
+                    self.user_similarities[self.user_similarities.shape[0]-1,j] = s
+
