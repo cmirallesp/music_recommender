@@ -37,16 +37,16 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             artists, tags, user_taggedartists = self.dataPreprocessing(artists, tags, user_taggedartists)
         self._artists_tags = None
         self.r = r
-        self.artists_id = Set([aid for aid in artists['id']])
-        self.users_id = Set(np.unique(user_friends['userID'].as_matrix()))
-        self.tags_id = Set([tid for tid in tags['tagID']])
+        self.artists_id = list(Set([aid for aid in artists['id']]))
+        self.users_id = list(Set(np.unique(user_friends['userID'].as_matrix())))
+        self.tags_id = list(Set([tid for tid in tags['tagID']]))
         
         if os.path.isfile('network.pickle'):
             # self._graph = nx.read_pajek("network.net")
             self._graph = nx.read_gpickle("network.pickle")
             self.user_similarities = pickle.load(open("user_sim.pickle", "rb"))
             self.tag_similarities = pickle.load(open("tag_sim.pickle", "rb"))
-            self.artist_similarities_users = pickle.load(open("artist_sim_users.pickle", "rb"))
+            #self.artist_similarities_users = pickle.load(open("artist_sim_users.pickle", "rb"))
             self.artist_similarities_tags = pickle.load(open("artist_sim_tags.pickle", "rb"))
         else:
             # multilayer graph to hold the entire data

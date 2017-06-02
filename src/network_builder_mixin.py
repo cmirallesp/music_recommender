@@ -204,7 +204,7 @@ class NetworkBuilderMixin(object):
     def add_user(self, friends, listens):
         # Update users existing in the system
         new_id = max(self.users_id) + 1
-        self.users_id.add(new_id)
+        self.users_id.append(new_id)
         k = self.key_user(new_id)
         
         # Add friendship connections
@@ -219,17 +219,22 @@ class NetworkBuilderMixin(object):
             self._graph.add_edge(ka, k, weight=times, type='au')
         
         # Update user similarity matrix
-        self.user_similarities._shape = (self.user_similarities._shape[0]+1, self.user_similarities._shape[1]+1)
-        old_rows = self.user_similarities.rows
-        new_row = np.array([self.user_similarities._shape[0]])
-        new_rows = np.concatenate((old_rows, new_row), 0)
-        self.user_similarities.rows = new_rows
+        aux_sim = self.user_similarities.copy()
+        aux_sim = aux_sim.tocoo()
+        
+        aux_sim._shape = (self.user_similarities._shape[0]+1, self.user_similarities._shape[1]+1)
+        
         for j, user in enumerate(self.users_iter()):
-            if j==self.user_similarities._shape[0]:
-                self.user_similarities[self.user_similarities._shape[0]-1, j] = 1.0
+            if user==k:
+                s = 1
+                aux_sim.data = np.append(aux_sim.data, s)
+                aux_sim.row = np.append(aux_sim.row, self.user_similarities.shape[0]-1)
+                aux_sim.col = np.append(aux_sim.col, self.user_similarities.shape[1]-1)
             else:
-                print j
                 s = self._sim(k, user, self.user_artists_iter)
-                if s>0:
-                    self.user_similarities[self.user_similarities.shape[0]-1,j] = s
-
+            if s>0:
+                aux_sim.data = np.append(aux_sim.data, s)
+                aux_sim.row = np.append(aux_sim.row, self.user_similarities.shape[0]-1)
+                aux_sim.col = np.append(aux_sim.col, j)
+                
+        self.user_similarities = aux_sim.tolil()
