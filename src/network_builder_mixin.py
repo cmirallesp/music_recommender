@@ -116,55 +116,96 @@ class NetworkBuilderMixin(object):
         info("network processed in t:{}".format(time.clock() - start))
         
     def _calculate_user_similarities(self):
-        user_sim_dense = np.zeros((len(self.users_id), len(self.users_id)))
+        data = []
+        rows = []
+        cols = []
         for i, u1 in enumerate(self.users_id):
             for j, u2 in enumerate(self.users_id):
                 if j>i:
                     break
                 elif j==i:
-                    user_sim_dense[i][j] = 1
+                    data.append(1)
+                    rows.append(i)
+                    cols.append(j)
                 else:
-                    user_sim_dense[i][j] = self._sim(u1,u2, self.user_artists_iter)
-        self.user_similarities = sp.sparse.lil_matrix(user_sim_dense)
+                    s = self._sim(u1,u2, self.user_artists_iter)
+                    if s>0:
+                        data.append(s)
+                        rows.append(i)
+                        cols.append(j)
+        data = np.asarray(data)
+        rows = np.asarray(rows)
+        cols = np.asarray(cols)
+        self.user_similarities = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
     
     def _calculate_tag_similarities(self):
-        self.tag_similarities = sp.sparse.lil_matrix((len(self.tags_id), len(self.tags_id)))
+        data = []
+        rows = []
+        cols = []
         for i, u1 in enumerate(self.tags_id):
             for j, u2 in enumerate(self.tags_id):
                 if j>i:
                     break
                 elif j==i:
-                    self.tag_similarities[i,j] = 1
+                    data.append(1)
+                    rows.append(i)
+                    cols.append(j)
                 else:
                     s = self._sim(u1,u2, self.tag_artists_iter)
                     if s>0:
-                        self.tag_similarities[i,j] = s
+                        data.append(s)
+                        rows.append(i)
+                        cols.append(j)
+        data = np.asarray(data)
+        rows = np.asarray(rows)
+        cols = np.asarray(cols)
+        self.tag_similarities = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
                         
     def _calculate_artist_similarities_over_users(self):
-        self.artist_similarities_users = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
+        data = []
+        rows = []
+        cols = []
         for i, a1 in enumerate(self.artists_id):
             for j, a2 in enumerate(self.artists_id):
                 if j>i:
                     break
                 elif j==i:
-                    self.artist_similarities_users[i,j] = 1
+                    data.append(1)
+                    rows.append(i)
+                    cols.append(j)
                 else:
                     s = self._sim(a1, a2, self.artist_users_iter)
                     if s>0:
-                        self.artist_similarities_users[i,j] = s
+                        data.append(s)
+                        rows.append(i)
+                        cols.append(j)
+        data = np.asarray(data)
+        rows = np.asarray(rows)
+        cols = np.asarray(cols)
+        self.artist_similarities_users = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
     
     def _calculate_artist_similarities_over_tags(self):
-        self.artist_similarities_tags = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
+        data = []
+        rows = []
+        cols = []
         for i, a1 in enumerate(self.artists_id):
             for j, a2 in enumerate(self.artists_id):
                 if j>i:
                     break
                 elif j==i:
-                    self.artist_similarities_tags[i,j] = 1
+                    data.append(1)
+                    rows.append(i)
+                    cols.append(j)
                 else:
                     s = self._sim(a1, a2, self.artist_tags_iter)
                     if s>0:
-                        self.artist_similarities_tags[i,j] = s
+                        data.append(s)
+                        rows.append(i)
+                        cols.append(j)
+        data = np.asarray(data)
+        rows = np.asarray(rows)
+        cols = np.asarray(cols)
+        self.artist_similarities_tags = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
                             
     def _sim(self, elem1, elem2, members_iter):
         cluster1 = set(members_iter(elem1))
