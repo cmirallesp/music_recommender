@@ -6,8 +6,8 @@ class RecommenderSystem(LastfmNetwork):
         '''recommender script: given a userID, retrieves the recommended artists'''
         
         # We create dictionaries to move between node IDs and indices of similarity matrices
-        self.node2indexUserDict = {user: idx for idx,user in enumerate(self.users_iter())}
-        self.node2indexArtistDict = {artist: idx for idx,artist in enumerate(self.artists_iter())}
+        self.node2indexUserDict = {self.key_user(user): idx for idx,user in enumerate(self.users_id)}
+        self.node2indexArtistDict = {self.key_artist(artist): idx for idx,artist in enumerate(self.artists_id)}
         
         # If requested, we only get the user k-neighborhood. If not, we consider all users.
         if kneighborhood:
