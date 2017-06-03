@@ -132,9 +132,9 @@ class TestLastfmNetwork(unittest.TestCase):
         self.assertEqual(n_users, self.lastfm_net.user_similarities.shape[0])
         self.assertEqual(n_users, self.lastfm_net.user_similarities.shape[1])
         
-        n_tags = len(self.lastfm_net.tags_id)
-        self.assertEqual(n_tags, self.lastfm_net.tag_similarities.shape[0])
-        self.assertEqual(n_tags, self.lastfm_net.tag_similarities.shape[1])
+        #n_tags = len(self.lastfm_net.tags_id)
+        #self.assertEqual(n_tags, self.lastfm_net.tag_similarities.shape[0])
+        #self.assertEqual(n_tags, self.lastfm_net.tag_similarities.shape[1])
         
         n_artists = len(self.lastfm_net.artists_id)
         #self.assertEqual(n_artists, self.lastfm_net.artist_similarities_users.shape[0])
@@ -145,8 +145,8 @@ class TestLastfmNetwork(unittest.TestCase):
     def test_similarities_in_01(self):
         self.assertEqual(0, (self.lastfm_net.user_similarities<0).getnnz())
         self.assertEqual(0, (self.lastfm_net.user_similarities>1).getnnz())
-        self.assertEqual(0, (self.lastfm_net.tag_similarities<0).getnnz())
-        self.assertEqual(0, (self.lastfm_net.tag_similarities>1).getnnz())
+        #self.assertEqual(0, (self.lastfm_net.tag_similarities<0).getnnz())
+        #self.assertEqual(0, (self.lastfm_net.tag_similarities>1).getnnz())
         self.assertEqual(0, (self.lastfm_net.artist_similarities_tags<0).getnnz())
         self.assertEqual(0, (self.lastfm_net.artist_similarities_tags>1).getnnz())
     

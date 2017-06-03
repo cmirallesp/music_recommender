@@ -45,7 +45,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             # self._graph = nx.read_pajek("network.net")
             self._graph = nx.read_gpickle("network.pickle")
             self.user_similarities = pickle.load(open("user_sim.pickle", "rb"))
-            self.tag_similarities = pickle.load(open("tag_sim.pickle", "rb"))
+            #self.tag_similarities = pickle.load(open("tag_sim.pickle", "rb"))
             #self.artist_similarities_users = pickle.load(open("artist_sim_users.pickle", "rb"))
             self.artist_similarities_tags = pickle.load(open("artist_sim_tags.pickle", "rb"))
         else:
@@ -66,11 +66,11 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             # nx.write_pajek(self._graph, "network.net")
             
             self._calculate_user_similarities()
-            self._calculate_tag_similarities()
+            #self._calculate_tag_similarities()
             #self._calculate_artist_similarities_over_users()
             self._calculate_artist_similarities_over_tags()
             pickle.dump(self.user_similarities, open("user_sim.pickle", "wb"))
-            pickle.dump(self.tag_similarities, open("tag_sim.pickle", "wb"))
+            #pickle.dump(self.tag_similarities, open("tag_sim.pickle", "wb"))
             #pickle.dump(self.artist_similarities_users, open("artist_sim_users.pickle", "wb"))
             pickle.dump(self.artist_similarities_tags, open("artist_sim_tags.pickle", "wb"))
     

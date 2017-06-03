@@ -116,10 +116,9 @@ class NetworkBuilderMixin(object):
         info("network processed in t:{}".format(time.clock() - start))
         
     def _calculate_user_similarities(self):
-        #t1 = time.time()
         user_sim_dense = np.zeros((len(self.users_id), len(self.users_id)))
-        for i, u1 in enumerate(self.users_iter()):
-            for j, u2 in enumerate(self.users_iter()):
+        for i, u1 in enumerate(self.users_id):
+            for j, u2 in enumerate(self.users_id):
                 if j>i:
                     break
                 elif j==i:
@@ -127,24 +126,11 @@ class NetworkBuilderMixin(object):
                 else:
                     user_sim_dense[i][j] = self._sim(u1,u2, self.user_artists_iter)
         self.user_similarities = sp.sparse.lil_matrix(user_sim_dense)
-        '''self.user_similarities = sp.sparse.lil_matrix((len(self.users_id), len(self.users_id)))
-        for i, u1 in enumerate(self.users_iter()):
-            for j, u2 in enumerate(self.users_iter()):
-                if j>i:
-                    break
-                elif j==i:
-                    self.user_similarities[i,j] = 1
-                else:
-                    s = self._sim(u1,u2, self.user_artists_iter)
-                    if s>0:
-                        self.user_similarities[i,j] = s'''
-        #t2 = time.time()
-        #print t2-t1, 's'
     
     def _calculate_tag_similarities(self):
         self.tag_similarities = sp.sparse.lil_matrix((len(self.tags_id), len(self.tags_id)))
-        for i, u1 in enumerate(self.tags_iter()):
-            for j, u2 in enumerate(self.tags_iter()):
+        for i, u1 in enumerate(self.tags_id):
+            for j, u2 in enumerate(self.tags_id):
                 if j>i:
                     break
                 elif j==i:
@@ -153,15 +139,11 @@ class NetworkBuilderMixin(object):
                     s = self._sim(u1,u2, self.tag_artists_iter)
                     if s>0:
                         self.tag_similarities[i,j] = s
-    '''                    
-    def _calculate_artist_similarities_over_users(self):
-        self.artist_similarities_users = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
-    '''
                         
     def _calculate_artist_similarities_over_users(self):
         self.artist_similarities_users = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
-        for i, a1 in enumerate(self.artists_iter()):
-            for j, a2 in enumerate(self.artists_iter()):
+        for i, a1 in enumerate(self.artists_id):
+            for j, a2 in enumerate(self.artists_id):
                 if j>i:
                     break
                 elif j==i:
@@ -173,8 +155,8 @@ class NetworkBuilderMixin(object):
     
     def _calculate_artist_similarities_over_tags(self):
         self.artist_similarities_tags = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
-        for i, a1 in enumerate(self.artists_iter()):
-            for j, a2 in enumerate(self.artists_iter()):
+        for i, a1 in enumerate(self.artists_id):
+            for j, a2 in enumerate(self.artists_id):
                 if j>i:
                     break
                 elif j==i:
@@ -183,10 +165,6 @@ class NetworkBuilderMixin(object):
                     s = self._sim(a1, a2, self.artist_tags_iter)
                     if s>0:
                         self.artist_similarities_tags[i,j] = s
-    '''
-    def _calculate_artist_similarities_over_tags(self):
-        self.artist_similarities_tags = sp.sparse.lil_matrix((len(self.artists_id), len(self.artists_id)))
-    '''
                             
     def _sim(self, elem1, elem2, members_iter):
         cluster1 = set(members_iter(elem1))
@@ -224,17 +202,11 @@ class NetworkBuilderMixin(object):
         
         aux_sim._shape = (self.user_similarities._shape[0]+1, self.user_similarities._shape[1]+1)
         
-        for j, user in enumerate(self.users_iter()):
-            if user==k:
-                s = 1
-                aux_sim.data = np.append(aux_sim.data, s)
-                aux_sim.row = np.append(aux_sim.row, self.user_similarities.shape[0]-1)
-                aux_sim.col = np.append(aux_sim.col, self.user_similarities.shape[1]-1)
-            else:
-                s = self._sim(k, user, self.user_artists_iter)
+        for j, user in enumerate(self.users_id):
+            s = self._sim(k, user, self.user_artists_iter)
             if s>0:
                 aux_sim.data = np.append(aux_sim.data, s)
-                aux_sim.row = np.append(aux_sim.row, self.user_similarities.shape[0]-1)
+                aux_sim.row = np.append(aux_sim.row, self.user_similarities.shape[0])
                 aux_sim.col = np.append(aux_sim.col, j)
                 
         self.user_similarities = aux_sim.tolil()
