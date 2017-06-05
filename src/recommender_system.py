@@ -1,8 +1,9 @@
 from lastfm_network import *
+import matplotlib.pyplot as plt
 
 class RecommenderSystem(LastfmNetwork):
     
-    def recommendation(self, referenceUser, kneighborhood=None, maxSimilarUsers=5):
+    def recommendation(self, referenceUser, maxReferenceArtists=None, kneighborhood=None, maxSimilarUsers=5):
         '''recommender script: given a userID, retrieves the recommended artists'''
         
         # We create dictionaries to move between node IDs and indices of similarity matrices
@@ -45,6 +46,56 @@ class RecommenderSystem(LastfmNetwork):
         candidateArtistList = sorted(candidateArtistList, key=self.get_ordering_key, reverse=True)
         return candidateArtistList
     
+    def user_recommendation_evaluation(self, referenceUser, maxReferenceArtists=3, recommendationLength=10, relevanceLength=10, kneighborhood=None, maxSimilarUsers=5):
+        '''Evaluates the recommendation of a user'''
+        
+        # We get the most relevant artists from the reference user apart from the ones chosen for the recommendation
+        referenceUserArtists = set(self.get_kdistant_neighbors_by_type(referenceUser, type='ua'))
+        referenceArtists = self.get_relevant_artists_from_user(referenceUser, referenceUserArtists)
+        if maxReferenceArtists >= len(referenceArtists):
+            print 'There are not enough relevant artists to evaluate the recommendation'
+            return -1
+        relevantArtists = set(referenceArtists[maxReferenceArtists:min(maxReferenceArtists+relevanceLength,len(referenceArtists)-1)])
+        
+        # We remove the edges of the reference user not used as a basis for the recommendation
+        nodeConnectionsToRemove = referenceArtists[min(maxReferenceArtists,len(referenceArtists)-1):]
+        connections = self.save_edges(referenceUser, nodeConnectionsToRemove)
+        self._graph.remove_edges_from(connections)
+        
+        # We get the recommendation of the user considering only their 'maxReferenceArtists' most listened artists
+        recommendedArtists = self.recommendation(referenceUser, maxReferenceArtists=maxReferenceArtists, kneighborhood=kneighborhood, maxSimilarUsers=maxSimilarUsers)
+        # We keep the most similar artists found in the recommendation
+        recommendedArtists = set([recommendedArtists[i][0] for i in range(min(recommendationLength, len(recommendedArtists)))]) 
+        
+        # We check how many of these relevant artists the recommendation is able to recover
+        recoveredArtists = relevantArtists.intersection(recommendedArtists)
+        
+        #print len(recoveredArtists)
+        #print recommendedArtists
+        #print relevantArtists
+        
+        # We recover the removed connections for the evaluation
+        self._graph.add_edges_from(connections)
+        
+        return len(recoveredArtists)
+    
+    def recommendation_evaluation(self, maxReferenceArtists=3, recommendationLength=10, relevanceLength=10, kneighborhood=None, maxSimilarUsers=5, numUsers=100):
+        '''Evaluates the recommendation of several users'''
+        recoveries = []
+        for user in self.users_id[0:min(numUsers,len(self.users_id))]:
+            recoveries.append(self.user_recommendation_evaluation(self.key_user(user), maxReferenceArtists=maxReferenceArtists, recommendationLength=recommendationLength, relevanceLength=relevanceLength, kneighborhood=kneighborhood, maxSimilarUsers=maxSimilarUsers))
+        plt.plot(recoveries)
+        plt.title('Relevant artists recovered')
+        plt.show()
+        return recoveries
+    
+    def save_edges(self, referenceNode, listOfNodes):
+        'Stores the edges between referenceNode and those in listOfNodes'
+        edges = []
+        for node in listOfNodes:
+            edges.append((referenceNode, node, self._graph.get_edge_data(referenceNode, node)))
+        return edges
+    
     def get_kdistant_neighbors_by_type(self, centralNode, type='uu', k=1):
         '''return the neighbors of a node up to a distance k 
         specifying the kind of edges to consider'''
@@ -62,11 +113,17 @@ class RecommenderSystem(LastfmNetwork):
     
     def get_user_user_similarity(self, node1, node2):
         '''given two userIDs, return the computed similarity between them'''
+        '''
         idx1, idx2 = self.node2indexUserDict[node1], self.node2indexUserDict[node2]
         if idx1 > idx2:
             return self.user_similarities[idx1, idx2]
         else:
             return self.user_similarities[idx2, idx1]
+        '''
+        cluster1 = set(self.get_kdistant_neighbors_by_type(node1, type='ua'))
+        cluster2 = set(self.get_kdistant_neighbors_by_type(node2, type='ua'))
+        return self._sim_over_clusters(cluster1, cluster2)
+    
 
     def get_artist_artist_similarity(self, node1, node2):
         '''given two artistIDs, return the computed similarity between them'''
@@ -75,9 +132,14 @@ class RecommenderSystem(LastfmNetwork):
             return self.artist_similarities_tags[idx1, idx2]
         else:
             return self.artist_similarities_tags[idx2, idx1]
+        '''
+        cluster1 = set(self.get_kdistant_neighbors_by_type(node1, type='at'))
+        cluster2 = set(self.get_kdistant_neighbors_by_type(node2, type='at'))
+        return self._sim_over_clusters(cluster1, cluster2)
+        '''
 
     def get_ordering_key(self, element):
-        '''usefut function for obtaining the ordering key of lists of tuples'''
+        '''useful function for obtaining the ordering key of lists of tuples'''
         return element[1]
     
     def get_user_similarities(self, centralNode, listOfNodes):

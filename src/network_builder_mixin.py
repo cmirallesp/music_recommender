@@ -210,6 +210,9 @@ class NetworkBuilderMixin(object):
     def _sim(self, elem1, elem2, members_iter):
         cluster1 = set(members_iter(elem1))
         cluster2 = set(members_iter(elem2))
+        return self._sim_over_clusters(cluster1, cluster2)
+    
+    def _sim_over_clusters(self, cluster1, cluster2):
         inter = len(cluster1.intersection(cluster2))
         diff1 = len(cluster1.difference(cluster2))
         diff2 = len(cluster2.difference(cluster1))
@@ -218,7 +221,7 @@ class NetworkBuilderMixin(object):
         if denom==0:
             # Case where one artist being compared has no tags
             return 0
-        return inter * 1.0 / (inter + diff1 + diff2)
+        return inter * 1.0 / denom
     
     def add_user(self, friends, listens):
         # Update users existing in the system
