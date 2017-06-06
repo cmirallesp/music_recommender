@@ -38,6 +38,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
     def artist_similarities_tags(self):
         if self._artist_similarities_tags is None:
             self._artist_similarities_tags = pickle.load(open("artist_sim_tags.pickle", "rb"))
+        return self._artist_similarities_tags
 
     def __init__(self, artists, tags,
                  user_friends, user_artists, user_taggedartists, r=0.1, preprocessing=True):
@@ -76,8 +77,8 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
 
             self._calculate_user_similarities()
             self._calculate_artist_similarities_over_tags()
-            pickle.dump(self.user_similarities, open("user_sim.pickle", "wb"))
-            pickle.dump(self.artist_similarities_tags, open("artist_sim_tags.pickle", "wb"))
+            pickle.dump(self._user_similarities, open("user_sim.pickle", "wb"))
+            pickle.dump(self._artist_similarities_tags, open("artist_sim_tags.pickle", "wb"))
 
         # print self._graph.size()
         # nx.write_pajek(self._graph, "network.net")
