@@ -54,7 +54,8 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         self.artists_id = list(Set([aid for aid in artists['id']]))
         self.users_id = list(Set(np.unique(user_friends['userID'].as_matrix())))
         self.tags_id = list(Set([tid for tid in tags['tagID']]))
-
+        self._user_similarities = None
+        self._artist_similarities_tags = None
         if os.path.isfile('network.pickle'):
             self._graph = nx.read_gpickle("network.pickle")
 
