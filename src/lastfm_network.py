@@ -1,4 +1,4 @@
-#coding: utf-8
+# coding: utf-8
 from network_builder_mixin import NetworkBuilderMixin
 from network_iterators_mixin import NetworkIteratorsMixin
 import logging
@@ -40,7 +40,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         self.artists_id = list(Set([aid for aid in artists['id']]))
         self.users_id = list(Set(np.unique(user_friends['userID'].as_matrix())))
         self.tags_id = list(Set([tid for tid in tags['tagID']]))
-        
+
         if os.path.isfile('network.pickle'):
             # self._graph = nx.read_pajek("network.net")
             self._graph = nx.read_gpickle("network.pickle")
@@ -64,65 +64,65 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
 
             nx.nx.write_gpickle(self._graph, "network.pickle")
             # nx.write_pajek(self._graph, "network.net")
-            
+
             self._calculate_user_similarities()
             self._calculate_tag_similarities()
-            #self._calculate_artist_similarities_over_users()
+            # self._calculate_artist_similarities_over_users()
             self._calculate_artist_similarities_over_tags()
             pickle.dump(self.user_similarities, open("user_sim.pickle", "wb"))
             pickle.dump(self.tag_similarities, open("tag_sim.pickle", "wb"))
             #pickle.dump(self.artist_similarities_users, open("artist_sim_users.pickle", "wb"))
             pickle.dump(self.artist_similarities_tags, open("artist_sim_tags.pickle", "wb"))
-    
+
         # print self._graph.size()
         # nx.write_pajek(self._graph, "network.net")
         # print self._graph.size()
-        
+
     def dataPreprocessing(self, artists, tags, user_taggedartists):
-        # There are artistIDs that appear at user_taggedartists but not in artists; 
-        #we detect and remove these unknown artistIDs from user_taggedartists
+        # There are artistIDs that appear at user_taggedartists but not in artists;
+        # we detect and remove these unknown artistIDs from user_taggedartists
         knownArtists = pd.Series(artists.id.values, index=artists.id).to_dict()
         user_taggedartists['artistID'] = user_taggedartists['artistID'].apply(lambda x: self.detectUnknownArtists(x, knownArtists))
         user_taggedartists = user_taggedartists[user_taggedartists.artistID != -1]
 
         # remove rows whose tag year is smaller than 2000 (outliers?)
-        user_taggedartists = user_taggedartists[user_taggedartists['year']>=2000]
-        
+        user_taggedartists = user_taggedartists[user_taggedartists['year'] >= 2000]
+
         # tag preprocessing, removing whitespaces and symbols
         tags['tagValue'] = tags['tagValue'].map(lambda x: self.tagPreprocessing(x))
-        
+
         # group the tagIDs of the tags that ended up being the same into a single tagID
         # we create a dictionary that performs this mapping
         dictionaryTagIDs = {}
         for tagValueIDs in tags.groupby(['tagValue']).groups.values():
             for tagID in tagValueIDs:
-                dictionaryTagIDs[tagID]=tagValueIDs[0]
-        # apply the dictionary to user_taggedartists 
+                dictionaryTagIDs[tagID] = tagValueIDs[0]
+        # apply the dictionary to user_taggedartists
         user_taggedartists['tagID'] = user_taggedartists['tagID'].apply(lambda x: self.applyDictionaryTagIDs(x, dictionaryTagIDs))
-        
+
         return artists, tags, user_taggedartists
-        
+
     def tagPreprocessing(self, tag):
-        #write every tag in lower case
+        # write every tag in lower case
         tag = tag.lower()
-        #remove punctuation marks, symbols, whitespaces
-        punct_to_remove = list(' #%&\*+/<=>-\\^{|}~()[]:;\'`¡.,¿?!') # + ['\r', '\n', '\t'] 
+        # remove punctuation marks, symbols, whitespaces
+        punct_to_remove = list(' #%&\*+/<=>-\\^{|}~()[]:;\'`¡.,¿?!')  # + ['\r', '\n', '\t']
         for ch in punct_to_remove:
             tag = tag.replace(ch, '')
         return tag
-    
+
     def applyDictionaryTagIDs(self, tagID, dictionarytagIDs):
         try:
             return dictionarytagIDs[tagID]
-        except:
+        except Exception:
             return tagID
-        
+
     def detectUnknownArtists(self, artistID, knownArtists):
         try:
             return knownArtists[artistID]
-        except:
+        except Exception:
             return -1
-        
+
     def network(self):
         return self._graph
 
@@ -335,7 +335,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             result = None
 
         return result['weight']
-    
+
 
 # DEGREES PER TYPE
     def degree_artist_tag(self, artist_id):
