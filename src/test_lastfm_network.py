@@ -9,6 +9,7 @@ class TestLastfmNetwork(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.lastfm_net = LastfmNetwork.instance()
+        print "====>"
 
     def test_friends(self):
         self.assertTrue(self.lastfm_net.are_friends(2, 275))
@@ -169,6 +170,9 @@ class TestLastfmNetwork(unittest.TestCase):
         self.assertEqual(0, self.lastfm_net.user_similarities[last, 100])
         self.assertEqual(1, self.lastfm_net.user_similarities[last, last])
 
+    def test_get_artists_tags_partition(self):
+        lst = self.lastfm_net.get_artists_tags_partition()
+        self.assertEqual([], lst)
 
 if __name__ == '__main__':
     unittest.main()

@@ -12,6 +12,8 @@ import pandas as pd
 import cPickle as pickle
 
 import os.path
+import time
+import pdb
 
 
 class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
@@ -25,6 +27,17 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             user_artists=pd.read_table('../data/user_artists.dat'),
             user_taggedartists=pd.read_table('../data/user_taggedartists.dat')
         )
+
+    @property
+    def user_similarities(self):
+        if self._user_similarities is None:
+            self._user_similarities = pickle.load(open("user_sim.pickle", "rb"))
+        return self._user_similarities
+
+    @property
+    def artist_similarities_tags(self):
+        if self._artist_similarities_tags is None:
+            self._artist_similarities_tags = pickle.load(open("artist_sim_tags.pickle", "rb"))
 
     def __init__(self, artists, tags,
                  user_friends, user_artists, user_taggedartists, r=0.1, preprocessing=True):
@@ -42,10 +55,8 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         self.tags_id = list(Set([tid for tid in tags['tagID']]))
 
         if os.path.isfile('network.pickle'):
-            # self._graph = nx.read_pajek("network.net")
             self._graph = nx.read_gpickle("network.pickle")
-            self.user_similarities = pickle.load(open("user_sim.pickle", "rb"))
-            self.artist_similarities_tags = pickle.load(open("artist_sim_tags.pickle", "rb"))
+
         else:
             # multilayer graph to hold the entire data
             self._graph = nx.DiGraph()

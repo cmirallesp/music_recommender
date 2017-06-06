@@ -2,6 +2,7 @@ import numpy as np
 import scipy as sp
 from logging import info
 import time
+import networkx as nx
 
 
 class NetworkBuilderMixin(object):
@@ -136,7 +137,7 @@ class NetworkBuilderMixin(object):
         data = np.asarray(data)
         rows = np.asarray(rows)
         cols = np.asarray(cols)
-        self.user_similarities = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
+        self._user_similarities = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
 
     def _calculate_tag_similarities(self):
         data = []
@@ -159,7 +160,7 @@ class NetworkBuilderMixin(object):
         data = np.asarray(data)
         rows = np.asarray(rows)
         cols = np.asarray(cols)
-        self.tag_similarities = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
+        self._tag_similarities = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
 
     def _calculate_artist_similarities_over_users(self):
         data = []
@@ -182,7 +183,7 @@ class NetworkBuilderMixin(object):
         data = np.asarray(data)
         rows = np.asarray(rows)
         cols = np.asarray(cols)
-        self.artist_similarities_users = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
+        self._artist_similarities_users = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
 
     def _calculate_artist_similarities_over_tags(self):
         data = []
@@ -205,7 +206,7 @@ class NetworkBuilderMixin(object):
         data = np.asarray(data)
         rows = np.asarray(rows)
         cols = np.asarray(cols)
-        self.artist_similarities_tags = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
+        self._artist_similarities_tags = sp.sparse.coo_matrix((data, (rows, cols))).tolil()
 
     def _sim(self, elem1, elem2, members_iter):
         cluster1 = set(members_iter(elem1))
@@ -254,3 +255,30 @@ class NetworkBuilderMixin(object):
                 aux_sim.col = np.append(aux_sim.col, j)
 
         self.user_similarities = aux_sim.tolil()
+
+    def get_artists_tags_partition(self):
+        if self._artists_tags is not None:
+            return self._artists_tags
+
+        self._artists_tags = nx.Graph()
+        for artist_id in self.artists_iter():
+            for tag_id in self.artist_tags_iter(artist_id):
+                self._artists_tags.add_edge(artist_id, tag_id)
+
+    def get_artists_users_partition(self):
+        if self._artists_users is not None:
+            return self._artists_users
+
+        self._artists_tags = nx.Graph()
+        for artist_id in self.artists_iter():
+            for user_id in self.artist_user_iter(artist_id):
+                self._artists_tags.add_edge(artist_id, user_id)
+
+    def get_users_users_partition(self):
+        if self._users_users is not None:
+            return self._users_users
+
+        self.users_users = nx.Graph()
+        for user_id in self.users_iter():
+            for user_id2 in self.user_user_iter(user_id):
+                self._users_users.add_edge(user_id, user_id2)
