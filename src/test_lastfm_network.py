@@ -201,6 +201,15 @@ class TestLastfmNetwork(unittest.TestCase):
         
         self.assertEqual(old_sim_0, new_sim_0)
         self.assertEqual(old_sim_1, new_sim_1)
+        
+    def test_num_reproductions_incremented_dynamically(self):
+        ku = 'u_557'
+        ka = 'a_17'
+        old_w = self.lastfm_net._graph[ka][ku]['weight']
+        
+        self.lastfm_net.add_reproduction(ku, ka)
+        new_w = self.lastfm_net._graph[ka][ku]['weight']
+        self.assertEqual(old_w+1, new_w)
 
     def test_get_artists_tags_partition(self):
         lst = self.lastfm_net.get_artists_tags_partition()

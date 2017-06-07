@@ -284,6 +284,21 @@ class NetworkBuilderMixin(object):
         else:
             # We should not add relations between not existing elements
             return -1
+        
+    def add_reproduction(self, user, artist):
+        # Check user and artist already exist
+        ku = self.key_user(user)
+        ka = self.key_artist(artist)
+        
+        if ku in self._graph.nodes() and ka in self._graph.nodes():
+            # Update artist-user edge and vice versa, or add it if new
+            if self._graph.has_edge(ka, ku):
+                new_w = self._graph[ka][ku]['weight'] + 1
+            else:
+                new_w = 1
+            
+            self._graph.add_edge(ka, ku, weight=new_w, type='au')
+            self._graph.add_edge(ku, ka, weight=new_w, type='ua')
 
     def get_artists_tags_partition(self):
         if self._artists_tags is not None:
