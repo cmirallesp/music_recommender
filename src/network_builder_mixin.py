@@ -255,48 +255,48 @@ class NetworkBuilderMixin(object):
                 aux_sim.col = np.append(aux_sim.col, j)
 
         self.user_similarities = aux_sim.tolil()
-        
+
     def add_tagged_artist(self, user, artist, tag):
         # Check user, artist and tag already exist
         ku = self.key_user(user)
         ka = self.key_artist(artist)
         kt = self.key_tag(tag)
-        
+
         if ku in self._graph.nodes() and ka in self._graph.nodes() and kt in self._graph.nodes():
             # Update artist-tag edge and vice versa, or add it if new
             if self._graph.has_edge(ka, kt):
                 new_w = self._graph[ka][kt]['weight'] + 1
             else:
                 new_w = 1
-            
+
             self._graph.add_edge(ka, kt, weight=new_w, type='at')
             self._graph.add_edge(kt, ka, weight=new_w, type='ta')
-            
+
             # Update row of artist in similarity matrix
             for i, this_artist in enumerate(self.artists_id):
                 # Find row of the matrix from our artist being updated
-                if ka==self.key_artist(this_artist):
+                if ka == self.key_artist(this_artist):
                     for j, art in enumerate(self.artists_id):
                         s = self._sim(ka, self.key_artist(art), self.artist_tags_iter)
-                        if s>0:
-                            self.artist_similarities_tags[i,j] = s
+                        if s > 0:
+                            self.artist_similarities_tags[i, j] = s
                     break   # Only need to change this row of the matrix
         else:
             # We should not add relations between not existing elements
             return -1
-        
+
     def add_reproduction(self, user, artist):
         # Check user and artist already exist
         ku = self.key_user(user)
         ka = self.key_artist(artist)
-        
+
         if ku in self._graph.nodes() and ka in self._graph.nodes():
             # Update artist-user edge and vice versa, or add it if new
             if self._graph.has_edge(ka, ku):
                 new_w = self._graph[ka][ku]['weight'] + 1
             else:
                 new_w = 1
-            
+
             self._graph.add_edge(ka, ku, weight=new_w, type='au')
             self._graph.add_edge(ku, ka, weight=new_w, type='ua')
 
