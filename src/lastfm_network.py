@@ -133,8 +133,11 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
     def network(self):
         return self._graph
 
-    def network_as_undirected(self):
-        return nx.Graph(self._graph, directed=False)
+    def network_as_undirected(self, net=None):
+        if net is None:
+            return nx.Graph(self._graph, directed=False)
+        else:
+            return nx.Graph(net, directed=False)
 
     def key_user(self, _id):
         if isinstance(_id, str) and "u_" in _id:
