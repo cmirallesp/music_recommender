@@ -304,11 +304,21 @@ class NetworkBuilderMixin(object):
         if self._artists_tags is not None:
             return self._artists_tags
 
-        self._artists_tags = nx.Graph()
+        self._artists_tags = nx.DiGraph()
         for artist_id in self.artists_iter():
             for tag_id in self.artist_tags_iter(artist_id):
                 self._artists_tags.add_edge(artist_id, tag_id)
         return self._artists_tags
+
+    def get_tags_artists_partition(self):
+        if self._tags_artists is not None:
+            return self._tags_artists
+
+        self._tags_artists = nx.DiGraph()
+        for tag_id in self.tags_iter():
+            for artist_id in self.tag_artists_iter(tag_id):
+                self._tags_artists.add_edge(tag_id, artist_id)
+        return self._tags_artists
 
     def get_artists_users_partition(self):
         if self._artists_users is not None:
@@ -316,7 +326,7 @@ class NetworkBuilderMixin(object):
 
         self._artists_users = nx.Graph()
         for artist_id in self.artists_iter():
-            for user_id in self.artist_user_iter(artist_id):
+            for user_id in self.artist_users_iter(artist_id):
                 self._artists_users.add_edge(artist_id, user_id)
         return self._artists_users
 

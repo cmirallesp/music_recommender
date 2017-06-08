@@ -49,16 +49,21 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
                                     '%(funcName)s %(message)s'))
         if preprocessing:
             artists, tags, user_taggedartists = self.dataPreprocessing(artists, tags, user_taggedartists)
-        self.run = 'online' #Online by default; when evaluating, it changes to 'offline'
-        
+
+        self.run = 'online'  # Online by default; when evaluating, it changes to 'offline'
+
+        self._artists_tags = self._tags_artists = None
+        self._artists_users = self._users_artists = None
+        self._users_users = None
+
         self.r = r
-        
+
         self.artists_id = [aid for aid in artists['id']]
         self.users_id = list(np.unique(user_friends['userID'].as_matrix()))
         self.tags_id = [tid for tid in tags['tagID']]
-        
-        self.artistID2artist = {self.key_artist(self.artists_id[idx]) : name for idx,name in enumerate(artists['name'])}
-        
+
+        self.artistID2artist = {self.key_artist(self.artists_id[idx]): name for idx, name in enumerate(artists['name'])}
+
         self._artists_tags = None
         self._user_similarities = None
         self._artist_similarities_tags = None
