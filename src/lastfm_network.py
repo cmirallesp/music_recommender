@@ -49,11 +49,17 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
                                     '%(funcName)s %(message)s'))
         if preprocessing:
             artists, tags, user_taggedartists = self.dataPreprocessing(artists, tags, user_taggedartists)
-        self._artists_tags = None
+        self.run = 'online' #Online by default; when evaluating, it changes to 'offline'
+        
         self.r = r
-        self.artists_id = list(Set([aid for aid in artists['id']]))
-        self.users_id = list(Set(np.unique(user_friends['userID'].as_matrix())))
-        self.tags_id = list(Set([tid for tid in tags['tagID']]))
+        
+        self.artists_id = [aid for aid in artists['id']]
+        self.users_id = list(np.unique(user_friends['userID'].as_matrix()))
+        self.tags_id = [tid for tid in tags['tagID']]
+        
+        self.artistID2artist = {self.key_artist(self.artists_id[idx]) : name for idx,name in enumerate(artists['name'])}
+        
+        self._artists_tags = None
         self._user_similarities = None
         self._artist_similarities_tags = None
         if os.path.isfile('network.pickle'):
