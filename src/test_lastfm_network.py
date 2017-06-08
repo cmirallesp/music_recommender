@@ -1,6 +1,8 @@
 from lastfm_network import *
 
 import unittest
+import pprint as pp
+import networkx as nx
 
 
 class TestLastfmNetwork(unittest.TestCase):
@@ -9,7 +11,6 @@ class TestLastfmNetwork(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.lastfm_net = LastfmNetwork.instance()
-        print "====>"
 
     def test_friends(self):
         self.assertTrue(self.lastfm_net.are_friends(2, 275))
@@ -169,51 +170,58 @@ class TestLastfmNetwork(unittest.TestCase):
         last = self.lastfm_net.user_similarities.shape[0] - 1
         self.assertEqual(0, self.lastfm_net.user_similarities[last, 100])
         self.assertEqual(1, self.lastfm_net.user_similarities[last, last])
-        
+
     def test_num_tags_incremented_dynamically(self):
         ku = 'u_2'
         ka = 'a_17'
         kt = 't_10'
-        
+
         # Save state previous to update
         old_w = self.lastfm_net._graph[ka][kt]['weight']
         old_sim_0 = -1
         old_sim_1 = -1
         idx = -1
         for i, artist in enumerate(self.lastfm_net.artists_id):
-            if ka==self.lastfm_net.key_artist(artist):
+            if ka == self.lastfm_net.key_artist(artist):
                 idx = i
                 old_sim_0 = self.lastfm_net.artist_similarities_tags[idx, 0]
                 old_sim_1 = self.lastfm_net.artist_similarities_tags[idx, idx]
                 break
-        
+
         # Checks in network values
         self.lastfm_net.add_tagged_artist(ku, ka, kt)
         new_w1 = self.lastfm_net._graph[ka][kt]['weight']
         new_w2 = self.lastfm_net._graph[ka][kt]['weight']
-        
-        self.assertEqual(old_w+1, new_w1)
-        self.assertEqual(old_w+1, new_w2)
-        
+
+        self.assertEqual(old_w + 1, new_w1)
+        self.assertEqual(old_w + 1, new_w2)
+
         # Checks in similarity values
         new_sim_0 = self.lastfm_net.artist_similarities_tags[idx, 0]
         new_sim_1 = self.lastfm_net.artist_similarities_tags[idx, idx]
-        
+
         self.assertEqual(old_sim_0, new_sim_0)
         self.assertEqual(old_sim_1, new_sim_1)
-        
+
     def test_num_reproductions_incremented_dynamically(self):
         ku = 'u_557'
         ka = 'a_17'
         old_w = self.lastfm_net._graph[ka][ku]['weight']
-        
+
         self.lastfm_net.add_reproduction(ku, ka)
         new_w = self.lastfm_net._graph[ka][ku]['weight']
-        self.assertEqual(old_w+1, new_w)
+        self.assertEqual(old_w + 1, new_w)
 
     def test_get_artists_tags_partition(self):
         lst = self.lastfm_net.get_artists_tags_partition()
         self.assertEqual(21593, len(lst))
+
+    def test_network_descriptors(self):
+        lst = self.lastfm_net.get_artists_tags_partition()
+        for i, comp in enumerate(nx.connected_component_subgraphs(lst)):
+            pp.pprint("====>{}".format(i))
+            desc = self.lastfm_net.get_network_descriptors(comp, "artist_tags_c{}".format(i))
+            pp.pprint(desc)
 
 if __name__ == '__main__':
     unittest.main()
