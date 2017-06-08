@@ -324,11 +324,21 @@ class NetworkBuilderMixin(object):
         if self._artists_users is not None:
             return self._artists_users
 
-        self._artists_users = nx.Graph()
+        self._artists_users = nx.DiGraph()
         for artist_id in self.artists_iter():
             for user_id in self.artist_users_iter(artist_id):
                 self._artists_users.add_edge(artist_id, user_id)
         return self._artists_users
+
+    def get_users_artists_partition(self):
+        if self._users_artists is not None:
+            return self._users_artists
+
+        self._users_artists = nx.DiGraph()
+        for user_id in self.users_iter():
+            for artist_id in self.user_artists_iter(user_id):
+                self._users_artists.add_edge(user_id, artist_id)
+        return self._users_artists
 
     def get_users_users_partition(self):
         if self._users_users is not None:
