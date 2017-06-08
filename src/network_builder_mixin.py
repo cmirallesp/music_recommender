@@ -242,10 +242,10 @@ class NetworkBuilderMixin(object):
             self._graph.add_edge(ka, k, weight=times, type='au')
 
         # Update user similarity matrix
-        aux_sim = self.user_similarities.copy()
+        aux_sim = self._user_similarities.copy()
         aux_sim = aux_sim.tocoo()
 
-        aux_sim._shape = (self.user_similarities._shape[0] + 1, self.user_similarities._shape[1] + 1)
+        aux_sim._shape = (self._user_similarities._shape[0] + 1, self._user_similarities._shape[1] + 1)
 
         for j, user in enumerate(self.users_id):
             s = self._sim(k, user, self.user_artists_iter)
@@ -254,7 +254,7 @@ class NetworkBuilderMixin(object):
                 aux_sim.row = np.append(aux_sim.row, self.user_similarities.shape[0])
                 aux_sim.col = np.append(aux_sim.col, j)
 
-        self.user_similarities = aux_sim.tolil()
+        self._user_similarities = aux_sim.tolil()
         
     def add_tagged_artist(self, user, artist, tag):
         # Check user, artist and tag already exist
