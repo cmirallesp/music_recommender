@@ -3,7 +3,7 @@ from network_builder_mixin import NetworkBuilderMixin
 from network_iterators_mixin import NetworkIteratorsMixin
 import logging
 from logging import info
-from sets import Set
+
 import numpy as np
 import networkx as nx
 
@@ -12,8 +12,6 @@ import pandas as pd
 import cPickle as pickle
 
 import os.path
-import time
-import pdb
 
 
 class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
