@@ -4,16 +4,18 @@
 #net = LastfmNetwork.instance()
 
 from recommender_system import RecommenderSystem
-from time import time
 
-t = time()
-r = RecommenderSystem.instance()
-print 'Everything loaded in '+str(time()-t)
+e = RecommenderSystem.instance()
 
-t=time()
-r.recommendation('u_1210', recommendationLength=20)
-print 'Recommendation performed in '+str(time()-t)
+maxReferenceArtists = [1, 3, 5]
+kneighborhood = [1, 2, 5, None]
+maxSimilarUsers1 = [1, 5]  #(for k=1, 2, 5) 
+maxSimilarUsers2 = [1, 5, 10, 50] #(for k=None)
 
-t=time()
-e.recommendation_evaluation(numUsers=25, maxSimilarUsers=5, maxReferenceArtists=5, recommendationLength=10, relevanceLength=100)
-print 'Evaluation performed in '+str(time()-t)
+for refArtists in maxReferenceArtists:
+    for k in kneighborhood:
+        maxSimilarUsers = maxSimilarUsers2 if k else maxSimilarUsers1
+        for simUsers in maxSimilarUsers:
+            e.recommendation_evaluation(maxReferenceArtists=refArtists, kneighborhood=k, maxSimilarUsers=simUsers, recommendationLength=10, relevanceLength=None, relevanceAccum=0.95, numUsers=10000)
+
+

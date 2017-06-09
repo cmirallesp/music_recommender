@@ -66,7 +66,7 @@ class RecommenderSystem(LastfmNetwork):
         print '\nRELEVANT ARTISTS FOR THE USER:', [self.artistID2artist[artistID] for artistID in referenceArtists]
         print '\nRECOMMENDED ARTISTS:', [self.artistID2artist[artistID] for artistID in recommendedArtists]
 
-    def user_recommendation_evaluation(self, referenceUser, maxReferenceArtists=3, recommendationLength=10, relevanceLength=10, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9):
+    def user_recommendation_evaluation(self, referenceUser, maxReferenceArtists=3, recommendationLength=10, relevanceLength=None, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9):
         '''Evaluates the recommendation of a user'''
 
         # We get the most relevant artists from the reference user apart from the ones chosen for the recommendation
@@ -75,10 +75,11 @@ class RecommenderSystem(LastfmNetwork):
         if maxReferenceArtists >= len(referenceArtists):
             #print 'There are not enough relevant artists to evaluate the recommendation'
             return -1
-        relevantArtists = set(referenceArtists[maxReferenceArtists:min(maxReferenceArtists + relevanceLength, len(referenceArtists))])
+        maxRelevantArtists = min(maxReferenceArtists + relevanceLength, len(referenceArtists)) if relevanceLength else len(referenceArtists)
+        relevantArtists = set(referenceArtists[maxReferenceArtists:maxRelevantArtists])
 
         # We remove the edges of the reference user not used as a basis for the recommendation
-        nodeConnectionsToRemove = referenceArtists[min(maxReferenceArtists, len(referenceArtists) - 1):]
+        nodeConnectionsToRemove = referenceArtists[maxReferenceArtists:]
         connections = self.save_edges(referenceUser, nodeConnectionsToRemove)
         self._graph.remove_edges_from(connections)
 
@@ -95,7 +96,7 @@ class RecommenderSystem(LastfmNetwork):
 
         return len(recoveredArtists)
 
-    def recommendation_evaluation(self, maxReferenceArtists=5, recommendationLength=10, relevanceLength=10, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9, numUsers=100):
+    def recommendation_evaluation(self, maxReferenceArtists=5, recommendationLength=10, relevanceLength=None, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.95, numUsers=10):
         '''Evaluates the recommendation of several users'''
         self.run = 'offline'
         recoveries = []
@@ -106,21 +107,26 @@ class RecommenderSystem(LastfmNetwork):
                 recoveries.append(numberOfRecoveries)
             else:
                 noValid+=1
+        execution = '(kN='+str(kneighborhood)+', SU='+str(maxSimilarUsers)+', RA='+str(maxReferenceArtists)+')'
+        print '\n__________________________________________________________\n'
+        print 'RD'+execution
         print '\nEvaluation performed over %d users; %d selected users did not have enough relevant artists to be evaluated' %(len(recoveries), noValid)
-        self.plot_recovery_distribution(recoveries)
+        self.plot_recovery_distribution(recoveries, execution)
         print 'Median: %f. Mean: %f. Std: %f.' %(np.median(recoveries), np.mean(recoveries), np.std(recoveries))
         return recoveries
     
-    def plot_recovery_distribution(self, recoveries):
+    def plot_recovery_distribution(self, recoveries, execution):
         '''Plots the Distribution of Relevant Artist Recoveries of the evaluation'''
         ax = plt.figure().gca()
         plt.xticks(range(np.min(recoveries), np.max(recoveries)+1))
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         plt.hist(recoveries, range=(np.min(recoveries)-0.5, np.max(recoveries)+0.5), bins=np.max(recoveries)+1)
-        plt.title('Distribution of Relevant Artist Recoveries')
+        plt.title('Distribution of Relevant Artist Recoveries', loc='left', fontweight = 'bold')
+        plt.title(execution, loc='right')
         plt.xlabel("Number of Recoveries")
         plt.ylabel("Frequency")
-        plt.show()
+        plt.savefig('plots/'+execution, bbox_inches='tight')
+        #plt.show()
 
     def save_edges(self, referenceNode, listOfNodes):
         'Stores the edges between referenceNode and those in listOfNodes'
