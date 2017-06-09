@@ -7,7 +7,7 @@ from recommender_system import RecommenderSystem
 
 e = RecommenderSystem.instance()
 
-maxReferenceArtists = [1, 3, 5]
+maxReferenceArtists = [1,3,5]
 kneighborhood = [1, 2, 5, None]
 maxSimilarUsers1 = [1, 5]  #(for k=1, 2, 5) 
 maxSimilarUsers2 = [1, 5, 10, 50] #(for k=None)

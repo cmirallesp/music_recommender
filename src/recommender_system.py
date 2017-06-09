@@ -126,7 +126,7 @@ class RecommenderSystem(LastfmNetwork):
         plt.xlabel("Number of Recoveries")
         plt.ylabel("Frequency")
         plt.savefig('plots/'+execution, bbox_inches='tight')
-        plt.show()
+        #plt.show()
 
     def save_edges(self, referenceNode, listOfNodes):
         'Stores the edges between referenceNode and those in listOfNodes'
