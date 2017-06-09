@@ -14,7 +14,7 @@ maxSimilarUsers2 = [1, 5, 10, 50] #(for k=None)
 
 for refArtists in maxReferenceArtists:
     for k in kneighborhood:
-        maxSimilarUsers = maxSimilarUsers2 if k else maxSimilarUsers1
+        maxSimilarUsers = maxSimilarUsers1 if k else maxSimilarUsers2
         for simUsers in maxSimilarUsers:
             e.recommendation_evaluation(maxReferenceArtists=refArtists, kneighborhood=k, maxSimilarUsers=simUsers, recommendationLength=10, relevanceLength=None, relevanceAccum=0.95, numUsers=10000)
 
