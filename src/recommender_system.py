@@ -1,7 +1,7 @@
 from lastfm_network import *
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
-import seaborn as sns # pip install seaborn
+import seaborn as sns  # pip install seaborn
 sns.set_palette("deep", desat=.6)
 sns.set_style("whitegrid")
 
@@ -10,11 +10,11 @@ class RecommenderSystem(LastfmNetwork):
 
     def recommendation(self, referenceUser, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9, showRecommendation=True, recommendationLength=10):
         '''Recommendation script'''
-        
+
         if self.run == 'offline':
             self.node2indexUserDict = {self.key_user(user): idx for idx, user in enumerate(self.users_id)}
             self.node2indexArtistDict = {self.key_artist(artist): idx for idx, artist in enumerate(self.artists_id)}
-            
+
         # If requested, we only get the user k-neighborhood. If not, we consider all users.
         if kneighborhood:
             consideredUsers = self.get_kdistant_neighbors_by_type(referenceUser, k=kneighborhood)
@@ -47,22 +47,22 @@ class RecommenderSystem(LastfmNetwork):
             candidateArtists = [artist for artist in candidateArtists if artist not in artistsAlreadyConsidered]
             candidateArtists = self.get_scores_for_candidate_artists(referenceArtists, candidateArtists)
             artistsAlreadyConsidered += [elem[0] for elem in candidateArtists]
-            
+
             # We combine these candidates with the previously found ones
             candidateArtistList = self.combine_lists_of_candidate_artists(candidateArtistList, candidateArtists)
 
         candidateArtistList = sorted(candidateArtistList, key=self.get_ordering_key, reverse=True)
-        
+
         # Prints the recommendation if requested
         if showRecommendation:
             self.show_recommendation(referenceUser, referenceArtists, candidateArtistList, recommendationLength)
-        
+
         return candidateArtistList
-    
+
     def show_recommendation(self, referenceUser, referenceArtists, candidateArtists, recommendationLength):
         '''Shows the recommendation performed for the user, as well as the their relevant artists'''
-        recommendedArtists = [elem[0] for elem in candidateArtists[:min(recommendationLength, len(candidateArtists))] if elem[1]>0]
-        print '\nUSER: %s' %(referenceUser)
+        recommendedArtists = [elem[0] for elem in candidateArtists[:min(recommendationLength, len(candidateArtists))] if elem[1] > 0]
+        print '\nUSER: %s' % (referenceUser)
         print '\nRELEVANT ARTISTS FOR THE USER:', [self.artistID2artist[artistID] for artistID in referenceArtists]
         print '\nRECOMMENDED ARTISTS:', [self.artistID2artist[artistID] for artistID in recommendedArtists]
 
@@ -73,7 +73,7 @@ class RecommenderSystem(LastfmNetwork):
         referenceUserArtists = set(self.get_kdistant_neighbors_by_type(referenceUser, type='ua'))
         referenceArtists = self.get_relevant_artists_from_user(referenceUser, referenceUserArtists, relevanceAccum)
         if maxReferenceArtists >= len(referenceArtists):
-            #print 'There are not enough relevant artists to evaluate the recommendation'
+            # print 'There are not enough relevant artists to evaluate the recommendation'
             return -1
         maxRelevantArtists = min(maxReferenceArtists + relevanceLength, len(referenceArtists)) if relevanceLength else len(referenceArtists)
         relevantArtists = set(referenceArtists[maxReferenceArtists:maxRelevantArtists])
@@ -103,30 +103,31 @@ class RecommenderSystem(LastfmNetwork):
         noValid = 0
         for user in self.users_id[0:min(numUsers, len(self.users_id))]:
             numberOfRecoveries = self.user_recommendation_evaluation(self.key_user(user), maxReferenceArtists=maxReferenceArtists, recommendationLength=recommendationLength, relevanceLength=relevanceLength, kneighborhood=kneighborhood, maxSimilarUsers=maxSimilarUsers, relevanceAccum=relevanceAccum)
-            if numberOfRecoveries >=0:
+            if numberOfRecoveries >= 0:
                 recoveries.append(numberOfRecoveries)
             else:
-                noValid+=1
-        execution = 'kN='+str(kneighborhood)+', SU='+str(maxSimilarUsers)+', RA='+str(maxReferenceArtists)
+                noValid += 1
+        execution = 'kN=' + str(kneighborhood) + ', SU=' + str(maxSimilarUsers) + ', RA=' + str(maxReferenceArtists)
         print '\n__________________________________________________________\n'
-        print 'RD'+execution
-        print '\nEvaluation performed over %d users; %d selected users did not have enough relevant artists to be evaluated' %(len(recoveries), noValid)
+        print 'RD' + execution
+        print '\nEvaluation performed over %d users; %d selected users did not have enough relevant artists to be evaluated' % (len(recoveries), noValid)
         self.plot_recovery_distribution(recoveries, execution)
-        print 'Median: %f. Mean: %f. Std: %f.' %(np.median(recoveries), np.mean(recoveries), np.std(recoveries))
+        print 'Median: %f. Mean: %f. Std: %f.' % (np.median(recoveries), np.mean(recoveries), np.std(recoveries))
         return recoveries
-    
+
     def plot_recovery_distribution(self, recoveries, execution):
         '''Plots the Distribution of Relevant Artist Recoveries of the evaluation'''
         ax = plt.figure().gca()
-        plt.xticks(range(np.min(recoveries), np.max(recoveries)+1))
+        plt.xticks(range(np.min(recoveries), np.max(recoveries) + 1))
         ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-        plt.hist(recoveries, range=(np.min(recoveries)-0.5, np.max(recoveries)+0.5), bins=np.max(recoveries)+1)
-        plt.suptitle('Distribution of Relevant Artist Recoveries', fontweight = 'bold', fontsize=12)
+
+        plt.hist(recoveries, range=(np.min(recoveries) - 0.5, np.max(recoveries) + 0.5), bins=np.max(recoveries) + 1)
+        plt.suptitle('Distribution of Relevant Artist Recoveries', fontweight='bold', fontsize=12)
         plt.title(execution, fontsize=9)
         plt.xlabel("Number of Recoveries")
         plt.ylabel("Frequency")
-        plt.savefig('plots/'+execution, bbox_inches='tight')
-        #plt.show()
+        plt.savefig('plots/' + execution, bbox_inches='tight')
+        # plt.show()
 
     def save_edges(self, referenceNode, listOfNodes):
         'Stores the edges between referenceNode and those in listOfNodes'

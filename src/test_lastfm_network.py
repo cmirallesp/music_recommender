@@ -24,18 +24,6 @@ class TestLastfmNetwork(unittest.TestCase):
         self.assertTrue(self.lastfm_net.is_my_listener(18730, 2100))
         self.assertFalse(self.lastfm_net.is_my_listener(18732, 2100))
 
-        # def test_artits(self):
-        #     weight = 13883
-        #     self.assertEqual(
-        #         weight,
-        #         self.lastfm_net.times_user_listen_artist(2, 51)
-        #     )
-
-        # def test_draw(self):
-        #     self.lastfm_net.draw()
-    def test_check_friendship(self):
-        self.assertTrue(self.lastfm_net.check_friendship())
-
     def test_friendship_normalized_weights(self):
         # ensure that normalized weights of the user 2 sums 1
         sum_ = sum(list(self.lastfm_net.user_user_normalized_weights_iter(2)))
