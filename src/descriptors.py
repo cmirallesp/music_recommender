@@ -11,10 +11,6 @@ import os
 import networkx as nx
 import pdb
 
-
-NETWORK_TITLES = {
-    'at': "Artists-Tags"
-}
 PLOT_TITLES = {
     'sp': "Shortest Path distribution",
     'cd': "Components distribution",
@@ -62,26 +58,6 @@ def shortest_paths(network):
     return counts, bins
 
 
-# def calc_degrees(network):
-#     result = {}
-#     result['ta'] = []
-#     for tag_id in net.tags_iter():
-#         result['ta'].append(net.degree_tag_artist(tag_id))
-
-#     result['at'] = []
-#     result['au'] = []
-#     for artist_id in net.artists_iter():
-#         result['at'].append(net.degree_artist_tag(artist_id))
-#         result['au'].append(net.degree_artist_user(artist_id))
-
-#     result['uu'] = []
-#     result['ua'] = []
-#     for user_id in net.users_iter():
-#         result['ua'].append(net.degree_user_artist(user_id))
-#         result['uu'].append(net.degree_user_user(user_id))
-#     return result
-
-
 def get_descriptors(network, short_name, already_calculated=False):
     filename = "{}.pickle".format(short_name)
     if os.path.isfile(filename):
@@ -118,7 +94,7 @@ def get_descriptors(network, short_name, already_calculated=False):
 
     result['clustering'] = clu.global_clustering(network)
 
-    if already_calculated:
+    if not already_calculated:
         net2 = gt.Graph(network)  # undirected version
         net2.set_directed(False)
         result['sp'] = {}
@@ -126,6 +102,7 @@ def get_descriptors(network, short_name, already_calculated=False):
         # connected components
 
         _, c2 = top.label_components(net2)
+        pdb.set_trace()
         result['components'] = {}
         result['components']['num'] = len(c2)
         result['components']['bins'] = range(len(c2))
@@ -135,8 +112,31 @@ def get_descriptors(network, short_name, already_calculated=False):
     return result
 
 
-def get_title(network_type, plot_type):
-    return "{} ({})".format(PLOT_TITLES[plot_type], NETWORK_TITLES[network_type])
+def pprint(results):
+    components = results['components']['num'] if 'components' in results.keys() else "-"
+    return (
+        "Name: {}\n"
+        "Num nodes: {}\n"
+        "Num edges: {}\n"
+        "Max degree: {}\n"
+        "Min degree: {}\n"
+        "Avg degree: {}\n"
+        "Diameter: {}\n"
+        "Path: {}\n"
+        "Clustering: {}\n"
+        "Num Components: {}\n"
+    ).format(
+        results['name'],
+        results['num_nodes'],
+        results['num_edges'],
+        results['degree']['max'],
+        results['degree']['min'],
+        results['degree']['avg'],
+        results['diameter'],
+        results['diameter_path'],  # split i path?
+        results['clustering'],
+        components
+    )
 
 
 net = LastfmNetwork.instance()
@@ -154,6 +154,7 @@ au_desc = get_descriptors(gt_au_net, 'au', already_calculated=True)
 uu_desc = get_descriptors(gt_uu_net, 'uu')
 
 for desc in [at_desc, ta_desc, au_desc, ua_desc, uu_desc]:
+    print pprint(desc)
     draw_hist(desc['degree']['bins'], desc["degree"]['counts'],
               title=PLOT_TITLES[desc['name']],
               file_name=desc["filename_dd"])
@@ -171,4 +172,4 @@ for desc in [at_desc, ta_desc, au_desc, ua_desc, uu_desc]:
         draw_hist(desc['sp']['bins'], desc['sp']['counts'],
                   title=PLOT_TITLES['sp'],
                   file_name=desc['filename_sp'],
-                  bins=7)
+                  bins=10)
