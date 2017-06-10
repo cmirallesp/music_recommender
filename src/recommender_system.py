@@ -109,13 +109,8 @@ class RecommenderSystem(LastfmNetwork):
                 noValid += 1
         execution = 'kN=' + str(kneighborhood) + ', SU=' + str(maxSimilarUsers) + ', RA=' + str(maxReferenceArtists)
         print '\n__________________________________________________________\n'
-<<<<<<< HEAD
         print execution
-        print '\nEvaluation performed over %d users; %d selected users did not have enough relevant artists to be evaluated' %(len(recoveries), noValid)
-=======
-        print 'RD' + execution
         print '\nEvaluation performed over %d users; %d selected users did not have enough relevant artists to be evaluated' % (len(recoveries), noValid)
->>>>>>> origin/master
         self.plot_recovery_distribution(recoveries, execution)
         print 'Median: %f. Mean: %f. Std: %f.' % (np.median(recoveries), np.mean(recoveries), np.std(recoveries))
         return recoveries
@@ -124,13 +119,12 @@ class RecommenderSystem(LastfmNetwork):
         '''Plots the Distribution of Relevant Artist Recoveries of the evaluation'''
         ax = plt.figure().gca()
         plt.xticks(range(np.min(recoveries), np.max(recoveries) + 1))
-        ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-
-        plt.hist(recoveries, range=(np.min(recoveries) - 0.5, np.max(recoveries) + 0.5), bins=np.max(recoveries) + 1)
+        #ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+        plt.hist(recoveries, weights=len(recoveries)*[1./len(recoveries)], range=(np.min(recoveries) - 0.5, np.max(recoveries) + 0.5), bins=np.max(recoveries) + 1)
         plt.suptitle('Distribution of Relevant Artist Recoveries', fontweight='bold', fontsize=12)
         plt.title(execution, fontsize=9)
         plt.xlabel("Number of Recoveries")
-        plt.ylabel("Frequency")
+        plt.ylabel("Relative Frequency")
         plt.savefig('plots/' + execution, bbox_inches='tight')
         # plt.show()
 
