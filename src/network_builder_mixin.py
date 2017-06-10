@@ -215,10 +215,8 @@ class NetworkBuilderMixin(object):
 
     def _sim_over_clusters(self, cluster1, cluster2):
         inter = len(cluster1.intersection(cluster2))
-        diff1 = len(cluster1.difference(cluster2))
-        diff2 = len(cluster2.difference(cluster1))
+        denom = len(cluster1.union(cluster2))
 
-        denom = inter + diff1 + diff2
         if denom == 0:
             # Case where one artist being compared has no tags
             return 0
@@ -306,7 +304,9 @@ class NetworkBuilderMixin(object):
 
         self._artists_tags = nx.DiGraph()
         for artist_id in self.artists_iter():
+            self._artists_tags.add_node(artist_id)
             for tag_id in self.artist_tags_iter(artist_id):
+                self._artists_tags.add_node(tag_id)
                 self._artists_tags.add_edge(artist_id, tag_id)
         return self._artists_tags
 
@@ -316,7 +316,9 @@ class NetworkBuilderMixin(object):
 
         self._tags_artists = nx.DiGraph()
         for tag_id in self.tags_iter():
+            self._tags_artists.add_node(tag_id)
             for artist_id in self.tag_artists_iter(tag_id):
+                self._tags_artists.add_node(artist_id)
                 self._tags_artists.add_edge(tag_id, artist_id)
         return self._tags_artists
 
@@ -326,7 +328,9 @@ class NetworkBuilderMixin(object):
 
         self._artists_users = nx.DiGraph()
         for artist_id in self.artists_iter():
+            self._artists_users.add_node(artist_id)
             for user_id in self.artist_users_iter(artist_id):
+                self._artists_users.add_node(user_id)
                 self._artists_users.add_edge(artist_id, user_id)
         return self._artists_users
 
@@ -336,7 +340,9 @@ class NetworkBuilderMixin(object):
 
         self._users_artists = nx.DiGraph()
         for user_id in self.users_iter():
+            self._users_artists.add_node(user_id)
             for artist_id in self.user_artists_iter(user_id):
+                self._users_artists.add_node(artist_id)
                 self._users_artists.add_edge(user_id, artist_id)
         return self._users_artists
 
@@ -346,7 +352,9 @@ class NetworkBuilderMixin(object):
 
         self._users_users = nx.Graph()
         for user_id in self.users_iter():
+            self._users_users.add_node(user_id)
             for user_id2 in self.user_user_iter(user_id):
+                self._users_users.add_node(user_id2)
                 self._users_users.add_edge(user_id, user_id2)
 
         return self._users_users
