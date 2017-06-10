@@ -2,6 +2,8 @@ from lastfm_network import *
 import matplotlib.pyplot as plt
 from matplotlib.ticker import MaxNLocator
 import seaborn as sns  # pip install seaborn
+import pdb
+import time
 sns.set_palette("deep", desat=.6)
 sns.set_style("whitegrid")
 
@@ -30,9 +32,9 @@ class RecommenderSystem(LastfmNetwork):
         similarUsers = [similarUser[0] for similarUser in similarUsers[:min(len(similarUsers), maxSimilarUsers)]]
 
         # We get the artists that the reference user has listened to
-        referenceUserArtists = set(self.get_kdistant_neighbors_by_type(referenceUser, type='ua'))
+        referenceUserArtists = set(self.user_artists_iter(referenceUser))
         # We select as relevant those artists with a high number of reproductions by the reference user
-        referenceArtists = self.get_relevant_artists_from_user(referenceUser, referenceUserArtists, relevanceAccum)
+        relevantArtists = self.get_relevant_artists_from_user(referenceUser, referenceUserArtists, relevanceAccum)
 
         # We look for the candidate artist list considering all similar users found
         candidateArtistList = []
@@ -45,7 +47,7 @@ class RecommenderSystem(LastfmNetwork):
             # We get the maximum similarity score of each candidate with respect to the
             # relevant artists of the reference user (except if the artist had been considered already)
             candidateArtists = [artist for artist in candidateArtists if artist not in artistsAlreadyConsidered]
-            candidateArtists = self.get_scores_for_candidate_artists(referenceArtists, candidateArtists)
+            candidateArtists = self.get_scores_for_candidate_artists(relevantArtists, candidateArtists)
             artistsAlreadyConsidered += [elem[0] for elem in candidateArtists]
 
             # We combine these candidates with the previously found ones
@@ -70,7 +72,7 @@ class RecommenderSystem(LastfmNetwork):
         '''Evaluates the recommendation of a user'''
 
         # We get the most relevant artists from the reference user apart from the ones chosen for the recommendation
-        referenceUserArtists = set(self.get_kdistant_neighbors_by_type(referenceUser, type='ua'))
+        referenceUserArtists = set(self.user_artists_iter(referenceUser))
         referenceArtists = self.get_relevant_artists_from_user(referenceUser, referenceUserArtists, relevanceAccum)
         if maxReferenceArtists >= len(referenceArtists):
             # print 'There are not enough relevant artists to evaluate the recommendation'
@@ -119,8 +121,8 @@ class RecommenderSystem(LastfmNetwork):
         '''Plots the Distribution of Relevant Artist Recoveries of the evaluation'''
         ax = plt.figure().gca()
         plt.xticks(range(np.min(recoveries), np.max(recoveries) + 1))
-        #ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-        plt.hist(recoveries, weights=len(recoveries)*[1./len(recoveries)], range=(np.min(recoveries) - 0.5, np.max(recoveries) + 0.5), bins=np.max(recoveries) + 1)
+        # ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+        plt.hist(recoveries, weights=len(recoveries) * [1. / len(recoveries)], range=(np.min(recoveries) - 0.5, np.max(recoveries) + 0.5), bins=np.max(recoveries) + 1)
         plt.suptitle('Distribution of Relevant Artist Recoveries', fontweight='bold', fontsize=12)
         plt.title(execution, fontsize=9)
         plt.xlabel("Number of Recoveries")
@@ -145,7 +147,7 @@ class RecommenderSystem(LastfmNetwork):
             for node in nodesToExplore:
                 newNeighbors += [x for x in self._graph.neighbors(node)
                                  if (self._graph.get_edge_data(node, x)['type'] == type
-                                 and x not in neighbors + [centralNode] + newNeighbors)]
+                                     and x not in neighbors + [centralNode] + newNeighbors)]
             neighbors += newNeighbors
             nodesToExplore = newNeighbors
         return neighbors
@@ -159,8 +161,8 @@ class RecommenderSystem(LastfmNetwork):
         else:
             return self.user_similarities[idx2, idx1]
         '''
-        cluster1 = set(self.get_kdistant_neighbors_by_type(node1, type='ua'))
-        cluster2 = set(self.get_kdistant_neighbors_by_type(node2, type='ua'))
+        cluster1 = set(self.user_artists_iter(node1))
+        cluster2 = set(self.user_artists_iter(node2))
         return self._sim_over_clusters(cluster1, cluster2)
 
     def get_artist_artist_similarity(self, node1, node2):
@@ -172,8 +174,8 @@ class RecommenderSystem(LastfmNetwork):
             else:
                 return self.artist_similarities_tags[idx2, idx1]
         else:
-            cluster1 = set(self.get_kdistant_neighbors_by_type(node1, type='at'))
-            cluster2 = set(self.get_kdistant_neighbors_by_type(node2, type='at'))
+            cluster1 = set(self.artist_tags_iter(node1))
+            cluster2 = set(self.artist_tags_iter(node2))
             return self._sim_over_clusters(cluster1, cluster2)
 
     def get_ordering_key(self, element):
@@ -207,7 +209,7 @@ class RecommenderSystem(LastfmNetwork):
     def get_candidate_artists_from_similar_user(self, similarUser, referenceUser, referenceUserArtists, relevanceAccum):
         '''Gets the relevant candidate artists from a similar user'''
         # We get the artists that the similar user has listened to
-        similarUserArtists = set(self.get_kdistant_neighbors_by_type(similarUser, type='ua'))
+        similarUserArtists = set(self.user_artists_iter(similarUser))
         # The candidate artists come from the difference with respect to the ones that the reference user has listened to
         candidateArtists = similarUserArtists.difference(referenceUserArtists)
         # We return the candidates that we consider relevant for the similar user
