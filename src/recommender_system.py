@@ -109,7 +109,7 @@ class RecommenderSystem(LastfmNetwork):
                 noValid+=1
         execution = 'kN='+str(kneighborhood)+', SU='+str(maxSimilarUsers)+', RA='+str(maxReferenceArtists)
         print '\n__________________________________________________________\n'
-        print 'RD'+execution
+        print execution
         print '\nEvaluation performed over %d users; %d selected users did not have enough relevant artists to be evaluated' %(len(recoveries), noValid)
         self.plot_recovery_distribution(recoveries, execution)
         print 'Median: %f. Mean: %f. Std: %f.' %(np.median(recoveries), np.mean(recoveries), np.std(recoveries))
@@ -145,7 +145,7 @@ class RecommenderSystem(LastfmNetwork):
             for node in nodesToExplore:
                 newNeighbors += [x for x in self._graph.neighbors(node)
                                  if (self._graph.get_edge_data(node, x)['type'] == type
-                                     and x not in neighbors + [centralNode])]
+                                 and x not in neighbors + [centralNode] + newNeighbors)]
             neighbors += newNeighbors
             nodesToExplore = newNeighbors
         return neighbors
