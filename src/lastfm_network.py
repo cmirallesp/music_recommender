@@ -333,16 +333,6 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         else:
             return self._graph[id1][id2]['walking_weight']
 
-    def check_friendship(self):
-        ok = True
-        for uid_1 in self.users_iter():
-            for uid_2 in self.user_user_iter(uid_1):
-                if not self._graph.has_edge(uid_2, uid_1):
-                    info("{}-{} but not {}-{}".format(uid_1, uid_2,
-                                                      uid_2, uid_1))
-                    ok = False
-        return ok
-
     def times_user_listen_artist(self, user_id, artist_id):
         # returns the weight between user_id and artists id
         ku = self.key_user(user_id)
