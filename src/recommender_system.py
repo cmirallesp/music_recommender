@@ -42,7 +42,7 @@ class RecommenderSystem(LastfmNetwork):
         for similarUser in similarUsers:
             # The candidate artists come from the artists listened by a similar user but not by the reference one
             # We only keep those candidates that we consider relevant for the similar user
-            candidateArtists = self.get_candidate_artists_from_similar_user(similarUser, referenceUser, referenceUserArtists, relevanceAccum)
+            candidateArtists = self.get_candidate_artists_from_similar_user(similarUser, referenceUserArtists, relevanceAccum)
 
             # We get the maximum similarity score of each candidate with respect to the
             # relevant artists of the reference user (except if the artist had been considered already)
@@ -210,7 +210,7 @@ class RecommenderSystem(LastfmNetwork):
                 break
         return relevantArtists
 
-    def get_candidate_artists_from_similar_user(self, similarUser, referenceUser, referenceUserArtists, relevanceAccum):
+    def get_candidate_artists_from_similar_user(self, similarUser, referenceUserArtists, relevanceAccum):
         '''Gets the relevant candidate artists from a similar user'''
         # We get the artists that the similar user has listened to
         similarUserArtists = set(self.user_artists_iter(similarUser))
