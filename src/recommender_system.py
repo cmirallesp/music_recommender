@@ -1,9 +1,8 @@
 from lastfm_network import *
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
+
 import seaborn as sns  # pip install seaborn
-import pdb
-import time
+
 sns.set_palette("deep", desat=.6)
 sns.set_style("whitegrid")
 
@@ -33,7 +32,7 @@ class RecommenderSystem(LastfmNetwork):
 
         # We get the artists that the reference user has listened to
         referenceUserArtists = set(self.user_artists_iter(referenceUser))
-        assert referenceUserArtists == set(self.get_kdistant_neighbors_by_type(referenceUser, type='ua'))
+        # assert referenceUserArtists == set(self.get_kdistant_neighbors_by_type(referenceUser, type='ua'))
         # We select as relevant those artists with a high number of reproductions by the reference user
         relevantArtists = self.get_relevant_artists_from_user(referenceUser, referenceUserArtists, relevanceAccum)
 
@@ -163,9 +162,9 @@ class RecommenderSystem(LastfmNetwork):
             return self.user_similarities[idx2, idx1]
         '''
         cluster1 = set(self.user_artists_iter(node1))
-        assert cluster1 == set(self.get_kdistant_neighbors_by_type(node1, type='ua'))
+        # assert cluster1 == set(self.get_kdistant_neighbors_by_type(node1, type='ua'))
         cluster2 = set(self.user_artists_iter(node2))
-        assert cluster2 == set(self.get_kdistant_neighbors_by_type(node2, type='ua'))
+        # assert cluster2 == set(self.get_kdistant_neighbors_by_type(node2, type='ua'))
         return self._sim_over_clusters(cluster1, cluster2)
 
     def get_artist_artist_similarity(self, node1, node2):
@@ -178,9 +177,9 @@ class RecommenderSystem(LastfmNetwork):
                 return self.artist_similarities_tags[idx2, idx1]
         else:
             cluster1 = set(self.artist_tags_iter(node1))
-            assert cluster1 == set(self.get_kdistant_neighbors_by_type(node1, type='at'))
+            # assert cluster1 == set(self.get_kdistant_neighbors_by_type(node1, type='at'))
             cluster2 = set(self.artist_tags_iter(node2))
-            assert cluster2 == set(self.get_kdistant_neighbors_by_type(node2, type='at'))
+            # assert cluster2 == set(self.get_kdistant_neighbors_by_type(node2, type='at'))
             return self._sim_over_clusters(cluster1, cluster2)
 
     def get_ordering_key(self, element):
@@ -215,7 +214,7 @@ class RecommenderSystem(LastfmNetwork):
         '''Gets the relevant candidate artists from a similar user'''
         # We get the artists that the similar user has listened to
         similarUserArtists = set(self.user_artists_iter(similarUser))
-        assert similarUserArtists == set(self.get_kdistant_neighbors_by_type(similarUser, type='ua'))
+        # assert similarUserArtists == set(self.get_kdistant_neighbors_by_type(similarUser, type='ua'))
         # The candidate artists come from the difference with respect to the ones that the reference user has listened to
         candidateArtists = similarUserArtists.difference(referenceUserArtists)
         # We return the candidates that we consider relevant for the similar user
