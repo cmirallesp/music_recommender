@@ -3,4 +3,3 @@ src/.ipynb_checkpoints/
 logging.log
 report/
 *.pickle
-src/plots
