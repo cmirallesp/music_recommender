@@ -15,13 +15,14 @@ sns.set_palette("deep", desat=.6)
 sns.set_style("whitegrid")
 
 PLOT_TITLES = {
-    'sp': "Shortest Path distribution",
-    'cd': "Components distribution",
-    'at': "Artist > Tag degree distribution",
-    'ta': "Tag > Artist degree distribution",
-    'au': "Artist > User degree distribution",
-    'ua': "User > Artist degree distribution",
-    'uu': "User > User degree distribution",
+    'sp': "Shortest Path distribution [{} > {}]",
+    'cd': "Components distribution [{} > {}]",
+    'wd': "Weight distribution [{} > {}]",
+    'at': "{} degree distribution [Artists > Tags]",
+    'ta': "{} degree distribution [Tags > Artists]",
+    'au': "{} degree distribution [Artists > Users]",
+    'ua': "{} degree distribution [Users > Artists]",
+    'uu': "{} degree distribution [Users > Users]",
 }
 
 
@@ -54,7 +55,7 @@ def draw_hist(x, y, title, file_name, loglog=False, bins=15):
 
     plt.hist(x_, weights=y_, log=loglog, bins=bins)
     # plt.plot(x_, y_)
-    plt.savefig('plots/{}.png'.format(file_name))
+    plt.savefig('plots/desc/{}.png'.format(file_name))
 
 
 def shortest_paths(network):
@@ -67,17 +68,33 @@ def shortest_paths(network):
 
 
 def get_descriptors(network, short_name, nx_network, already_calculated=True):
+    def _prefixToTitle(prefix):
+        if prefix == 'A':
+            return "Artists"
+        elif prefix == 'T':
+            return "Tags"
+        elif prefix == 'U':
+            return 'Users'
+
     filename = "{}.pickle".format(short_name)
     if os.path.isfile(filename):
         result = pickle.load(open(filename, 'rb'))
         return result
 
     result = {}
+    prefix1, prefix2 = short_name[0], short_name[1]
+    t1 = _prefixToTitle(prefix1)
+    t2 = _prefixToTitle(prefix)
     result['name'] = short_name
+    result['title_dd1'] = PLOT_TITLES[short_name].format(t1)
+    result['title_dd2'] = PLOT_TITLES[short_name].format(t2)
+    result['title_wd'] = PLOT_TITLES['wd'].format(t1, t2)
+    result['title_cd'] = PLOT_TITLES['cd'].format(t1, t2)
+    result['title_sp'] = PLOT_TITLES['sp'].format(t1, t2)
     result['filename_dd'] = '{}_dd'.format(short_name)  # degree input dist
     result['filename_ddl'] = '{}_dd_log'.format(short_name)  # degree dist (log)
-    result['filename_dd2'] = '{}_{}_dd'.format(short_name[0], short_name)  # degree input dist
-    result['filename_dd3'] = '{}_{}_dd'.format(short_name[1], short_name)  # degree input dist
+    result['filename_dd1'] = '{}_{}_dd'.format(short_name[0], short_name)  # degree input dist
+    result['filename_dd2'] = '{}_{}_dd'.format(short_name[1], short_name)  # degree input dist
     result['filename_wd'] = '{}_wd'.format(short_name)  # weight distribution
     result['filename_wdl'] = '{}_wd_log'.format(short_name)  # weight distribution
     result['filename_sp'] = '{}_sp'.format(short_name)  # shortest path
@@ -90,7 +107,6 @@ def get_descriptors(network, short_name, nx_network, already_calculated=True):
     result['num_nodes'] = nodes.shape[0]
     result['num_edges'] = edges.shape[0]
 
-    prefix1, prefix2 = short_name[0], short_name[1]
     result['degree'] = {"total": {}, "prefix1": {}, "prefix2": {}}
     result['degree']["total"]['max'] = network.get_out_degrees(nodes).max()
     result['degree']["total"]['min'] = network.get_out_degrees(nodes).min()
@@ -206,38 +222,38 @@ if __name__ == '__main__':
 
     for desc in [at_desc, ta_desc, au_desc, ua_desc, uu_desc]:
         print pprint(desc)
-        draw_hist(desc['degree']["total"]['bins'], desc["degree"]["total"]['counts'],
-                  title=PLOT_TITLES[desc['name']],
-                  file_name=desc["filename_dd"])
+        # draw_hist(desc['degree']["total"]['bins'], desc["degree"]["total"]['counts'],
+        #           title=desc[''],
+        #           file_name=desc["filename_dd"])
 
         draw_hist(desc['degree']["prefix1"]['bins'], desc["degree"]["prefix1"]['counts'],
-                  title=PLOT_TITLES[desc['name']],
-                  file_name=desc["filename_dd2"])
+                  title=desc['title_dd1'],
+                  file_name=desc["filename_dd1"])
 
         draw_hist(desc['degree']["prefix2"]['bins'], desc["degree"]["prefix2"]['counts'],
-                  title=PLOT_TITLES[desc['name']],
-                  file_name=desc["filename_dd3"])
+                  title=desc['title_dd2'],
+                  file_name=desc["filename_dd2"])
 
         draw_hist(desc["weights"]['bins'], desc["weights"]['counts'],
-                  title=PLOT_TITLES[desc['name']],
+                  title=desc['title_wd'],
                   file_name=desc["filename_wd"])
 
         draw_hist(desc["weights"]['bins'], desc["weights"]['counts'],
-                  title=PLOT_TITLES[desc['name']],
+                  title=desc['title_wd'],
                   file_name=desc["filename_wdl"], loglog=True)
 
         # draw_hist(desc['degree']['bins'], desc["degree"]['counts'],
-        #           title=PLOT_TITLES[desc['name']],
+        #           title=desc['name'],
         #           file_name=desc["filename_ddl"],
         #           loglog=True)
 
         if 'components' in desc.keys():
             draw_hist(desc['components']['bins'], desc['components']['counts'],
-                      title=PLOT_TITLES['cd'],
+                      title=desc['title_cd'],
                       file_name=desc["filename_cd"])
 
         if 'sp' in desc.keys():
             draw_hist(desc['sp']['bins'], desc['sp']['counts'],
-                      title=PLOT_TITLES['sp'],
+                      title=desc['title_sp'],
                       file_name=desc['filename_sp'],
                       bins=10)
