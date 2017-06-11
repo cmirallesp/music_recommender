@@ -10,6 +10,9 @@ import graph_tool.clustering as clu
 import os
 import networkx as nx
 import pdb
+import seaborn as sns  # pip install seaborn
+sns.set_palette("deep", desat=.6)
+sns.set_style("whitegrid")
 
 PLOT_TITLES = {
     'sp': "Shortest Path distribution",
@@ -37,13 +40,18 @@ def gt_network(nx_network, file_name):
 def draw_hist(x, y, title, file_name, loglog=False, bins=15):
     y_ = y[y > 0]
     N = y_.shape[0]
+    x1 = x.min()
+    x2 = x.max()
     if loglog:
-        x_ = np.logspace(np.log10(1), np.log10(N), N)
+        # x_ = np.logspace(np.log10(1), np.log10(N), N)
+        x_ = np.logspace(np.log10(max(x1, 1)), np.log10(x2), N)
     else:
-        x_ = np.linspace(1, N, N)
+        # x_ = np.linspace(1, N, N)
+        x_ = np.linspace(x1, x2, N)
 
     plt.figure()
     plt.title(title)
+
     plt.hist(x_, weights=y_, log=loglog, bins=bins)
     # plt.plot(x_, y_)
     plt.savefig('plots/{}.png'.format(file_name))
@@ -58,7 +66,7 @@ def shortest_paths(network):
     return counts, bins
 
 
-def get_descriptors(network, short_name, already_calculated=False):
+def get_descriptors(network, short_name, nx_network, already_calculated=True):
     filename = "{}.pickle".format(short_name)
     if os.path.isfile(filename):
         result = pickle.load(open(filename, 'rb'))
@@ -67,24 +75,54 @@ def get_descriptors(network, short_name, already_calculated=False):
     result = {}
     result['name'] = short_name
     result['filename_dd'] = '{}_dd'.format(short_name)  # degree input dist
-    result['filename_dd2'] = '{}_dd_log'.format(short_name)  # degree dist (log)
+    result['filename_ddl'] = '{}_dd_log'.format(short_name)  # degree dist (log)
+    result['filename_dd2'] = '{}_{}_dd'.format(short_name[0], short_name)  # degree input dist
+    result['filename_dd3'] = '{}_{}_dd'.format(short_name[1], short_name)  # degree input dist
+    result['filename_wd'] = '{}_wd'.format(short_name)  # weight distribution
+    result['filename_wdl'] = '{}_wd_log'.format(short_name)  # weight distribution
     result['filename_sp'] = '{}_sp'.format(short_name)  # shortest path
     result['filename_cd'] = '{}_cd'.format(short_name)  # components
-    result['filename_cd2'] = '{}_cd_log'.format(short_name)  #
-    nodes = list(network.vertices())
-    edges = list(network.edges())
+    result['filename_cdl'] = '{}_cd_log'.format(short_name)  #
 
-    result['num_nodes'] = len(nodes)
-    result['num_edges'] = len(edges)
+    nodes = network.get_vertices()
+    edges = network.get_edges()
 
-    # we use out_ because is undirected graph
-    result['degree'] = {}
-    result['degree']['max'] = network.get_out_degrees(nodes).max()
-    result['degree']['min'] = network.get_out_degrees(nodes).min()
-    # avg_out_d, _ = st.vertex_average(network, "total")
-    avg_out_d, _ = st.vertex_average(network, "out")
-    result['degree']['avg'] = avg_out_d
-    result['degree']["counts"], result['degree']["bins"] = st.vertex_hist(network, "out")
+    result['num_nodes'] = nodes.shape[0]
+    result['num_edges'] = edges.shape[0]
+
+    prefix1, prefix2 = short_name[0], short_name[1]
+    result['degree'] = {"total": {}, "prefix1": {}, "prefix2": {}}
+    result['degree']["total"]['max'] = network.get_out_degrees(nodes).max()
+    result['degree']["total"]['min'] = network.get_out_degrees(nodes).min()
+    result['degree']["total"]['avg'] = network.get_out_degrees(nodes).mean()
+    result['degree']["total"]["counts"], result['degree']["total"]["bins"] = st.vertex_hist(network, "out")
+
+    lst1, lst2 = [], []
+    for node in nodes:
+        if prefix1 in network.vp['id'][node]:
+            lst1.append(node)
+        elif prefix2 in network.vp['id'][node]:
+            lst2.append(node)
+
+    result['degree']["prefix1"]['max'] = network.get_out_degrees(lst1).max()
+    result['degree']["prefix1"]['min'] = network.get_out_degrees(lst1).min()
+    result['degree']["prefix1"]['avg'] = network.get_out_degrees(lst1).mean()
+    result['degree']["prefix1"]["counts"], result['degree']["prefix1"]["bins"] = np.histogram(network.get_out_degrees(lst1), bins=1000)  # result['degree']["total"]["bins"].shape[0]
+    if prefix1 == prefix2:
+        lst2 = lst1
+    result['degree']["prefix2"]['max'] = network.get_out_degrees(lst2).max()
+    result['degree']["prefix2"]['min'] = network.get_out_degrees(lst2).min()
+    result['degree']["prefix2"]['avg'] = network.get_out_degrees(lst2).mean()
+    result['degree']["prefix2"]["counts"], result['degree']["prefix2"]["bins"] = np.histogram(network.get_out_degrees(lst2), bins=1000)
+
+    result['weights'] = {}
+    weights = []
+
+    for v1, v2 in nx_network.edges():
+        weight = nx_network.get_edge_data(v1, v2)['weight']
+        weights.append(weight)
+
+    result['weights']['counts'], result['weights']['bins'] = np.histogram(weights, bins=8)
 
     # estimated diamater  and longest path
     d, (v1, v2) = top.pseudo_diameter(network)
@@ -118,9 +156,15 @@ def pprint(results):
         "Name: {}\n"
         "Num nodes: {}\n"
         "Num edges: {}\n"
-        "Max degree: {}\n"
-        "Min degree: {}\n"
-        "Avg degree: {}\n"
+        "Total Max degree: {}\n"
+        "Total Min degree: {}\n"
+        "Total Avg degree: {}\n"
+        "Prefix1 Max degree: {}\n"
+        "Prefix1 Min degree: {}\n"
+        "Prefix1 Avg degree: {}\n"
+        "Prefix2 Max degree: {}\n"
+        "Prefix2 Min degree: {}\n"
+        "Prefix2 Avg degree: {}\n"
         "Diameter: {}\n"
         "Path: {}\n"
         "Clustering: {}\n"
@@ -129,9 +173,15 @@ def pprint(results):
         results['name'],
         results['num_nodes'],
         results['num_edges'],
-        results['degree']['max'],
-        results['degree']['min'],
-        results['degree']['avg'],
+        results['degree']["total"]['max'],
+        results['degree']["total"]['min'],
+        results['degree']["total"]['avg'],
+        results['degree']["prefix1"]['max'],
+        results['degree']["prefix1"]['min'],
+        results['degree']["prefix1"]['avg'],
+        results['degree']["prefix2"]['max'],
+        results['degree']["prefix2"]['min'],
+        results['degree']["prefix2"]['avg'],
         results['diameter'],
         results['diameter_path'],  # split i path?
         results['clustering'],
@@ -139,37 +189,55 @@ def pprint(results):
     )
 
 
-net = LastfmNetwork.instance()
+if __name__ == '__main__':
+    net = LastfmNetwork.instance()
 
-gt_at_net = gt_network(net.get_artists_tags_partition(), "gt_at.pickle")
-gt_ta_net = gt_network(net.get_tags_artists_partition(), "gt_ta.pickle")
-gt_au_net = gt_network(net.get_artists_users_partition(), "gt_au.pickle")
-gt_ua_net = gt_network(net.get_users_artists_partition(), "gt_ua.pickle")
-gt_uu_net = gt_network(net.get_users_users_partition(), "gt_uu.pickle")
+    gt_at_net = gt_network(net.get_artists_tags_partition(), "gt_at.pickle")
+    gt_ta_net = gt_network(net.get_tags_artists_partition(), "gt_ta.pickle")
+    gt_au_net = gt_network(net.get_artists_users_partition(), "gt_au.pickle")
+    gt_ua_net = gt_network(net.get_users_artists_partition(), "gt_ua.pickle")
+    gt_uu_net = gt_network(net.get_users_users_partition(), "gt_uu.pickle")
 
-at_desc = get_descriptors(gt_at_net, 'at')
-ta_desc = get_descriptors(gt_ta_net, 'ta', already_calculated=True)
-ua_desc = get_descriptors(gt_au_net, 'ua')
-au_desc = get_descriptors(gt_au_net, 'au', already_calculated=True)
-uu_desc = get_descriptors(gt_uu_net, 'uu')
+    at_desc = get_descriptors(gt_at_net, 'at', nx_network=net.get_artists_tags_partition())
+    ta_desc = get_descriptors(gt_ta_net, 'ta', already_calculated=True, nx_network=net.get_tags_artists_partition())
+    ua_desc = get_descriptors(gt_ua_net, 'ua', nx_network=net.get_users_artists_partition())
+    au_desc = get_descriptors(gt_au_net, 'au', already_calculated=True, nx_network=net.get_artists_users_partition())
+    uu_desc = get_descriptors(gt_uu_net, 'uu', nx_network=net.get_users_users_partition())
 
-for desc in [at_desc, ta_desc, au_desc, ua_desc, uu_desc]:
-    print pprint(desc)
-    draw_hist(desc['degree']['bins'], desc["degree"]['counts'],
-              title=PLOT_TITLES[desc['name']],
-              file_name=desc["filename_dd"])
-    draw_hist(desc['degree']['bins'], desc["degree"]['counts'],
-              title=PLOT_TITLES[desc['name']],
-              file_name=desc["filename_dd2"],
-              loglog=True)
+    for desc in [at_desc, ta_desc, au_desc, ua_desc, uu_desc]:
+        print pprint(desc)
+        draw_hist(desc['degree']["total"]['bins'], desc["degree"]["total"]['counts'],
+                  title=PLOT_TITLES[desc['name']],
+                  file_name=desc["filename_dd"])
 
-    if 'components' in desc.keys():
-        draw_hist(desc['components']['bins'], desc['components']['counts'],
-                  title=PLOT_TITLES['cd'],
-                  file_name=desc["filename_cd"])
+        draw_hist(desc['degree']["prefix1"]['bins'], desc["degree"]["prefix1"]['counts'],
+                  title=PLOT_TITLES[desc['name']],
+                  file_name=desc["filename_dd2"])
 
-    if 'sp' in desc.keys():
-        draw_hist(desc['sp']['bins'], desc['sp']['counts'],
-                  title=PLOT_TITLES['sp'],
-                  file_name=desc['filename_sp'],
-                  bins=10)
+        draw_hist(desc['degree']["prefix2"]['bins'], desc["degree"]["prefix2"]['counts'],
+                  title=PLOT_TITLES[desc['name']],
+                  file_name=desc["filename_dd3"])
+
+        draw_hist(desc["weights"]['bins'], desc["weights"]['counts'],
+                  title=PLOT_TITLES[desc['name']],
+                  file_name=desc["filename_wd"])
+
+        draw_hist(desc["weights"]['bins'], desc["weights"]['counts'],
+                  title=PLOT_TITLES[desc['name']],
+                  file_name=desc["filename_wdl"], loglog=True)
+
+        # draw_hist(desc['degree']['bins'], desc["degree"]['counts'],
+        #           title=PLOT_TITLES[desc['name']],
+        #           file_name=desc["filename_ddl"],
+        #           loglog=True)
+
+        if 'components' in desc.keys():
+            draw_hist(desc['components']['bins'], desc['components']['counts'],
+                      title=PLOT_TITLES['cd'],
+                      file_name=desc["filename_cd"])
+
+        if 'sp' in desc.keys():
+            draw_hist(desc['sp']['bins'], desc['sp']['counts'],
+                      title=PLOT_TITLES['sp'],
+                      file_name=desc['filename_sp'],
+                      bins=10)

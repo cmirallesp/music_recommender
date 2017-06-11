@@ -202,7 +202,7 @@ class TestLastfmNetwork(unittest.TestCase):
 
     def test_get_artists_tags_partition(self):
         lst = self.lastfm_net.get_artists_tags_partition()
-        self.assertEqual(21593, len(lst))
+        self.assertEqual(27092, len(lst))
 
     def test_network_descriptors(self):
         lst = self.lastfm_net.get_artists_tags_partition()
