@@ -110,12 +110,14 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         # group the tagIDs of the tags that ended up being the same into a single tagID
         # we create a dictionary that performs this mapping
         dictionaryTagIDs = {}
-        for tagValueIDs in tags.groupby(['tagValue']).groups.values():
-            for tagID in tagValueIDs:
-                dictionaryTagIDs[tagID] = tagValueIDs[0]
+        for indices in tags.groupby(['tagValue']).groups.values():
+            for idx in indices:
+                dictionaryTagIDs[tags['tagID'][idx]] = tags['tagID'][indices[0]]
         # apply the dictionary to user_taggedartists
         user_taggedartists['tagID'] = user_taggedartists['tagID'].apply(lambda x: self.applyDictionaryTagIDs(x, dictionaryTagIDs))
-
+        # use the dictionary to avoid redundancy in tags
+        tags = tags[tags['tagID'].isin(dictionaryTagIDs.values())]
+        
         return artists, tags, user_taggedartists
 
     def tagPreprocessing(self, tag):
