@@ -301,8 +301,8 @@ class NetworkBuilderMixin(object):
     def get_artists_tags_partition(self):
         if self._artists_tags is not None:
             return self._artists_tags
-
-        self._artists_tags = nx.DiGraph()
+        # self._artists_users = nx.DiGraph()
+        self._artists_tags = nx.Graph()
         for artist_id in self.artists_iter():
             self._artists_tags.add_node(artist_id)
             for tag_id in self.artist_tags_iter(artist_id):
@@ -311,24 +311,25 @@ class NetworkBuilderMixin(object):
                 self._artists_tags.add_edge(artist_id, tag_id, weight=ed['weight'])
         return self._artists_tags
 
-    def get_tags_artists_partition(self):
-        if self._tags_artists is not None:
-            return self._tags_artists
+    # def get_tags_artists_partition(self):
+    #     if self._tags_artists is not None:
+    #         return self._tags_artists
 
-        self._tags_artists = nx.DiGraph()
-        for tag_id in self.tags_iter():
-            self._tags_artists.add_node(tag_id)
-            for artist_id in self.tag_artists_iter(tag_id):
-                self._tags_artists.add_node(artist_id)
-                ed = self._graph.get_edge_data(artist_id, tag_id)
-                self._tags_artists.add_edge(tag_id, artist_id, weight=ed['weight'])
-        return self._tags_artists
+    #     self._tags_artists = nx.DiGraph()
+    #     for tag_id in self.tags_iter():
+    #         self._tags_artists.add_node(tag_id)
+    #         for artist_id in self.tag_artists_iter(tag_id):
+    #             self._tags_artists.add_node(artist_id)
+    #             ed = self._graph.get_edge_data(artist_id, tag_id)
+    #             self._tags_artists.add_edge(tag_id, artist_id, weight=ed['weight'])
+    #     return self._tags_artists
 
     def get_artists_users_partition(self):
         if self._artists_users is not None:
             return self._artists_users
 
-        self._artists_users = nx.DiGraph()
+        self._artists_users = nx.Graph()
+        # self._artists_users = nx.DiGraph()
         for artist_id in self.artists_iter():
             self._artists_users.add_node(artist_id)
             for user_id in self.artist_users_iter(artist_id):
@@ -337,18 +338,18 @@ class NetworkBuilderMixin(object):
                 self._artists_users.add_edge(artist_id, user_id, weight=ed['weight'])
         return self._artists_users
 
-    def get_users_artists_partition(self):
-        if self._users_artists is not None:
-            return self._users_artists
+    # def get_users_artists_partition(self):
+    #     if self._users_artists is not None:
+    #         return self._users_artists
 
-        self._users_artists = nx.DiGraph()
-        for user_id in self.users_iter():
-            self._users_artists.add_node(user_id)
-            for artist_id in self.user_artists_iter(user_id):
-                self._users_artists.add_node(artist_id)
-                ed = self._graph.get_edge_data(user_id, artist_id)
-                self._users_artists.add_edge(user_id, artist_id, weight=ed['weight'])
-        return self._users_artists
+    #     self._users_artists = nx.DiGraph()
+    #     for user_id in self.users_iter():
+    #         self._users_artists.add_node(user_id)
+    #         for artist_id in self.user_artists_iter(user_id):
+    #             self._users_artists.add_node(artist_id)
+    #             ed = self._graph.get_edge_data(user_id, artist_id)
+    #             self._users_artists.add_edge(user_id, artist_id, weight=ed['weight'])
+    #     return self._users_artists
 
     def get_users_users_partition(self):
         if self._users_users is not None:
