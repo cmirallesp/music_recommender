@@ -1,0 +1,70 @@
+__________________________________________________________
+
+kN=1, SU=1, RA=3
+
+Evaluation performed over 1872 users; 20 selected users did not have enough relevant artists to be evaluated
+Median: 2.000000. Mean: 2.673077. Std: 2.088829.
+
+__________________________________________________________
+
+kN=1, SU=5, RA=3
+
+Evaluation performed over 1872 users; 20 selected users did not have enough relevant artists to be evaluated
+Median: 2.000000. Mean: 2.200855. Std: 1.759055.
+
+__________________________________________________________
+
+kN=2, SU=1, RA=3
+
+Evaluation performed over 1872 users; 20 selected users did not have enough relevant artists to be evaluated
+Median: 2.000000. Mean: 2.609509. Std: 2.022252.
+
+__________________________________________________________
+
+kN=2, SU=5, RA=3
+
+Evaluation performed over 1872 users; 20 selected users did not have enough relevant artists to be evaluated
+Median: 2.000000. Mean: 2.197650. Std: 1.729716.
+
+__________________________________________________________
+
+kN=5, SU=1, RA=3
+
+Evaluation performed over 1872 users; 20 selected users did not have enough relevant artists to be evaluated
+Median: 2.000000. Mean: 2.451923. Std: 2.033332.
+
+__________________________________________________________
+
+kN=5, SU=5, RA=3
+
+Evaluation performed over 1872 users; 20 selected users did not have enough relevant artists to be evaluated
+Median: 2.000000. Mean: 2.211538. Std: 1.726836.
+
+__________________________________________________________
+
+kN=None, SU=1, RA=3
+
+Evaluation performed over 1872 users; 20 selected users did not have enough relevant artists to be evaluated
+Median: 2.000000. Mean: 2.370726. Std: 2.027945.
+
+__________________________________________________________
+
+kN=None, SU=5, RA=3
+
+Evaluation performed over 1872 users; 20 selected users did not have enough relevant artists to be evaluated
+Median: 2.000000. Mean: 2.176282. Std: 1.726464.
+
+__________________________________________________________
+
+
+kN=None, SU=10, RA=3
+
+Evaluation performed over 1872 users; 20 selected users did not have enough relevant artists to be evaluated
+Median: 2.000000. Mean: 1.811966. Std: 1.571279.
+
+__________________________________________________________
+
+kN=None, SU=50, RA=3
+
+Evaluation performed over 1872 users; 20 selected users did not have enough relevant artists to be evaluated
+Median: 1.000000. Mean: 1.161325. Std: 1.263660.
