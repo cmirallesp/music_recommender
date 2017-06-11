@@ -67,7 +67,7 @@ def shortest_paths(network):
     return counts, bins
 
 
-def get_descriptors(network, short_name, nx_network, already_calculated=True):
+def get_descriptors(network, short_name, nx_network, already_calculated=False):
     def _prefixToTitle(prefix):
         if prefix == 'A':
             return "Artists"
@@ -76,7 +76,7 @@ def get_descriptors(network, short_name, nx_network, already_calculated=True):
         elif prefix == 'U':
             return 'Users'
 
-    filename = "{}.pickle".format(short_name)
+    filename = "cache/{}.pickle".format(short_name)
     if os.path.isfile(filename):
         result = pickle.load(open(filename, 'rb'))
         return result
@@ -84,7 +84,7 @@ def get_descriptors(network, short_name, nx_network, already_calculated=True):
     result = {}
     prefix1, prefix2 = short_name[0], short_name[1]
     t1 = _prefixToTitle(prefix1)
-    t2 = _prefixToTitle(prefix)
+    t2 = _prefixToTitle(prefix2)
     result['name'] = short_name
     result['title_dd1'] = PLOT_TITLES[short_name].format(t1)
     result['title_dd2'] = PLOT_TITLES[short_name].format(t2)
@@ -123,13 +123,13 @@ def get_descriptors(network, short_name, nx_network, already_calculated=True):
     result['degree']["prefix1"]['max'] = network.get_out_degrees(lst1).max()
     result['degree']["prefix1"]['min'] = network.get_out_degrees(lst1).min()
     result['degree']["prefix1"]['avg'] = network.get_out_degrees(lst1).mean()
-    result['degree']["prefix1"]["counts"], result['degree']["prefix1"]["bins"] = np.histogram(network.get_out_degrees(lst1), bins=1000)  # result['degree']["total"]["bins"].shape[0]
+    result['degree']["prefix1"]["counts"], result['degree']["prefix1"]["bins"] = np.histogram(network.get_out_degrees(lst1), bins=15)  # result['degree']["total"]["bins"].shape[0]
     if prefix1 == prefix2:
         lst2 = lst1
     result['degree']["prefix2"]['max'] = network.get_out_degrees(lst2).max()
     result['degree']["prefix2"]['min'] = network.get_out_degrees(lst2).min()
     result['degree']["prefix2"]['avg'] = network.get_out_degrees(lst2).mean()
-    result['degree']["prefix2"]["counts"], result['degree']["prefix2"]["bins"] = np.histogram(network.get_out_degrees(lst2), bins=1000)
+    result['degree']["prefix2"]["counts"], result['degree']["prefix2"]["bins"] = np.histogram(network.get_out_degrees(lst2), bins=15)
 
     result['weights'] = {}
     weights = []
@@ -156,7 +156,7 @@ def get_descriptors(network, short_name, nx_network, already_calculated=True):
         # connected components
 
         _, c2 = top.label_components(net2)
-        pdb.set_trace()
+
         result['components'] = {}
         result['components']['num'] = len(c2)
         result['components']['bins'] = range(len(c2))
@@ -208,19 +208,20 @@ def pprint(results):
 if __name__ == '__main__':
     net = LastfmNetwork.instance()
 
-    gt_at_net = gt_network(net.get_artists_tags_partition(), "gt_at.pickle")
-    gt_ta_net = gt_network(net.get_tags_artists_partition(), "gt_ta.pickle")
-    gt_au_net = gt_network(net.get_artists_users_partition(), "gt_au.pickle")
-    gt_ua_net = gt_network(net.get_users_artists_partition(), "gt_ua.pickle")
-    gt_uu_net = gt_network(net.get_users_users_partition(), "gt_uu.pickle")
+    gt_at_net = gt_network(net.get_artists_tags_partition(), "cache/gt_at.pickle")
+    # gt_ta_net = gt_network(net.get_tags_artists_partition(), "cache/gt_ta.pickle")
+    gt_au_net = gt_network(net.get_artists_users_partition(), "cache/gt_au.pickle")
+    # gt_ua_net = gt_network(net.get_users_artists_partition(), "cache/gt_ua.pickle")
+    gt_uu_net = gt_network(net.get_users_users_partition(), "cache/gt_uu.pickle")
 
     at_desc = get_descriptors(gt_at_net, 'at', nx_network=net.get_artists_tags_partition())
-    ta_desc = get_descriptors(gt_ta_net, 'ta', already_calculated=True, nx_network=net.get_tags_artists_partition())
-    ua_desc = get_descriptors(gt_ua_net, 'ua', nx_network=net.get_users_artists_partition())
-    au_desc = get_descriptors(gt_au_net, 'au', already_calculated=True, nx_network=net.get_artists_users_partition())
+    # ta_desc = get_descriptors(gt_ta_net, 'ta', already_calculated=True, nx_network=net.get_tags_artists_partition())
+    # ua_desc = get_descriptors(gt_ua_net, 'ua', nx_network=net.get_users_artists_partition())
+    au_desc = get_descriptors(gt_au_net, 'au', nx_network=net.get_artists_users_partition())
     uu_desc = get_descriptors(gt_uu_net, 'uu', nx_network=net.get_users_users_partition())
 
-    for desc in [at_desc, ta_desc, au_desc, ua_desc, uu_desc]:
+    # for desc in [at_desc, ta_desc, au_desc, ua_desc, uu_desc]:
+    for desc in [at_desc, au_desc, uu_desc]:
         print pprint(desc)
         # draw_hist(desc['degree']["total"]['bins'], desc["degree"]["total"]['counts'],
         #           title=desc[''],
