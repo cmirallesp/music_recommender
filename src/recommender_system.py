@@ -47,8 +47,8 @@ class RecommenderSystem(LastfmNetwork):
             # We get the maximum similarity score of each candidate with respect to the
             # relevant artists of the reference user (except if the artist had been considered already)
             candidateArtists = [artist for artist in candidateArtists if artist not in artistsAlreadyConsidered]
+            artistsAlreadyConsidered += candidateArtists
             candidateArtists = self.get_scores_for_candidate_artists(relevantArtists, candidateArtists)
-            artistsAlreadyConsidered += [elem[0] for elem in candidateArtists]
 
             # We combine these candidates with the previously found ones
             candidateArtistList = self.combine_lists_of_candidate_artists(candidateArtistList, candidateArtists)
@@ -57,7 +57,7 @@ class RecommenderSystem(LastfmNetwork):
 
         # Prints the recommendation if requested
         if showRecommendation:
-            self.show_recommendation(referenceUser, referenceArtists, candidateArtistList, recommendationLength)
+            self.show_recommendation(referenceUser, relevantArtists, candidateArtistList, recommendationLength)
 
         return candidateArtistList
 
@@ -214,13 +214,11 @@ class RecommenderSystem(LastfmNetwork):
         '''Gets the relevant candidate artists from a similar user'''
         # We get the artists that the similar user has listened to
         similarUserArtists = set(self.user_artists_iter(similarUser))
-        # assert similarUserArtists == set(self.get_kdistant_neighbors_by_type(similarUser, type='ua'))
-        # The candidate artists come from the difference with respect to the ones that the reference user has listened to
-        candidateArtists = similarUserArtists.difference(referenceUserArtists)
-        # We return the candidates that we consider relevant for the similar user
+        # The candidate artists come from the difference of the relevant artists for the similar user
+        # with respect to the ones that the reference user has listened to
         relevantSimilarUserArtists = set(self.get_relevant_artists_from_user(similarUser, similarUserArtists, relevanceAccum))
-        return list(candidateArtists.intersection(relevantSimilarUserArtists))
-
+        return list(relevantSimilarUserArtists.difference(referenceUserArtists))
+    
     def get_scores_for_candidate_artists(self, referenceArtists, candidateArtists):
         '''Retrieves for each candidate artist the maximum similarity score with respect to any
         reference artist'''
