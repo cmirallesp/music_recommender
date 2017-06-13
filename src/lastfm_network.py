@@ -2,15 +2,11 @@
 from network_builder_mixin import NetworkBuilderMixin
 from network_iterators_mixin import NetworkIteratorsMixin
 import logging
-from logging import info
-
 import numpy as np
 import networkx as nx
-
 import matplotlib.pyplot as plt
 import pandas as pd
 import cPickle as pickle
-
 import os.path
 
 
@@ -117,7 +113,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         user_taggedartists['tagID'] = user_taggedartists['tagID'].apply(lambda x: self.applyDictionaryTagIDs(x, dictionaryTagIDs))
         # use the dictionary to avoid redundancy in tags
         tags = tags[tags['tagID'].isin(dictionaryTagIDs.values())]
-        
+
         return artists, tags, user_taggedartists
 
     def tagPreprocessing(self, tag):
