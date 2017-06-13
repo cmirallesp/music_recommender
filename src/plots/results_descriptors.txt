@@ -1,0 +1,56 @@
+Name: at
+Num nodes: 27038
+Num edges: 107110
+Total Max degree: 2248
+Total Min degree: 0
+Total Avg degree: 7.92292329314
+Prefix1 num. nodes: 17632
+Prefix1 Max degree: 321
+Prefix1 Min degree: 0
+Prefix1 Avg degree: 6.07475045372
+Prefix2 num. nodes: 9406
+Prefix2 Max degree: 2248
+Prefix2 Min degree: 1
+Prefix2 Avg degree: 11.38741229
+Diameter: 11.0
+Path: a_18106-t_5090
+Clustering: (0.0, 0.0)
+Num Components: 5664
+
+Name: au
+Num nodes: 19524
+Num edges: 92834
+Total Max degree: 611
+Total Min degree: 1
+Total Avg degree: 9.50973161237
+Prefix1 num. nodes: 17632
+Prefix1 Max degree: 611
+Prefix1 Min degree: 1
+Prefix1 Avg degree: 5.2650862069
+Prefix2 num. nodes: 1892
+Prefix2 Max degree: 50
+Prefix2 Min degree: 1
+Prefix2 Avg degree: 49.0665961945
+Diameter: 10.0
+Path: a_13565-a_15021
+Clustering: (0.0, 0.0)
+Num Components: 8
+
+Name: uu
+Num nodes: 1892
+Num edges: 12717
+Total Max degree: 119
+Total Min degree: 1
+Total Avg degree: 13.4429175476
+Prefix1 num. nodes: 1892
+Prefix1 Max degree: 119
+Prefix1 Min degree: 1
+Prefix1 Avg degree: 13.4429175476
+Prefix2 num. nodes: 1892
+Prefix2 Max degree: 119
+Prefix2 Min degree: 1
+Prefix2 Avg degree: 13.4429175476
+Diameter: 9.0
+Path: u_1692-u_734
+Clustering: (0.13375631759143525, 0.003571765999543702)
+Num Components: 202
