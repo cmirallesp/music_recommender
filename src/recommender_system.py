@@ -109,7 +109,7 @@ class RecommenderSystem(LastfmNetwork):
                 recoveries.append(numberOfRecoveries)
             else:
                 noValid += 1
-        execution = 'kN=' + str(kneighborhood) + ', SU=' + str(maxSimilarUsers) + ', RA=' + str(maxReferenceArtists)
+        execution = 'kN=' + str(kneighborhood) + ', SU=' + str(maxSimilarUsers) + ', RA=' + str(maxReferenceArtists)+ ', RL=' + str(recommendationLength)
         print '\n__________________________________________________________\n'
         print execution
         print '\nEvaluation performed over %d users; %d selected users did not have enough relevant artists to be evaluated' % (len(recoveries), noValid)
