@@ -10,7 +10,7 @@ import graph_tool.topology as top
 import graph_tool.clustering as clu
 import os
 import networkx as nx
-
+import pdb
 import seaborn as sns  # pip install seaborn
 
 sns.set_palette("deep", desat=.6)
@@ -42,9 +42,9 @@ def gt_network(nx_network, file_name):
 
 def draw_hist(x, y, title, file_name, loglog=False, nbins=10, cumulative=False):
     x1, x2 = min(x), max(x)
-
+    print "{}-{}".format(x1, x2)
     if loglog:
-        bins = np.logspace(np.log10(max(x1, 1)), np.log10(x2), nbins)
+        bins = np.logspace(np.log10(max(x1, 1)), np.log10(x2 + 1), nbins + 1)
     else:
         bins = np.linspace(x1, x2, nbins)
 
@@ -60,13 +60,14 @@ def draw_hist(x, y, title, file_name, loglog=False, nbins=10, cumulative=False):
     plt.xticks(bins, ["{}".format(i) for i in np.round((bins), 2)], fontsize=10, rotation=45)
 
     bb, cc, patches = plt.hist(x, weights=y, log=loglog, bins=bins, cumulative=cumulative, normed=True)
-    for i, _ in enumerate(bb):
-        w = (cc[i + 1] - cc[i])
+    if loglog:  # areaaaa
+        for i, _ in enumerate(bb):
+            w = (cc[i + 1] - cc[i])
 
-        area = bb[i] if cumulative else bb[i] * w
-        patch = patches[i]
-        h = patch.get_height()
-        plt.text(patch.get_x() + patch.get_width() / 2, h, "{}".format(round(area, 3)), ha='center', va='bottom', fontsize=10, color='gray')
+            area = bb[i] if cumulative else bb[i] * w
+            patch = patches[i]
+            h = patch.get_height()
+            plt.text(patch.get_x() + patch.get_width() / 2, h, "{}".format(round(area, 3)), ha='center', va='bottom', fontsize=10, color='gray')
 
     # plt.plot(x_, y_)
     plt.savefig('plots/desc/{}.png'.format(file_name))
@@ -116,28 +117,28 @@ def plot_hist(x, title, file_name, loglog=False, nbins=15, cumulative=False):
         plt.xscale('log')
 
     if loglog:
-        plt.xticks(bins, ["${}$".format(i) for i in np.round((bins), 2)], fontsize=10, rotation=45)
-    else:
-        plt.xticks(bins, ["{}".format(i) for i in np.round(bins, 1)], fontsize=10, rotation=45)
+        plt.xticks(bins, ["{}".format(i) for i in np.round((bins), 2)], fontsize=10, rotation=45)
 
     try:
         bb, cc, patches = plt.hist(x, bins=bins, normed=True, cumulative=cumulative, log=loglog)
         axes = plt.gca()
 
-        ymin, ymax = configureYAxis(bb)
+        ymin, ymax = configureYAxis(bb) if loglog else bb.min(), bb.max()
+        print "==>{}-{}".format(ymin, ymax)
         axes.set_ylim([ymin, ymax])
         xmin, xmax = configureXAxis(x1, x2)
         axes.set_xlim([xmin, xmax])
 
         # bb2, cc2 = np.histogram(x, bins=bins)
+        if loglog:  # area
+            pdb.set_trace()
+            for i, _ in enumerate(bb):
+                w = (cc[i + 1] - cc[i])
+                area = bb[i] if cumulative else bb[i] * w
 
-        for i, _ in enumerate(bb):
-            w = (cc[i + 1] - cc[i])
-            area = bb[i] if cumulative else bb[i] * w
-
-            patch = patches[i]
-            h = patch.get_height()
-            plt.text(patch.get_x() + patch.get_width() / 2, h, "{}".format(round(area, 3)), ha='center', va='bottom', fontsize=10, color='gray')
+                patch = patches[i]
+                h = patch.get_height()
+                plt.text(patch.get_x() + patch.get_width() / 2, h, "{}".format(round(area, 3)), ha='center', va='bottom', fontsize=10, color='gray')
 
     except Exception:
         print "Here"
@@ -331,24 +332,29 @@ if __name__ == '__main__':
 
     # for desc in [at_desc, ta_desc, au_desc, ua_desc, uu_desc]:
     for desc in [at_desc, au_desc, uu_desc]:
-        # print pprint(desc)
+        # for desc in [au_desc]:
+        print pprint(desc)
+        # draw_hist(desc['degree']["total"]['bins'][:-1], desc['degree']["total"]['counts'], title=PLOT_TITLES[desc['name']].format("", ""), file_name="{}_total".format(desc['name']), loglog=False)
+
+        # plot_hist(desc['degree']["prefix1"]['d'], title=desc['title_dd1'], file_name=desc["filename_dd1"], loglog=False)
+        # plot_hist(desc['degree']["prefix2"]['d'], title=desc['title_dd2'], file_name=desc["filename_dd2"], loglog=False)
         # plot_hist(desc['degree']["prefix1"]['d'], title=desc['title_dd1'], file_name=desc["filename_dd1l"], loglog=True)
         # plot_hist(desc['degree']["prefix1"]['d'], title=desc['title_dd1_acum'], file_name=desc["filename_dd1_acum"], cumulative=True, loglog=True)
         # plot_hist(desc['degree']["prefix2"]['d'], title=desc['title_dd2'], file_name=desc["filename_dd2l"], loglog=True)
         # plot_hist(desc['degree']["prefix2"]['d'], title=desc['title_dd2_acum'], file_name=desc["filename_dd2_acum"], cumulative=True, loglog=True)
 
-        # if desc != uu_desc:  # user-user network doesn't have weights
-        #     # plot_hist(desc['weights']['d'], title=desc['title_wd'], file_name=desc["filename_wd"])
-        #     plot_hist(desc['weights']['d'], title=desc['title_wd'], file_name=desc["filename_wdl"], loglog=True)
-        #     plot_hist(desc['weights']['d'], title=desc['title_wd_acum'], file_name=desc["filename_wd_acum"], loglog=True, cumulative=True)
+        if desc != uu_desc:  # user-user network doesn't have weights
+            # plot_hist(desc['weights']['d'], title=desc['title_wd'], file_name=desc["filename_wd"])
+            plot_hist(desc['weights']['d'], title=desc['title_wd'], file_name=desc["filename_wdl"], loglog=True)
+            plot_hist(desc['weights']['d'], title=desc['title_wd_acum'], file_name=desc["filename_wd_acum"], loglog=True, cumulative=True)
 
-        if 'components' in desc.keys():
-            draw_hist(desc['components']['bins'], desc['components']['counts'],
-                      title=desc['title_cd'],
-                      file_name=desc["filename_cdl"], loglog=True, cumulative=True)
+        # if 'components' in desc.keys():
+        #     draw_hist(desc['components']['bins'], desc['components']['counts'],
+        #               title=desc['title_cd'],
+        #               file_name=desc["filename_cdl"], loglog=True, cumulative=True)
 
-        if 'sp' in desc.keys():
-            draw_hist(desc['sp']['bins'][:-1], desc['sp']['counts'],
-                      title=desc['title_sp'],
-                      file_name=desc['filename_sp'],
-                      nbins=10, loglog=True, cumulative=True)
+        # if 'sp' in desc.keys():
+        #     draw_hist(desc['sp']['bins'][:-1], desc['sp']['counts'],
+        #               title=desc['title_sp'],
+        #               file_name=desc['filename_sp'],
+        #               nbins=10, loglog=True, cumulative=True)
