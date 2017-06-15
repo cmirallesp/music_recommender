@@ -319,14 +319,10 @@ if __name__ == '__main__':
     net = LastfmNetwork.instance()
 
     gt_at_net = gt_network(net.get_artists_tags_partition(), "cache/gt_at.pickle")
-    # gt_ta_net = gt_network(net.get_tags_artists_partition(), "cache/gt_ta.pickle")
     gt_au_net = gt_network(net.get_artists_users_partition(), "cache/gt_au.pickle")
-    # gt_ua_net = gt_network(net.get_users_artists_partition(), "cache/gt_ua.pickle")
     gt_uu_net = gt_network(net.get_users_users_partition(), "cache/gt_uu.pickle")
 
     at_desc = get_descriptors(gt_at_net, 'at', nx_network=net.get_artists_tags_partition())
-    # ta_desc = get_descriptors(gt_ta_net, 'ta', already_calculated=True, nx_network=net.get_tags_artists_partition())
-    # ua_desc = get_descriptors(gt_ua_net, 'ua', nx_network=net.get_users_artists_partition())
     au_desc = get_descriptors(gt_au_net, 'au', nx_network=net.get_artists_users_partition())
     uu_desc = get_descriptors(gt_uu_net, 'uu', nx_network=net.get_users_users_partition())
 

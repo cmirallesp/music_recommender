@@ -3,3 +3,6 @@ src/.ipynb_checkpoints/
 logging.log
 report/
 *.pickle
+scripts.py
+rename_plts.py
+ProjectCN_BeltranBernardezMiralles.zip
