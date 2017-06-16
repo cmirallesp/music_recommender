@@ -67,7 +67,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         self._artist_similarities_tags = None
         if os.path.isfile('network.pickle'):
             self._graph = nx.read_gpickle("network.pickle")
-
+            
         else:
             # multilayer graph to hold the entire data
             self._graph = nx.DiGraph()
