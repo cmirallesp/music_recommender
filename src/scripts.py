@@ -5,7 +5,7 @@
 
 from recommender_system import RecommenderSystem
 
-e = RecommenderSystem.instance()
+e = RecommenderSystem(minFreqTag=0)
 
 recommendationLengths = [1,5,20]
 maxReferenceArtists = [1,3,5]
