@@ -83,3 +83,8 @@ class NetworkIteratorsMixin(object):
             for _id in self._graph.edge[node_id]:
                 if prefix in _id:
                     yield _id
+
+    def artists_names_iter(self):
+        for aid in self.artists_iter():
+            yield {'id': aid,
+                   'full_name': self.artistID2artist[aid].decode('utf8')}
