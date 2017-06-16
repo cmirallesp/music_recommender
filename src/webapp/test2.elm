@@ -30,11 +30,12 @@ type alias Artist =
 
 type alias Model =
   { artists : List Artist
+  , added: List Artist
   }
 
 init : (Model, Cmd Msg)
 init =
-  ( Model [], Cmd.none )
+  ( Model [] [], Cmd.none )
 
 decoder : Decoder (List Artist)
 decoder =
@@ -52,15 +53,20 @@ artistDecoder =
 
 type Msg
   = GetAllArtists
-  | AddArtist
+  | AddArtist (Artist)
   | LoadArtists (Result Http.Error (List Artist))
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    AddArtist ->
-      (model, Cmd.none)  
+    AddArtist artist->
+      if (List.member artist model.added) then
+        (model, Cmd.none)
+      else
+        ({model | added=artist::model.added} , Cmd.none)  
+        
+
     GetAllArtists ->
       (model, getAllArtists "")
 
@@ -92,8 +98,13 @@ view model =
             (List.map (\artist -> 
               div []
                 [ label [] [ text artist.full_name ]
-                , button [onClick AddArtist] [text "Add"]
+                , button [onClick (AddArtist artist)] [text "Add"]
                 ]
             ) model.artists)
+        , div
+          []
+          (List.map (\artists ->
+            div []
+              [ label [] [text artists.full_name]]) model.added)
         ]
         
