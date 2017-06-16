@@ -12,58 +12,78 @@ class NetworkBuilderMixin(object):
     #  tag-artist, artist-tag, artist-user, user-artist and user-user edges
     #  weights in edges
 
-    def _normalize_weights_user_user(self):
+    def _normalize_weights_user_user(self, user=None):
         for uid in self.users_iter():
-            friend_ids = list(self.user_user_iter(uid))
-            N = len(friend_ids)
-            for f_id in friend_ids:
-                w = self.user_user_weight(uid, f_id)
-                norm_w = w / N
-                self._graph[uid][f_id]['norm_weight'] = norm_w
-                self._graph[uid][f_id]['walking_weight'] = norm_w * self.r
+            if user is None or user==uid:
+                friend_ids = list(self.user_user_iter(uid))
+                N = len(friend_ids)
+                for f_id in friend_ids:
+                        w = self.user_user_weight(uid, f_id)
+                        norm_w = w / N
+                        self._graph[uid][f_id]['norm_weight'] = norm_w
+                        self._graph[uid][f_id]['walking_weight'] = norm_w * self.r
+                
+                if user is not None:
+                    break
 
-    def _normalize_weights_artist_user(self):
+    def _normalize_weights_artist_user(self, artist=None):
         # For each artist in the network normalizes their weights
         # with respect to their listeners
         for aid in self.artists_iter():
-            sum_ = self.total_artist_users_weights(aid)
-            for user_id in self.artist_users_iter(aid):
-                weight = self.artist_user_weight(aid, user_id)
-                norm_w = weight / sum_
-                self._graph[aid][user_id]['norm_weight'] = norm_w
-                self._graph[aid][user_id]['walking_weight'] = norm_w
+            if artist is None or artist==aid:
+                sum_ = self.total_artist_users_weights(aid)
+                for user_id in self.artist_users_iter(aid):
+                    weight = self.artist_user_weight(aid, user_id)
+                    norm_w = weight / sum_
+                    self._graph[aid][user_id]['norm_weight'] = norm_w
+                    self._graph[aid][user_id]['walking_weight'] = norm_w
+                
+                if artist is not None:
+                    break
 
-    def _normalize_weights_user_artist(self):
+    def _normalize_weights_user_artist(self, user=None):
         # For each user in the network normalizes their weights
         #  with respect to their artists
         for uid in self.users_iter():
-            sum_ = self.total_user_artists_weights(uid)
-            for artist_id in self.user_artists_iter(uid):
-                weight = self.user_artist_weight(uid, artist_id)
-                norm_w = weight / sum_
-                self._graph[uid][artist_id]['norm_weight'] = norm_w
-                self._graph[uid][artist_id]['walking_weight'] = norm_w * (1 - self.r)
+            if user is None or user==uid:
+                sum_ = self.total_user_artists_weights(uid)
+                for artist_id in self.user_artists_iter(uid):
+                    weight = self.user_artist_weight(uid, artist_id)
+                    norm_w = weight / sum_
+                    self._graph[uid][artist_id]['norm_weight'] = norm_w
+                    self._graph[uid][artist_id]['walking_weight'] = norm_w * (1 - self.r)
+                    
+                if user is not None:
+                    break
 
-    def _normalize_weights_artist_tag(self):
+    def _normalize_weights_artist_tag(self, artist=None):
         # set the absoulte weight
         for aid in self.artists_iter():
-            sum_ = self.total_artist_tags_weights(aid)
-            for tag_id in self.artist_tags_iter(aid):
-                weight = self.artist_tag_weight(aid, tag_id)
-                norm_w = weight / sum_
+            if artist is None or artist==aid:
+                sum_ = self.total_artist_tags_weights(aid)
+                for tag_id in self.artist_tags_iter(aid):
+                    weight = self.artist_tag_weight(aid, tag_id)
+                    norm_w = weight / sum_
+    
+                    self._graph[aid][tag_id]['norm_weight'] = norm_w
+                    self._graph[aid][tag_id]['walking_weight'] = norm_w
+                    
+                if artist is not None:
+                    break
 
-                self._graph[aid][tag_id]['norm_weight'] = norm_w
-                self._graph[aid][tag_id]['walking_weight'] = norm_w
-
-    def _normalize_weights_tag_artist(self):
+    def _normalize_weights_tag_artist(self, tag=None):
         # set the absolute weight
         for tid in self.tags_iter():
-            sum_ = self.total_tag_artists_weights(tid)
-            for aid in self.tag_artists_iter(tid):
-                weight = self.tag_artist_weight(tid, aid)
-                norm_w = weight / sum_
-                self._graph[tid][aid]['norm_weight'] = norm_w
-                self._graph[tid][aid]['walking_weight'] = norm_w
+            if tag is None or tag==tid:
+                sum_ = self.total_tag_artists_weights(tid)
+                for aid in self.tag_artists_iter(tid):
+                    weight = self.tag_artist_weight(tid, aid)
+                    norm_w = weight / sum_
+                    self._graph[tid][aid]['norm_weight'] = norm_w
+                    self._graph[tid][aid]['walking_weight'] = norm_w
+                    
+                if tag is not None:
+                    break
 
     def _build_user_friends(self, user_friends):
         for uid, fid in user_friends.values:
@@ -232,15 +252,19 @@ class NetworkBuilderMixin(object):
         for fid in friends:
             k2 = self.key_user(fid)
             self._graph.add_edge(k, k2, weight=1., type='uu')
+            self._normalize_weights_user_user(user=k)
+            self._normalize_weights_user_user(user=k2)
 
         # Add listens connections
         for aid, times in listens.iteritems():
             ka = self.key_artist(aid)
             self._graph.add_edge(k, ka, weight=times, type='ua')
             self._graph.add_edge(ka, k, weight=times, type='au')
+            self._normalize_weights_user_artist(user=k)
+            self._normalize_weights_artist_user(artist=ka)
 
         # Update user similarity matrix
-        aux_sim = self._user_similarities.copy()
+        aux_sim = self.user_similarities.copy()
         aux_sim = aux_sim.tocoo()
 
         aux_sim._shape = (self._user_similarities._shape[0] + 1, self._user_similarities._shape[1] + 1)
@@ -253,8 +277,28 @@ class NetworkBuilderMixin(object):
                 aux_sim.col = np.append(aux_sim.col, j)
 
         self._user_similarities = aux_sim.tolil()
+        
+    def add_artist(self):
+        # Update artists existing in the system
+        new_id = max(self.artists_id) + 1
+        self.artists_id.append(new_id)
+        k = self.key_artist(new_id)
+        self._graph.add_node(k)
 
-    def add_tagged_artist(self, user, artist, tag):
+        # Update artist similarity over tags matrix, by extending shape
+        aux_sim = self.artist_similarities_tags.copy()
+        aux_sim = aux_sim.tocoo()
+        aux_sim._shape = (self.user_similarities._shape[0] + 1, self.user_similarities._shape[1] + 1)
+        self._user_similarities = aux_sim.tolil()
+        
+    def add_tag(self):
+        # Update tags existing in the system
+        new_id = max(self.tags_id) + 1
+        self.tags_id.append(new_id)
+        k = self.key_tag(new_id)
+        self._graph.add_node(k)
+
+    def add_tagged_artist(self, user, artist, tag, num):
         # Check user, artist and tag already exist
         ku = self.key_user(user)
         ka = self.key_artist(artist)
@@ -263,12 +307,14 @@ class NetworkBuilderMixin(object):
         if ku in self._graph.nodes() and ka in self._graph.nodes() and kt in self._graph.nodes():
             # Update artist-tag edge and vice versa, or add it if new
             if self._graph.has_edge(ka, kt):
-                new_w = self._graph[ka][kt]['weight'] + 1
+                new_w = self._graph[ka][kt]['weight'] + num
             else:
-                new_w = 1
+                new_w = num
 
             self._graph.add_edge(ka, kt, weight=new_w, type='at')
             self._graph.add_edge(kt, ka, weight=new_w, type='ta')
+            self._normalize_weights_artist_tag(artist=ka)
+            self._normalize_weights_tag_artist(tag=kt)
 
             # Update row of artist in similarity matrix
             for i, this_artist in enumerate(self.artists_id):
@@ -283,7 +329,7 @@ class NetworkBuilderMixin(object):
             # We should not add relations between not existing elements
             return -1
 
-    def add_reproduction(self, user, artist):
+    def add_reproduction(self, user, artist, num):
         # Check user and artist already exist
         ku = self.key_user(user)
         ka = self.key_artist(artist)
@@ -291,12 +337,14 @@ class NetworkBuilderMixin(object):
         if ku in self._graph.nodes() and ka in self._graph.nodes():
             # Update artist-user edge and vice versa, or add it if new
             if self._graph.has_edge(ka, ku):
-                new_w = self._graph[ka][ku]['weight'] + 1
+                new_w = self._graph[ka][ku]['weight'] + num
             else:
-                new_w = 1
+                new_w = num
 
             self._graph.add_edge(ka, ku, weight=new_w, type='au')
             self._graph.add_edge(ku, ka, weight=new_w, type='ua')
+            self._normalize_weights_user_artist(user=ku)
+            self._normalize_weights_artist_user(artist=ka)
 
     def get_artists_tags_partition(self):
         if self._artists_tags is not None:

@@ -158,7 +158,25 @@ class TestLastfmNetwork(unittest.TestCase):
         last = self.lastfm_net.user_similarities.shape[0] - 1
         self.assertEqual(0, self.lastfm_net.user_similarities[last, 100])
         self.assertEqual(1, self.lastfm_net.user_similarities[last, last])
-
+     
+    '''    
+    def test_artist_added_dynamically(self):
+        old_shape0 = self.lastfm_net.artist_similarities_tags.shape()[0]
+        old_shape1 = self.lastfm_net.artist_similarities_tags.shape()[1]
+        new_id = max(self.lastfm_net.artists_id) + 1
+        self.lastfm_net.add_artist()
+        new_shape0 = self.lastfm_net.artist_similarities_tags.shape()[0]
+        new_shape1 = self.lastfm_net.artist_similarities_tags.shape()[1]
+        self.assertTrue(new_id in self.lastfm_net.artists_id)
+        self.assertTrue(old_shape0+1, new_shape0)
+        self.assertTrue(old_shape1+1, new_shape1)
+        
+    def test_tag_added_dynamically(self):
+        new_id = max(self.lastfm_net.tags_id) + 1
+        self.lastfm_net.add_tag()
+        self.assertTrue(new_id in self.lastfm_net.tags_id)
+    '''
+        
     def test_num_tags_incremented_dynamically(self):
         ku = 'u_2'
         ka = 'a_17'
@@ -177,12 +195,25 @@ class TestLastfmNetwork(unittest.TestCase):
                 break
 
         # Checks in network values
-        self.lastfm_net.add_tagged_artist(ku, ka, kt)
+        self.lastfm_net.add_tagged_artist(ku, ka, kt, 1)
         new_w1 = self.lastfm_net._graph[ka][kt]['weight']
-        new_w2 = self.lastfm_net._graph[ka][kt]['weight']
-
+        new_w2 = self.lastfm_net._graph[kt][ka]['weight']
         self.assertEqual(old_w + 1, new_w1)
         self.assertEqual(old_w + 1, new_w2)
+        
+        # Checks in normalized weights
+        self.assertEqual(
+            (self.lastfm_net.tag_artist_weight(10, 17) /
+                self.lastfm_net.total_tag_artists_weights(10)
+             ),
+            self.lastfm_net.tag_artist_normalized_weight(10, 17)
+        )
+        self.assertEqual(
+            (self.lastfm_net.artist_tag_weight(17, 10) /
+                self.lastfm_net.total_artist_tags_weights(17)
+             ),
+            self.lastfm_net.artist_tag_normalized_weight(17, 10)
+        )
 
         # Checks in similarity values
         new_sim_0 = self.lastfm_net.artist_similarities_tags[idx, 0]
@@ -196,9 +227,23 @@ class TestLastfmNetwork(unittest.TestCase):
         ka = 'a_17'
         old_w = self.lastfm_net._graph[ka][ku]['weight']
 
-        self.lastfm_net.add_reproduction(ku, ka)
+        self.lastfm_net.add_reproduction(ku, ka, 1)
         new_w = self.lastfm_net._graph[ka][ku]['weight']
         self.assertEqual(old_w + 1, new_w)
+        
+        # Checks on normalized weights
+        self.assertEqual(
+            (self.lastfm_net.user_artist_weight(557, 17) /
+                self.lastfm_net.total_user_artists_weights(557)
+             ),
+            self.lastfm_net.user_artist_normalized_weight(557, 17)
+        )
+        self.assertEqual(
+            (self.lastfm_net.artist_user_weight(17, 557) /
+                self.lastfm_net.total_artist_users_weights(17)
+             ),
+            self.lastfm_net.artist_user_normalized_weight(17, 557)
+        )
 
     def test_get_artists_tags_partition(self):
         lst = self.lastfm_net.get_artists_tags_partition()
