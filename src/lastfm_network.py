@@ -22,8 +22,15 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
     @property
     def artist_similarities_tags(self):
         if self._artist_similarities_tags is None:
-            self._artist_similarities_tags = pickle.load(open("artist_sim_tags.pickle", "rb"))
+            name = '' if self.minFreqTag==0 else '_'+str(self.minFreqTag)
+            self._artist_similarities_tags = pickle.load(open("artist_sim_tags"+name+".pickle", "rb"))
         return self._artist_similarities_tags
+    
+    @property
+    def artist_similarities_users(self):
+        if self._artist_similarities_users is None:
+            self._artist_similarities_users = pickle.load(open("artist_sim_users.pickle", "rb"))
+        return self._artist_similarities_users
 
     def load_data(self):
         artists = pd.read_table('../data/artists.dat')
@@ -46,6 +53,8 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
 
         self.run = 'online'  # Online by default; when evaluating, it changes to 'offline'
         self.r = 0.1
+        self.minFreqTag = minFreqTag
+        self.artist_sim = 'tags'
 
         self._artists_tags = self._tags_artists = None
         self._artists_users = self._users_artists = None
@@ -60,9 +69,12 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         self._artists_tags = None
         self._user_similarities = None
         self._artist_similarities_tags = None
-        if os.path.isfile('network.pickle'):
-            self._graph = nx.read_gpickle("network.pickle")
-            
+        self._artist_similarities_users = None
+        
+        name = '' if minFreqTag==0 else '_'+str(minFreqTag)
+        
+        if os.path.isfile('network'+name+'.pickle'):
+            self._graph = nx.read_gpickle('network'+name+'.pickle')    
         else:
             # multilayer graph to hold the entire data
             self._graph = nx.DiGraph()
@@ -77,14 +89,21 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             self._normalize_weights_artist_tag()
             self._normalize_weights_tag_artist()
 
-            nx.nx.write_gpickle(self._graph, "network.pickle")
+            nx.nx.write_gpickle(self._graph, 'network'+name+'.pickle')
             # nx.write_pajek(self._graph, "network.net")
 
+        if not os.path.isfile('user_sim.pickle'):
             self._calculate_user_similarities()
-            self._calculate_artist_similarities_over_tags()
             pickle.dump(self._user_similarities, open("user_sim.pickle", "wb"))
-            pickle.dump(self._artist_similarities_tags, open("artist_sim_tags.pickle", "wb"))
-
+        
+        if not os.path.isfile("artist_sim_tags"+name+".pickle"):
+            self._calculate_artist_similarities_over_tags()
+            pickle.dump(self._artist_similarities_tags, open("artist_sim_tags"+name+".pickle", "wb"))
+        
+        if not os.path.isfile("artist_sim_users.pickle"):
+            self._calculate_artist_similarities_over_users()
+            pickle.dump(self._artist_similarities_users, open("artist_sim_users.pickle", "wb"))
+            
         # print self._graph.size()
         # nx.write_pajek(self._graph, "network.net")
         # print self._graph.size()

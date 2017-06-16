@@ -1,17 +1,17 @@
 from lastfm_network import *
 import matplotlib.pyplot as plt
-
+import numpy as np
 import seaborn as sns  # pip install seaborn
-
 sns.set_palette("deep", desat=.6)
 sns.set_style("whitegrid")
 
 
 class RecommenderSystem(LastfmNetwork):
 
-    def recommendation(self, referenceUser, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9, showRecommendation=True, recommendationLength=10):
+    def recommendation(self, referenceUser, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9, showRecommendation=True, recommendationLength=10, artistSim='tags'):
         '''Recommendation script'''
-
+        self.artist_sim = artistSim
+        
         if self.run == 'offline':
             self.node2indexUserDict = {self.key_user(user): idx for idx, user in enumerate(self.users_id)}
             self.node2indexArtistDict = {self.key_artist(artist): idx for idx, artist in enumerate(self.artists_id)}
@@ -68,9 +68,9 @@ class RecommenderSystem(LastfmNetwork):
         print '\nRELEVANT ARTISTS FOR THE USER:', [self.artistID2artist[artistID] for artistID in referenceArtists]
         print '\nRECOMMENDED ARTISTS:', [self.artistID2artist[artistID] for artistID in recommendedArtists]
 
-    def user_recommendation_evaluation(self, referenceUser, maxReferenceArtists=3, recommendationLength=10, relevanceLength=None, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9):
+    def user_recommendation_evaluation(self, referenceUser, maxReferenceArtists=3, recommendationLength=10, relevanceLength=None, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.95, artistSim='tags'):
         '''Evaluates the recommendation of a user'''
-
+        self.artist_sim = artistSim
         # We get the most relevant artists from the reference user apart from the ones chosen for the recommendation
         referenceUserArtists = set(self.user_artists_iter(referenceUser))
         referenceArtists = self.get_relevant_artists_from_user(referenceUser, referenceUserArtists, relevanceAccum)
@@ -86,7 +86,7 @@ class RecommenderSystem(LastfmNetwork):
         self._graph.remove_edges_from(connections)
 
         # We get the recommendation of the user considering only their 'maxReferenceArtists' most listened artists
-        recommendedArtists = self.recommendation(referenceUser, kneighborhood=kneighborhood, maxSimilarUsers=maxSimilarUsers, relevanceAccum=relevanceAccum, showRecommendation=False)
+        recommendedArtists = self.recommendation(referenceUser, kneighborhood=kneighborhood, maxSimilarUsers=maxSimilarUsers, relevanceAccum=relevanceAccum, showRecommendation=False, artistSim=artistSim)
         # We keep the most similar artists found in the recommendation
         recommendedArtists = set([recommendedArtists[i][0] for i in range(min(recommendationLength, len(recommendedArtists)))])
 
@@ -98,18 +98,19 @@ class RecommenderSystem(LastfmNetwork):
 
         return len(recoveredArtists)
 
-    def recommendation_evaluation(self, maxReferenceArtists=5, recommendationLength=10, relevanceLength=None, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.95, numUsers=10):
+    def recommendation_evaluation(self, maxReferenceArtists=5, recommendationLength=10, relevanceLength=None, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.95, numUsers=10, artistSim='tags'):
         '''Evaluates the recommendation of several users'''
+        self.artist_sim = artistSim
         self.run = 'offline'
         recoveries = []
         noValid = 0
         for user in self.users_id[0:min(numUsers, len(self.users_id))]:
-            numberOfRecoveries = self.user_recommendation_evaluation(self.key_user(user), maxReferenceArtists=maxReferenceArtists, recommendationLength=recommendationLength, relevanceLength=relevanceLength, kneighborhood=kneighborhood, maxSimilarUsers=maxSimilarUsers, relevanceAccum=relevanceAccum)
+            numberOfRecoveries = self.user_recommendation_evaluation(self.key_user(user), maxReferenceArtists=maxReferenceArtists, recommendationLength=recommendationLength, relevanceLength=relevanceLength, kneighborhood=kneighborhood, maxSimilarUsers=maxSimilarUsers, relevanceAccum=relevanceAccum, artistSim=artistSim)
             if numberOfRecoveries >= 0:
                 recoveries.append(numberOfRecoveries)
             else:
                 noValid += 1
-        execution = 'kN=' + str(kneighborhood) + ', SU=' + str(maxSimilarUsers) + ', RA=' + str(maxReferenceArtists)+ ', RL=' + str(recommendationLength)
+        execution = 'kN=' + str(kneighborhood) + ',SU=' + str(maxSimilarUsers) + ',RA=' + str(maxReferenceArtists)+ ',FT=' + str(self.minFreqTag)
         print '\n__________________________________________________________\n'
         print execution
         print '\nEvaluation performed over %d users; %d selected users did not have enough relevant artists to be evaluated' % (len(recoveries), noValid)
@@ -122,9 +123,10 @@ class RecommenderSystem(LastfmNetwork):
         ax = plt.figure().gca()
         plt.xticks(range(np.min(recoveries), np.max(recoveries) + 1))
         # ax.yaxis.set_major_locator(MaxNLocator(integer=True))
-        plt.hist(recoveries, weights=len(recoveries) * [1. / len(recoveries)], range=(np.min(recoveries) - 0.5, np.max(recoveries) + 0.5), bins=np.max(recoveries) + 1)
+        plt.hist(recoveries, weights=len(recoveries) * [1. / len(recoveries)], range=(np.min(recoveries) - 0.5, np.max(recoveries) + 0.5), bins=np.max(recoveries) + 1 - np.min(recoveries))
         plt.suptitle('Distribution of Relevant Artist Recoveries', fontweight='bold', fontsize=12)
-        plt.title(execution, fontsize=9)
+        plt.title(r'$'+execution+'$', fontsize=11, loc='left')
+        plt.title(r'$\mu \pm \sigma= %.3f \pm %.3f$' %(np.mean(recoveries),np.std(recoveries)), fontsize=11, loc='right')
         plt.xlabel("Number of Recoveries")
         plt.ylabel("Relative Frequency")
         plt.savefig('plots/' + execution, bbox_inches='tight')
@@ -167,7 +169,7 @@ class RecommenderSystem(LastfmNetwork):
         # assert cluster2 == set(self.get_kdistant_neighbors_by_type(node2, type='ua'))
         return self._sim_over_clusters(cluster1, cluster2)
 
-    def get_artist_artist_similarity(self, node1, node2):
+    def get_artist_artist_similarity_tags(self, node1, node2):
         '''given two artistIDs, return the computed similarity between them'''
         if self.run == 'offline':
             idx1, idx2 = self.node2indexArtistDict[node1], self.node2indexArtistDict[node2]
@@ -177,9 +179,20 @@ class RecommenderSystem(LastfmNetwork):
                 return self.artist_similarities_tags[idx2, idx1]
         else:
             cluster1 = set(self.artist_tags_iter(node1))
-            # assert cluster1 == set(self.get_kdistant_neighbors_by_type(node1, type='at'))
             cluster2 = set(self.artist_tags_iter(node2))
-            # assert cluster2 == set(self.get_kdistant_neighbors_by_type(node2, type='at'))
+            return self._sim_over_clusters(cluster1, cluster2)
+    
+    def get_artist_artist_similarity_users(self, node1, node2):
+        '''given two artistIDs, return the computed similarity between them'''
+        if self.run == 'offline':
+            idx1, idx2 = self.node2indexArtistDict[node1], self.node2indexArtistDict[node2]
+            if idx1 > idx2:
+                return self.artist_similarities_users[idx1, idx2]
+            else:
+                return self.artist_similarities_users[idx2, idx1]
+        else:
+            cluster1 = set(self.artist_users_iter(node1))
+            cluster2 = set(self.artist_users_iter(node2))
             return self._sim_over_clusters(cluster1, cluster2)
 
     def get_ordering_key(self, element):
@@ -195,7 +208,10 @@ class RecommenderSystem(LastfmNetwork):
     def get_artist_similarities(self, centralNode, listOfNodes):
         '''given a reference artist and a list of artists, computes the similarity
         of each element of the list with respect to the reference artist'''
-        artistSim = [(node, self.get_artist_artist_similarity(centralNode, node)) for node in listOfNodes]
+        if self.artist_sim == 'tags':
+            artistSim = [(node, self.get_artist_artist_similarity_tags(centralNode, node)) for node in listOfNodes]
+        else:
+            artistSim = [(node, self.get_artist_artist_similarity_users(centralNode, node)) for node in listOfNodes]
         return sorted(artistSim, key=self.get_ordering_key, reverse=True)
 
     def get_relevant_artists_from_user(self, user, userArtists, maxAccum):
