@@ -12,15 +12,6 @@ import os.path
 
 class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
     """docstring for LastfmNetwork"""
-    @classmethod
-    def instance(cls):
-        return cls(
-            artists=pd.read_table('../data/artists.dat'),
-            tags=pd.read_table('../data/tags.dat'),
-            user_friends=pd.read_table('../data/user_friends.dat'),
-            user_artists=pd.read_table('../data/user_artists.dat'),
-            user_taggedartists=pd.read_table('../data/user_taggedartists.dat')
-        )
 
     @property
     def user_similarities(self):
@@ -34,23 +25,31 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             self._artist_similarities_tags = pickle.load(open("artist_sim_tags.pickle", "rb"))
         return self._artist_similarities_tags
 
-    def __init__(self, artists, tags,
-                 user_friends, user_artists, user_taggedartists, r=0.1, preprocessing=True):
+    def load_data(self):
+        artists = pd.read_table('../data/artists.dat')
+        tags = pd.read_table('../data/tags.dat')
+        user_friends = pd.read_table('../data/user_friends.dat')
+        user_artists = pd.read_table('../data/user_artists.dat')
+        user_taggedartists = pd.read_table('../data/user_taggedartists.dat')
+        return artists, tags, user_friends, user_artists, user_taggedartists
+
+    def __init__(self, preprocessing=True, minFreqTag=0):
         super(LastfmNetwork, self).__init__()
         logging.basicConfig(filename='logging.log',
                             level=logging.WARNING,
                             format=('%(asctime)-15s'
                                     '%(funcName)s %(message)s'))
+
+        artists, tags, user_friends, user_artists, user_taggedartists = self.load_data()
         if preprocessing:
-            artists, tags, user_taggedartists = self.dataPreprocessing(artists, tags, user_taggedartists)
+            artists, tags, user_taggedartists = self.dataPreprocessing(artists, tags, user_taggedartists, minFreqTag)
 
         self.run = 'online'  # Online by default; when evaluating, it changes to 'offline'
+        self.r = 0.1
 
         self._artists_tags = self._tags_artists = None
         self._artists_users = self._users_artists = None
         self._users_users = None
-
-        self.r = r
 
         self.artists_id = [aid for aid in artists['id']]
         self.users_id = list(np.unique(user_friends['userID'].as_matrix()))
@@ -90,7 +89,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         # nx.write_pajek(self._graph, "network.net")
         # print self._graph.size()
 
-    def dataPreprocessing(self, artists, tags, user_taggedartists):
+    def dataPreprocessing(self, artists, tags, user_taggedartists, minFreqTag=0):
         # There are artistIDs that appear at user_taggedartists but not in artists;
         # we detect and remove these unknown artistIDs from user_taggedartists
         knownArtists = pd.Series(artists.id.values, index=artists.id).to_dict()
@@ -113,6 +112,10 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         user_taggedartists['tagID'] = user_taggedartists['tagID'].apply(lambda x: self.applyDictionaryTagIDs(x, dictionaryTagIDs))
         # use the dictionary to avoid redundancy in tags
         tags = tags[tags['tagID'].isin(dictionaryTagIDs.values())]
+        # As data cleaning, we only keep those tags whose frequency is greater than minFreqTag
+        freqTags = user_taggedartists['tagID'].value_counts()
+        user_taggedartists = user_taggedartists[user_taggedartists['tagID'].isin(freqTags[freqTags > minFreqTag].keys())]
+        tags = tags[tags['tagID'].isin(freqTags[freqTags > minFreqTag].keys())]
 
         return artists, tags, user_taggedartists
 
