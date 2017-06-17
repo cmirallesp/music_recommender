@@ -22,10 +22,10 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
     @property
     def artist_similarities_tags(self):
         if self._artist_similarities_tags is None:
-            name = '' if self.minFreqTag==0 else '_'+str(self.minFreqTag)
-            self._artist_similarities_tags = pickle.load(open("artist_sim_tags"+name+".pickle", "rb"))
+            name = '' if self.minFreqTag == 0 else '_' + str(self.minFreqTag)
+            self._artist_similarities_tags = pickle.load(open("artist_sim_tags" + name + ".pickle", "rb"))
         return self._artist_similarities_tags
-    
+
     @property
     def artist_similarities_users(self):
         if self._artist_similarities_users is None:
@@ -69,12 +69,13 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         self._artists_tags = None
         self._user_similarities = None
         self._artist_similarities_tags = None
+
         self._artist_similarities_users = None
-        
-        name = '' if minFreqTag==0 else '_'+str(minFreqTag)
-        
-        if os.path.isfile('network'+name+'.pickle'):
-            self._graph = nx.read_gpickle('network'+name+'.pickle')    
+
+        name = '' if minFreqTag == 0 else '_' + str(minFreqTag)
+
+        if os.path.isfile('network' + name + '.pickle'):
+            self._graph = nx.read_gpickle('network' + name + '.pickle')
         else:
             # multilayer graph to hold the entire data
             self._graph = nx.DiGraph()
@@ -89,21 +90,24 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
             self._normalize_weights_artist_tag()
             self._normalize_weights_tag_artist()
 
-            nx.nx.write_gpickle(self._graph, 'network'+name+'.pickle')
+            nx.nx.write_gpickle(self._graph, 'network' + name + '.pickle')
             # nx.write_pajek(self._graph, "network.net")
 
-        if not os.path.isfile('user_sim.pickle'):
+        if not os.path.isfile("user_sim.pickle"):
+            print "calculating user similarity"
             self._calculate_user_similarities()
             pickle.dump(self._user_similarities, open("user_sim.pickle", "wb"))
-        
-        if not os.path.isfile("artist_sim_tags"+name+".pickle"):
+
+        if not os.path.isfile("artist_sim_tags{}.pickle".format(name)):
+            print "calculating artist over tags similarity"
             self._calculate_artist_similarities_over_tags()
-            pickle.dump(self._artist_similarities_tags, open("artist_sim_tags"+name+".pickle", "wb"))
-        
+            pickle.dump(self._artist_similarities_tags, open("artist_sim_tags{}.pickle".format(name), "wb"))
+
         if not os.path.isfile("artist_sim_users.pickle"):
+            print "calculating artist over user similarity"
             self._calculate_artist_similarities_over_users()
-            pickle.dump(self._artist_similarities_users, open("artist_sim_users.pickle", "wb"))
-            
+            pickle.dump(self._artist_similarities_tags, open("artist_sim_users.pickle", "wb"))
+
         # print self._graph.size()
         # nx.write_pajek(self._graph, "network.net")
         # print self._graph.size()
