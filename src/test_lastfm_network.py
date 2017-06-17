@@ -10,7 +10,7 @@ class TestLastfmNetwork(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.lastfm_net = LastfmNetwork.instance()
+        cls.lastfm_net = LastfmNetwork()
 
     def test_friends(self):
         self.assertTrue(self.lastfm_net.are_friends(2, 275))
@@ -158,7 +158,7 @@ class TestLastfmNetwork(unittest.TestCase):
         last = self.lastfm_net.user_similarities.shape[0] - 1
         self.assertEqual(0, self.lastfm_net.user_similarities[last, 100])
         self.assertEqual(1, self.lastfm_net.user_similarities[last, last])
-     
+
     '''    
     def test_artist_added_dynamically(self):
         old_shape0 = self.lastfm_net.artist_similarities_tags.shape()[0]
@@ -176,7 +176,7 @@ class TestLastfmNetwork(unittest.TestCase):
         self.lastfm_net.add_tag()
         self.assertTrue(new_id in self.lastfm_net.tags_id)
     '''
-        
+
     def test_num_tags_incremented_dynamically(self):
         ku = 'u_2'
         ka = 'a_17'
@@ -200,7 +200,7 @@ class TestLastfmNetwork(unittest.TestCase):
         new_w2 = self.lastfm_net._graph[kt][ka]['weight']
         self.assertEqual(old_w + 1, new_w1)
         self.assertEqual(old_w + 1, new_w2)
-        
+
         # Checks in normalized weights
         self.assertEqual(
             (self.lastfm_net.tag_artist_weight(10, 17) /
@@ -230,7 +230,7 @@ class TestLastfmNetwork(unittest.TestCase):
         self.lastfm_net.add_reproduction(ku, ka, 1)
         new_w = self.lastfm_net._graph[ka][ku]['weight']
         self.assertEqual(old_w + 1, new_w)
-        
+
         # Checks on normalized weights
         self.assertEqual(
             (self.lastfm_net.user_artist_weight(557, 17) /
@@ -247,14 +247,8 @@ class TestLastfmNetwork(unittest.TestCase):
 
     def test_get_artists_tags_partition(self):
         lst = self.lastfm_net.get_artists_tags_partition()
-        self.assertEqual(27092, len(lst))
+        self.assertEqual(27038, len(lst))
 
-    def test_network_descriptors(self):
-        lst = self.lastfm_net.get_artists_tags_partition()
-        for i, comp in enumerate(nx.connected_component_subgraphs(lst)):
-            pp.pprint("====>{}".format(i))
-            desc = self.lastfm_net.get_network_descriptors(comp, "artist_tags_c{}".format(i))
-            pp.pprint(desc)
 
 if __name__ == '__main__':
     unittest.main()
