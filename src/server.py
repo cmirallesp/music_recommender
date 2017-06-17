@@ -14,8 +14,10 @@ define("port", default=8887, help="run on the given port", type=int)
 
 class MainHandler(tornado.web.RequestHandler):
 
-    def initialize(self, recommender_system):
+    def initialize(self, recommender_system, ds):
+        print "====>{}".format(ds)
         self.rs = recommender_system
+        self.ds = ds
 
     def set_default_headers(self):
         print "setting headers!!!"
@@ -25,14 +27,14 @@ class MainHandler(tornado.web.RequestHandler):
         self.set_header("Content-type", "application/json")
 
     def get(self):
-        lst = list(self.rs.artists_names_iter())[:10]
-        print lst
-        self.write(json.dumps(lst))
+        m = {"user_id": "##u_{}##".format(self.ds['user_id']), "artists": list(self.rs.artists_names_iter())[:10]}
+        self.ds['user_id'] += 1
+        print m
+        self.write(json.dumps(m))
 
     def post(self):
         # pdb.set_trace()
         data = tornado.escape.json_decode(self.request.body)
-
         self.write(json.dumps("OK"))
 
     def options(self):
@@ -43,9 +45,10 @@ class MainHandler(tornado.web.RequestHandler):
 
 def make_app():
     rs = RecommenderSystem(calc_similarities=False)
+    data = {"user_id": 1}
     return tornado.web.Application([
-        (r"/artists", MainHandler, dict(recommender_system=rs)),
-        (r"/user", MainHandler, dict(recommender_system=rs))
+        (r"/artists", MainHandler, dict(recommender_system=rs, ds=data)),
+        (r"/user", MainHandler, dict(recommender_system=rs, ds=data))
     ])
 
 
