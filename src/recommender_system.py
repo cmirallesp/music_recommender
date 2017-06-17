@@ -110,9 +110,9 @@ class RecommenderSystem(LastfmNetwork):
                 recoveries.append(numberOfRecoveries)
             else:
                 noValid += 1
-        execution = 'kN=' + str(kneighborhood) + ',SU=' + str(maxSimilarUsers) + ',RA=' + str(maxReferenceArtists)+ ',FT=' + str(self.minFreqTag)
+        execution = 'FT=' + str(self.minFreqTag) + ',kN=' + str(kneighborhood) + ',SU=' + str(maxSimilarUsers) + ',RA=' + str(maxReferenceArtists)
         print '\n__________________________________________________________\n'
-        print execution
+        print str(self.artist_sim) + ',' + execution
         print '\nEvaluation performed over %d users; %d selected users did not have enough relevant artists to be evaluated' % (len(recoveries), noValid)
         self.plot_recovery_distribution(recoveries, execution)
         print 'Median: %f. Mean: %f. Std: %f.' % (np.median(recoveries), np.mean(recoveries), np.std(recoveries))
@@ -124,12 +124,12 @@ class RecommenderSystem(LastfmNetwork):
         plt.xticks(range(np.min(recoveries), np.max(recoveries) + 1))
         # ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         plt.hist(recoveries, weights=len(recoveries) * [1. / len(recoveries)], range=(np.min(recoveries) - 0.5, np.max(recoveries) + 0.5), bins=np.max(recoveries) + 1 - np.min(recoveries))
-        plt.suptitle('Distribution of Relevant Artist Recoveries', fontweight='bold', fontsize=12)
+        plt.suptitle('Distribution of Relevant Artist Recoveries (Sim. over '+str(self.artist_sim)+')', fontweight='bold', fontsize=12)
         plt.title(r'$'+execution+'$', fontsize=11, loc='left')
         plt.title(r'$\mu \pm \sigma= %.3f \pm %.3f$' %(np.mean(recoveries),np.std(recoveries)), fontsize=11, loc='right')
         plt.xlabel("Number of Recoveries")
         plt.ylabel("Relative Frequency")
-        plt.savefig('plots/' + execution, bbox_inches='tight')
+        plt.savefig('plots/' + str(self.artist_sim) + ',' + execution, bbox_inches='tight')
         # plt.show()
 
     def save_edges(self, referenceNode, listOfNodes):

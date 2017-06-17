@@ -2,7 +2,7 @@
 
 from recommender_system import RecommenderSystem
 
-minFreqs = [0,1,5]
+minFreqs = [1,3,5,10]
 recommendationLengths = [10]
 artistSims = ['tags', 'users']
 maxReferenceArtists = [1,3,5]
