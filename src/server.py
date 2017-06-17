@@ -44,7 +44,7 @@ class MainHandler(tornado.web.RequestHandler):
 
 
 def make_app():
-    rs = RecommenderSystem(calc_similarities=False)
+    rs = RecommenderSystem()
     data = {"user_id": 1}
     return tornado.web.Application([
         (r"/artists", MainHandler, dict(recommender_system=rs, ds=data)),
