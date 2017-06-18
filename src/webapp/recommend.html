@@ -11358,9 +11358,6 @@ var _rundis$elm_bootstrap$Bootstrap_Grid$col = F2(
 			{options: options, children: children});
 	});
 var _user$project$Main$viewRecommendation = function (model) {
-	var title = (model.created || (!_elm_lang$core$Native_Utils.eq(
-		model.recommendation,
-		{ctor: '[]'}))) ? 'Recommendation' : '';
 	return {
 		ctor: '::',
 		_0: A2(
@@ -11369,130 +11366,18 @@ var _user$project$Main$viewRecommendation = function (model) {
 			{
 				ctor: '::',
 				_0: A2(
-					_elm_lang$html$Html$h4,
+					_elm_lang$html$Html$h6,
+					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$style(
-							{
-								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(title),
+						_0: _elm_lang$html$Html$text('Recommendation'),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
 					ctor: '::',
 					_0: A2(
 						_rundis$elm_bootstrap$Bootstrap_Grid$container,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$style(
-								{
-									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						},
-						A2(
-							_elm_lang$core$List$map,
-							function (_p0) {
-								var _p1 = _p0;
-								return A2(
-									_rundis$elm_bootstrap$Bootstrap_Grid$row,
-									{ctor: '[]'},
-									{
-										ctor: '::',
-										_0: A2(
-											_rundis$elm_bootstrap$Bootstrap_Grid$col,
-											{ctor: '[]'},
-											{
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$label,
-													{ctor: '[]'},
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html$text(_p1.full_name),
-														_1: {ctor: '[]'}
-													}),
-												_1: {ctor: '[]'}
-											}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_rundis$elm_bootstrap$Bootstrap_Grid$col,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$label,
-														{ctor: '[]'},
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html$text(_p1.score),
-															_1: {ctor: '[]'}
-														}),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
-										}
-									});
-							},
-							model.recommendation)),
-					_1: {ctor: '[]'}
-				}
-			}),
-		_1: {ctor: '[]'}
-	};
-};
-var _user$project$Main$viewSelected = function (model) {
-	var title = (model.created || (!_elm_lang$core$Native_Utils.eq(
-		model.recommendation,
-		{ctor: '[]'}))) ? 'Selection' : '';
-	return {
-		ctor: '::',
-		_0: A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$h5,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$style(
-							{
-								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(title),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_rundis$elm_bootstrap$Bootstrap_Grid$container,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$style(
-								{
-									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						},
+						{ctor: '[]'},
 						A2(
 							_elm_lang$core$List$map,
 							function (artist) {
@@ -11519,212 +11404,14 @@ var _user$project$Main$viewSelected = function (model) {
 										_1: {ctor: '[]'}
 									});
 							},
-							model.selected)),
+							model.recommendation)),
 					_1: {ctor: '[]'}
 				}
 			}),
 		_1: {ctor: '[]'}
 	};
 };
-var _user$project$Main$sendPost = F4(
-	function (msg, url, decoder, body2) {
-		return A2(
-			_elm_lang$http$Http$send,
-			msg,
-			A3(_elm_lang$http$Http$post, url, body2, decoder));
-	});
-var _user$project$Main$sendGet = F3(
-	function (msg, url, decoder) {
-		return A2(
-			_elm_lang$http$Http$send,
-			msg,
-			A2(_elm_lang$http$Http$get, url, decoder));
-	});
-var _user$project$Main$encodeSelectedArtists = function (selectionList) {
-	return _elm_lang$core$Json_Encode$object(
-		A2(
-			_elm_lang$core$List$map,
-			function (_p2) {
-				var _p3 = _p2;
-				return {
-					ctor: '_Tuple2',
-					_0: _p3.id,
-					_1: _elm_lang$core$Json_Encode$int(1)
-				};
-			},
-			selectionList));
-};
-var _user$project$Main$model = {
-	user_id: '',
-	user_name: '',
-	artists: {ctor: '[]'},
-	selected: {ctor: '[]'},
-	recommendation: {ctor: '[]'},
-	created: false
-};
-var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Main$model, _1: _elm_lang$core$Platform_Cmd$none};
-var _user$project$Main$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$none;
-};
-var _user$project$Main$ArtistRecommendation = F2(
-	function (a, b) {
-		return {full_name: a, score: b};
-	});
-var _user$project$Main$artistRecommendationDecoder = A3(
-	_elm_lang$core$Json_Decode$map2,
-	_user$project$Main$ArtistRecommendation,
-	A2(_elm_lang$core$Json_Decode$field, 'full_name', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode$field, 'score', _elm_lang$core$Json_Decode$string));
-var _user$project$Main$recommendationDecorder = _elm_lang$core$Json_Decode$list(_user$project$Main$artistRecommendationDecoder);
-var _user$project$Main$User = F2(
-	function (a, b) {
-		return {user_id: a, artists: b};
-	});
-var _user$project$Main$Artist = F2(
-	function (a, b) {
-		return {id: a, full_name: b};
-	});
-var _user$project$Main$artistDecoder = A3(
-	_elm_lang$core$Json_Decode$map2,
-	_user$project$Main$Artist,
-	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode$field, 'full_name', _elm_lang$core$Json_Decode$string));
-var _user$project$Main$listArtistsDecoder = _elm_lang$core$Json_Decode$list(_user$project$Main$artistDecoder);
-var _user$project$Main$userDecoder = A3(
-	_elm_lang$core$Json_Decode$map2,
-	_user$project$Main$User,
-	A2(_elm_lang$core$Json_Decode$field, 'user_id', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode$field, 'artists', _user$project$Main$listArtistsDecoder));
-var _user$project$Main$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {user_id: a, user_name: b, artists: c, selected: d, recommendation: e, created: f};
-	});
-var _user$project$Main$SaveArtist = function (a) {
-	return {ctor: 'SaveArtist', _0: a};
-};
-var _user$project$Main$saveArtistsOfUser = function (model) {
-	var json = _elm_lang$http$Http$jsonBody(
-		_elm_lang$core$Json_Encode$object(
-			{
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: 'selected',
-					_1: _user$project$Main$encodeSelectedArtists(model.selected)
-				},
-				_1: {
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'user_id',
-						_1: _elm_lang$core$Json_Encode$string(model.user_id)
-					},
-					_1: {ctor: '[]'}
-				}
-			}));
-	return A4(_user$project$Main$sendPost, _user$project$Main$SaveArtist, 'http://localhost:8887/user_artists', _user$project$Main$recommendationDecorder, json);
-};
-var _user$project$Main$SaveArtistsOfUser = {ctor: 'SaveArtistsOfUser'};
-var _user$project$Main$Cancel = {ctor: 'Cancel'};
-var _user$project$Main$UserCreated = function (a) {
-	return {ctor: 'UserCreated', _0: a};
-};
-var _user$project$Main$saveUser = function (name) {
-	var json = _elm_lang$http$Http$jsonBody(
-		_elm_lang$core$Json_Encode$object(
-			{
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: 'user_name',
-					_1: _elm_lang$core$Json_Encode$string(name)
-				},
-				_1: {ctor: '[]'}
-			}));
-	return A4(_user$project$Main$sendPost, _user$project$Main$UserCreated, 'http://localhost:8887/user', _user$project$Main$userDecoder, json);
-};
-var _user$project$Main$update = F2(
-	function (msg, model) {
-		var _p4 = msg;
-		switch (_p4.ctor) {
-			case 'CreateUser':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Main$saveUser(model.user_name)
-				};
-			case 'ChgName':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{user_name: _p4._0}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'AddArtist':
-				var _p5 = _p4._0;
-				return A2(_elm_lang$core$List$member, _p5, model.selected) ? {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none} : {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							selected: {ctor: '::', _0: _p5, _1: model.selected}
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'UserCreated':
-				if (_p4._0.ctor === 'Ok') {
-					var _p6 = _p4._0._0;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{user_id: _p6.user_id, artists: _p6.artists, created: true}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-			case 'Cancel':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							artists: {ctor: '[]'},
-							selected: {ctor: '[]'},
-							recommendation: {ctor: '[]'},
-							created: false
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'SaveArtist':
-				if (_p4._0.ctor === 'Ok') {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{recommendation: _p4._0._0, created: false}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-			default:
-				return model.created ? {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Main$saveArtistsOfUser(model)
-				} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-		}
-	});
-var _user$project$Main$AddArtist = function (a) {
-	return {ctor: 'AddArtist', _0: a};
-};
 var _user$project$Main$viewAllArtists = function (model) {
-	var title = (model.created || (!_elm_lang$core$Native_Utils.eq(
-		model.recommendation,
-		{ctor: '[]'}))) ? 'Artists' : '';
 	return {
 		ctor: '::',
 		_0: A2(
@@ -11734,35 +11421,17 @@ var _user$project$Main$viewAllArtists = function (model) {
 				ctor: '::',
 				_0: A2(
 					_elm_lang$html$Html$h6,
+					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$style(
-							{
-								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(title),
+						_0: _elm_lang$html$Html$text('Artists'),
 						_1: {ctor: '[]'}
 					}),
 				_1: {
 					ctor: '::',
 					_0: A2(
 						_rundis$elm_bootstrap$Bootstrap_Grid$container,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$style(
-								{
-									ctor: '::',
-									_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						},
+						{ctor: '[]'},
 						A2(
 							_elm_lang$core$List$map,
 							function (artist) {
@@ -11786,34 +11455,7 @@ var _user$project$Main$viewAllArtists = function (model) {
 													}),
 												_1: {ctor: '[]'}
 											}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_rundis$elm_bootstrap$Bootstrap_Grid$col,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: A2(
-														_rundis$elm_bootstrap$Bootstrap_Button$button,
-														{
-															ctor: '::',
-															_0: _rundis$elm_bootstrap$Bootstrap_Button$roleLink,
-															_1: {
-																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(
-																	_user$project$Main$AddArtist(artist)),
-																_1: {ctor: '[]'}
-															}
-														},
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html$text('Add'),
-															_1: {ctor: '[]'}
-														}),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
-										}
+										_1: {ctor: '[]'}
 									});
 							},
 							model.artists)),
@@ -11823,10 +11465,107 @@ var _user$project$Main$viewAllArtists = function (model) {
 		_1: {ctor: '[]'}
 	};
 };
-var _user$project$Main$ChgName = function (a) {
-	return {ctor: 'ChgName', _0: a};
+var _user$project$Main$sendPost = F4(
+	function (msg, url, decoder, body2) {
+		return A2(
+			_elm_lang$http$Http$send,
+			msg,
+			A3(_elm_lang$http$Http$post, url, body2, decoder));
+	});
+var _user$project$Main$sendGet = F3(
+	function (msg, url, decoder) {
+		return A2(
+			_elm_lang$http$Http$send,
+			msg,
+			A2(_elm_lang$http$Http$get, url, decoder));
+	});
+var _user$project$Main$model = {
+	user_id: '',
+	artists: {ctor: '[]'},
+	recommendation: {ctor: '[]'}
 };
-var _user$project$Main$CreateUser = {ctor: 'CreateUser'};
+var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Main$model, _1: _elm_lang$core$Platform_Cmd$none};
+var _user$project$Main$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$none;
+};
+var _user$project$Main$User = F3(
+	function (a, b, c) {
+		return {user_id: a, artists: b, recommendation: c};
+	});
+var _user$project$Main$Artist = F2(
+	function (a, b) {
+		return {id: a, full_name: b};
+	});
+var _user$project$Main$artistDecoder = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$Main$Artist,
+	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'full_name', _elm_lang$core$Json_Decode$string));
+var _user$project$Main$listArtistsDecoder = _elm_lang$core$Json_Decode$list(_user$project$Main$artistDecoder);
+var _user$project$Main$userDecoder = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$Main$User,
+	A2(_elm_lang$core$Json_Decode$field, 'user_id', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'artists', _user$project$Main$listArtistsDecoder),
+	A2(_elm_lang$core$Json_Decode$field, 'recommendation', _user$project$Main$listArtistsDecoder));
+var _user$project$Main$Model = F3(
+	function (a, b, c) {
+		return {user_id: a, artists: b, recommendation: c};
+	});
+var _user$project$Main$UserFound = function (a) {
+	return {ctor: 'UserFound', _0: a};
+};
+var _user$project$Main$recommend = function (user_id) {
+	var json = _elm_lang$http$Http$jsonBody(
+		_elm_lang$core$Json_Encode$object(
+			{
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'user_id',
+					_1: _elm_lang$core$Json_Encode$string(user_id)
+				},
+				_1: {ctor: '[]'}
+			}));
+	return A4(_user$project$Main$sendPost, _user$project$Main$UserFound, 'http://localhost:8887/recommendation', _user$project$Main$userDecoder, json);
+};
+var _user$project$Main$update = F2(
+	function (msg, model) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
+			case 'ChgUserId':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{user_id: _p0._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Recommend':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Main$recommend(model.user_id)
+				};
+			default:
+				if (_p0._0.ctor === 'Ok') {
+					var _p1 = _p0._0._0;
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{artists: _p1.artists, recommendation: _p1.recommendation}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+		}
+	});
+var _user$project$Main$ChgUserId = function (a) {
+	return {ctor: 'ChgUserId', _0: a};
+};
+var _user$project$Main$Recommend = {ctor: 'Recommend'};
 var _user$project$Main$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -11862,12 +11601,12 @@ var _user$project$Main$view = function (model) {
 														_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$attrs(
 															{
 																ctor: '::',
-																_0: _elm_lang$html$Html_Attributes$placeholder('User name'),
+																_0: _elm_lang$html$Html_Attributes$placeholder('User ID'),
 																_1: {ctor: '[]'}
 															}),
 														_1: {
 															ctor: '::',
-															_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Main$ChgName),
+															_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Main$ChgUserId),
 															_1: {ctor: '[]'}
 														}
 													}),
@@ -11880,7 +11619,7 @@ var _user$project$Main$view = function (model) {
 															_0: _rundis$elm_bootstrap$Bootstrap_Button$primary,
 															_1: {
 																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(_user$project$Main$CreateUser),
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(_user$project$Main$Recommend),
 																_1: {
 																	ctor: '::',
 																	_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
@@ -11895,66 +11634,10 @@ var _user$project$Main$view = function (model) {
 														},
 														{
 															ctor: '::',
-															_0: _elm_lang$html$Html$text('New User'),
+															_0: _elm_lang$html$Html$text('Go'),
 															_1: {ctor: '[]'}
 														}),
-													_1: {
-														ctor: '::',
-														_0: A2(
-															_rundis$elm_bootstrap$Bootstrap_Button$button,
-															{
-																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_Button$info,
-																_1: {
-																	ctor: '::',
-																	_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(_user$project$Main$SaveArtistsOfUser),
-																	_1: {
-																		ctor: '::',
-																		_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-																			{
-																				ctor: '::',
-																				_0: _elm_lang$html$Html_Attributes$class('ml-sm-2 my-2'),
-																				_1: {ctor: '[]'}
-																			}),
-																		_1: {ctor: '[]'}
-																	}
-																}
-															},
-															{
-																ctor: '::',
-																_0: _elm_lang$html$Html$text('Recommend'),
-																_1: {ctor: '[]'}
-															}),
-														_1: {
-															ctor: '::',
-															_0: A2(
-																_rundis$elm_bootstrap$Bootstrap_Button$button,
-																{
-																	ctor: '::',
-																	_0: _rundis$elm_bootstrap$Bootstrap_Button$danger,
-																	_1: {
-																		ctor: '::',
-																		_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(_user$project$Main$Cancel),
-																		_1: {
-																			ctor: '::',
-																			_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-																				{
-																					ctor: '::',
-																					_0: _elm_lang$html$Html_Attributes$class('ml-sm-2 my-2'),
-																					_1: {ctor: '[]'}
-																				}),
-																			_1: {ctor: '[]'}
-																		}
-																	}
-																},
-																{
-																	ctor: '::',
-																	_0: _elm_lang$html$Html$text('Clear'),
-																	_1: {ctor: '[]'}
-																}),
-															_1: {ctor: '[]'}
-														}
-													}
+													_1: {ctor: '[]'}
 												}
 											}),
 										_1: {ctor: '[]'}
@@ -11972,7 +11655,7 @@ var _user$project$Main$view = function (model) {
 										_rundis$elm_bootstrap$Bootstrap_Grid$col,
 										{
 											ctor: '::',
-											_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs4,
+											_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs6,
 											_1: {ctor: '[]'}
 										},
 										_user$project$Main$viewAllArtists(model)),
@@ -11982,22 +11665,11 @@ var _user$project$Main$view = function (model) {
 											_rundis$elm_bootstrap$Bootstrap_Grid$col,
 											{
 												ctor: '::',
-												_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs4,
+												_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs6,
 												_1: {ctor: '[]'}
 											},
-											_user$project$Main$viewSelected(model)),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_rundis$elm_bootstrap$Bootstrap_Grid$col,
-												{
-													ctor: '::',
-													_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs4,
-													_1: {ctor: '[]'}
-												},
-												_user$project$Main$viewRecommendation(model)),
-											_1: {ctor: '[]'}
-										}
+											_user$project$Main$viewRecommendation(model)),
+										_1: {ctor: '[]'}
 									}
 								}),
 							_1: {ctor: '[]'}

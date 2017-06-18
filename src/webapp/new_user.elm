@@ -32,6 +32,12 @@ subscriptions model =
 
 
 -- MODEL
+type alias ArtistRecommendation=
+  { full_name: String
+  , score: String
+  }
+
+
 type alias User =
   { user_id: String
   , artists: List (Artist)
@@ -47,6 +53,7 @@ type alias Model =
   , user_name: String
   , artists : List Artist
   , selected: List Artist
+  , recommendation: List ArtistRecommendation
   , created: Bool
   }
 
@@ -56,12 +63,23 @@ model =
   , user_name =""
   , artists=[] 
   , selected=[]
+  , recommendation=[]
   , created = False
   }
 
 init : (Model, Cmd Msg)
 init =
   ( model, Cmd.none )
+
+artistRecommendationDecoder: Decoder ArtistRecommendation
+artistRecommendationDecoder = 
+  Json.Decode.map2 ArtistRecommendation
+    (field "full_name" Json.Decode.string)
+    (field "score" Json.Decode.string)
+
+recommendationDecorder : Decoder (List ArtistRecommendation)
+recommendationDecorder =
+  Json.Decode.list artistRecommendationDecoder
 
 userDecoder : Decoder User
 userDecoder =
@@ -88,7 +106,7 @@ type Msg
   | UserCreated (Result Http.Error (User))
   | Cancel
   | SaveArtistsOfUser
-  | SaveArtist (Result Http.Error String)
+  | SaveArtist (Result Http.Error (List ArtistRecommendation))
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -113,17 +131,20 @@ update msg model =
       ( model, Cmd.none)
 
     Cancel ->
-      ({ model | artists=[], selected = [], created = False }, Cmd.none)
+      ({ model | artists=[], selected = [], recommendation=[],created = False }, Cmd.none)
 
-    SaveArtist (Ok _) ->
-      ({model | artists=[], selected=[], created = False}, Cmd.none)
+    SaveArtist (Ok res) ->
+      ({model | recommendation=res, created = False}, Cmd.none)
 
 
     SaveArtist (Err _) ->
       (model, Cmd.none)
 
     SaveArtistsOfUser ->
-      (model, saveArtistsOfUser model)            
+      if model.created then
+        (model, saveArtistsOfUser model)            
+      else
+        (model, Cmd.none)
      -- Boilerplate: Mdl action handler.
 
 
@@ -143,7 +164,7 @@ saveArtistsOfUser model =
           ( "user_id", (Json.Encode.string model.user_id))
         ]
   in 
-    sendPost SaveArtist ("http://localhost:8887/user_artists") Json.Decode.string json
+    sendPost SaveArtist ("http://localhost:8887/user_artists") recommendationDecorder json
 
 saveUser : String -> Cmd Msg
 saveUser name=
@@ -166,11 +187,11 @@ sendPost msg url decoder body2 =
 viewAllArtists: Model -> List (Html Msg)
 viewAllArtists model=
   let 
-    title = if model.created then "Artists" else ""
+    title = if model.created || model.recommendation /= [] then "Artists" else ""
   in
     [ div []
-      [ h6 [] [text title]
-      , Grid.container []
+      [ h6 [style [("text-align","center")]] [text title]
+      , Grid.container [style [("text-align","center")]]
                 (List.map (\artist -> 
                     Grid.row []
                       [ Grid.col [] 
@@ -189,11 +210,11 @@ viewAllArtists model=
 viewSelected: Model -> List (Html Msg) 
 viewSelected model=
   let 
-    title = if model.created then "Selected: "++model.user_id else ""
+    title = if model.created || model.recommendation /= [] then "Selection" else ""
   in
     [ div []
-      [ h6 [] [text title]
-      , Grid.container []
+      [ h5 [style [("text-align","center")]] [text title]
+      , Grid.container [style [("text-align","center")]]
                 ( List.map (\artist ->
                     Grid.row []
                       [ Grid.col []
@@ -203,31 +224,25 @@ viewSelected model=
       ]
     ]
 
-viewButtons: Model -> List (Grid.Column Msg)
-viewButtons model = 
+viewRecommendation: Model -> List (Html Msg) 
+viewRecommendation model=
   let 
-    st = if model.created then (style [("display","hidden")]) 
-        else (style [("display","hidden")])
+    title = if model.created || model.recommendation /= [] then "Recommendation" else ""
   in
-    if model.created then
-      [ Grid.col [Col.xs6, Col.attrs [st]]
-            [ Button.button 
-              [ Button.small
-              , Button.primary
-              , Button.onClick SaveArtistsOfUser
-              ] 
-              [ text "Save" ] 
-            ]
-      , Grid.col [Col.xs6, Col.attrs [st]]
-            [ Button.button 
-              [ Button.small
-              , Button.danger
-              , Button.onClick Cancel 
-              ] 
-              [ text "Cancel" ] ]
+    [ div []
+      [ h4 [style [("text-align","center")]] [text title]
+      , Grid.container [style [("text-align","center")]]
+                ( List.map (\{full_name,score} ->
+                    Grid.row []
+                      [ Grid.col []
+                        [ label [] [text full_name]]
+                      , Grid.col []
+                        [ label [] [text score]]
+                      ]
+                ) model.recommendation)
       ]
-    else
-      [Grid.col [] []]
+    ]
+
 
 view : Model -> Html Msg
 view model =
@@ -240,17 +255,20 @@ view model =
           [ Form.formInline [] 
             [ Input.text [ Input.attrs [placeholder "User name"], Input.onInput ChgName]  
             , Button.button [Button.primary, Button.onClick CreateUser, Button.attrs [ class "ml-sm-2 my-2" ] ] [ text "New User" ] 
+            , Button.button [ Button.info, Button.onClick SaveArtistsOfUser,Button.attrs [ class "ml-sm-2 my-2" ] ] [ text "Recommend" ] 
+            , Button.button [ Button.danger, Button.onClick Cancel,Button.attrs [ class "ml-sm-2 my-2" ] ] [ text "Clear" ] 
             ]
           ]
         ]
     , Grid.row []
-        [ Grid.col [Col.xs6 ]
+        [ Grid.col [Col.xs4 ]
           (viewAllArtists model)  
 
-        , Grid.col [ Col.xs6]
+        , Grid.col [ Col.xs4]
           (viewSelected model)
+        
+        , Grid.col [ Col.xs4]
+          (viewRecommendation model)
         ]
-    , Grid.row []
-        (viewButtons model)
     ]
   ]

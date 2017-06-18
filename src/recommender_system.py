@@ -2,6 +2,7 @@ from lastfm_network import *
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns  # pip install seaborn
+import pdb
 sns.set_palette("deep", desat=.6)
 sns.set_style("whitegrid")
 
@@ -10,6 +11,7 @@ class RecommenderSystem(LastfmNetwork):
 
     def recommendation(self, referenceUser, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9, showRecommendation=True, recommendationLength=10, artistSim='tags'):
         '''Recommendation script'''
+        print referenceUser
         self.artist_sim = artistSim
 
         if self.run == 'offline':
@@ -23,19 +25,23 @@ class RecommenderSystem(LastfmNetwork):
                 return 'Impossible to make a recommendation based on the social neighborhood: the user has no friendship relations'
         else:
             consideredUsers = [user for user in self.users_iter()]
-            consideredUsers.remove(referenceUser)
+            if not referenceUser in consideredUsers:
+                return []
+            else:
+                consideredUsers.remove(referenceUser)
 
         # We get the similarities of all considered users with respect to the reference one in descending order
         similarUsers = self.get_user_similarities(referenceUser, consideredUsers)
         # We only keep up to a maxSimilarUsers number of users for the recommendation
         similarUsers = [similarUser[0] for similarUser in similarUsers[:min(len(similarUsers), maxSimilarUsers)]]
-
+        print "simililarUsers (20): {}".format(similarUsers[:20])
         # We get the artists that the reference user has listened to
         referenceUserArtists = set(self.user_artists_iter(referenceUser))
+        print "referenceArtists: {}".format(referenceUserArtists)
         # assert referenceUserArtists == set(self.get_kdistant_neighbors_by_type(referenceUser, type='ua'))
         # We select as relevant those artists with a high number of reproductions by the reference user
         relevantArtists = self.get_relevant_artists_from_user(referenceUser, referenceUserArtists, relevanceAccum)
-
+        print "relevantArtists: {}".format(relevantArtists)
         # We look for the candidate artist list considering all similar users found
         candidateArtistList = []
         artistsAlreadyConsidered = []

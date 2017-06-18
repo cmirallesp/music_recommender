@@ -246,7 +246,10 @@ class NetworkBuilderMixin(object):
         new_id = max(self.users_id) + 1
         self.users_id.append(new_id)
         k = self.key_user(new_id)
+        print "Before Adding user: {} lenght:{}".format(k, len(list(self._graph.nodes_iter())))
         self._graph.add_node(k)
+        print "After Adding user: {} lenght:{}".format(k, len(list(self._graph.nodes_iter())))
+        print "in nodes_iter? {}".format(k in list(self._graph.nodes_iter()))
         return k
 
     def add_artists_and_friends_to_user(self, user_id, listens, friends):
@@ -268,19 +271,19 @@ class NetworkBuilderMixin(object):
             self._normalize_weights_artist_user(artist=ka)
 
         # Update user similarity matrix
-        aux_sim = self.user_similarities.copy()
-        aux_sim = aux_sim.tocoo()
+        # aux_sim = self.user_similarities.copy()
+        # aux_sim = aux_sim.tocoo()
 
-        aux_sim._shape = (self._user_similarities._shape[0] + 1, self._user_similarities._shape[1] + 1)
+        # aux_sim._shape = (self._user_similarities._shape[0] + 1, self._user_similarities._shape[1] + 1)
 
-        for j, user in enumerate(self.users_id):
-            s = self._sim(user_id, user, self.user_artists_iter)
-            if s > 0:
-                aux_sim.data = np.append(aux_sim.data, s)
-                aux_sim.row = np.append(aux_sim.row, self.user_similarities.shape[0])
-                aux_sim.col = np.append(aux_sim.col, j)
+        # for j, user in enumerate(self.users_id):
+        #     s = self._sim(user_id, user, self.user_artists_iter)
+        #     if s > 0:
+        #         aux_sim.data = np.append(aux_sim.data, s)
+        #         aux_sim.row = np.append(aux_sim.row, self.user_similarities.shape[0])
+        #         aux_sim.col = np.append(aux_sim.col, j)
 
-        self._user_similarities = aux_sim.tolil()
+        # self._user_similarities = aux_sim.tolil()
 
     def add_user(self, friends, listens, user_id=None):
         # Update users existing in the system

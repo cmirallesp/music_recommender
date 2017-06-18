@@ -33,11 +33,8 @@ class NewUserHandler(tornado.web.RequestHandler):
 
     def options(self):
         # no body
-        print "optionsss1"
         self.set_status(204)
-        print "optionsss2"
         self.finish()
-        print "optionsss3"
 
 
 class SaveArtistsHandler(tornado.web.RequestHandler):
@@ -58,10 +55,63 @@ class SaveArtistsHandler(tornado.web.RequestHandler):
         data = tornado.escape.json_decode(self.request.body)
         print "=======>{}".format(data)
         print "adding user, recalculating similarities"
+        uid = str(data['user_id'])  # comes in unicode
         st = time.clock()
-        self.rs.add_artists_and_friends_to_user(data['user_id'], listens=data['selected'], friends={})
+        self.rs.add_artists_and_friends_to_user(uid, listens=data['selected'], friends={})
         print "user added ({})".format(time.clock() - st)
-        self.write(json.dumps("OK"))
+        # recommendation
+        st = time.clock()
+        recommendationLst = self.rs.recommendation(uid)
+        print "recommendation ({})".format(time.clock() - st)
+        result = []
+
+        for aid, sim in recommendationLst:
+            result.append(
+                {'full_name': self.rs.artistID2artist[aid].decode('utf8'), 'score': str(round(sim, 5))}
+            )
+
+        self.write(json.dumps(result))
+
+    def options(self):
+        # no body
+        self.set_status(204)
+        self.finish()
+
+
+class RecommendationHandler(tornado.web.RequestHandler):
+
+    def initialize(self, recommender_system, ):
+        print "Recommendation"
+        self.rs = recommender_system
+
+    def set_default_headers(self):
+        print "setting headers!!!"
+        self.set_header("Access-Control-Allow-Origin", "*")
+        self.set_header("Access-Control-Allow-Headers", "x-requested-with, content-type")
+        self.set_header('Access-Control-Allow-Methods', 'POST, GET')
+        self.set_header("Content-type", "application/json")
+
+    def post(self):
+        # pdb.set_trace()
+        data = tornado.escape.json_decode(self.request.body)
+        print "=======>{}".format(data)
+        print "making recommendation"
+        st = time.clock()
+        uid = str(data['user_id'])  # comes in unicode
+        recommendationLst = self.rs.recommendation(uid)
+        print "recommendation ({})".format(time.clock() - st)
+        artists = list(self.rs.artists_names_iter(self.rs.user_artists_iter(uid)))
+        print "1:{}".format(artists)
+        print "2:{}".format(recommendationLst)
+        rr = [aid for aid, sim in recommendationLst]
+        rec_iter = self.rs.artists_names_iter(iter(rr))
+        # pdb.set_trace()
+        rec = list(rec_iter)
+        print "2:{}".format(rec)
+        # pdb.set_trace()
+        self.write(json.dumps({"artists": artists,
+                               "recommendation": rec
+                               }))
 
     def options(self):
         # no body
@@ -71,10 +121,11 @@ class SaveArtistsHandler(tornado.web.RequestHandler):
 
 def make_app():
     rs = RecommenderSystem()
-    data = {"user_id": 1}
+
     return tornado.web.Application([
         (r"/user", NewUserHandler, dict(recommender_system=rs)),
-        (r"/user_artists", SaveArtistsHandler, dict(recommender_system=rs))
+        (r"/user_artists", SaveArtistsHandler, dict(recommender_system=rs)),
+        (r"/recommendation", RecommendationHandler, dict(recommender_system=rs))
     ])
 
 

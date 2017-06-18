@@ -84,7 +84,11 @@ class NetworkIteratorsMixin(object):
                 if prefix in _id:
                     yield _id
 
-    def artists_names_iter(self):
-        for aid in self.artists_iter():
+    def artists_names_iter(self, _iter=None):
+        if _iter is None:
+            i = self.artists_iter()
+        else:
+            i = _iter
+        for aid in i:
             yield {'id': aid,
                    'full_name': self.artistID2artist[aid].decode('utf8')}
