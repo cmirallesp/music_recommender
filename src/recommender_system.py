@@ -11,7 +11,6 @@ class RecommenderSystem(LastfmNetwork):
 
     def recommendation(self, referenceUser, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9, showRecommendation=True, recommendationLength=10, artistSim='tags'):
         '''Recommendation script'''
-        print referenceUser
         self.artist_sim = artistSim
 
         if self.run == 'offline':
@@ -34,14 +33,11 @@ class RecommenderSystem(LastfmNetwork):
         similarUsers = self.get_user_similarities(referenceUser, consideredUsers)
         # We only keep up to a maxSimilarUsers number of users for the recommendation
         similarUsers = [similarUser[0] for similarUser in similarUsers[:min(len(similarUsers), maxSimilarUsers)]]
-        print "simililarUsers (20): {}".format(similarUsers[:20])
         # We get the artists that the reference user has listened to
         referenceUserArtists = set(self.user_artists_iter(referenceUser))
-        print "referenceArtists: {}".format(referenceUserArtists)
         # assert referenceUserArtists == set(self.get_kdistant_neighbors_by_type(referenceUser, type='ua'))
         # We select as relevant those artists with a high number of reproductions by the reference user
         relevantArtists = self.get_relevant_artists_from_user(referenceUser, referenceUserArtists, relevanceAccum)
-        print "relevantArtists: {}".format(relevantArtists)
         # We look for the candidate artist list considering all similar users found
         candidateArtistList = []
         artistsAlreadyConsidered = []
@@ -74,7 +70,7 @@ class RecommenderSystem(LastfmNetwork):
         print '\nRELEVANT ARTISTS FOR THE USER:', [self.artistID2artist[artistID] for artistID in referenceArtists]
         print '\nRECOMMENDED ARTISTS:', [self.artistID2artist[artistID] for artistID in recommendedArtists]
 
-    def user_recommendation_evaluation(self, referenceUser, maxReferenceArtists=3, recommendationLength=10, relevanceLength=None, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.95, artistSim='tags'):
+    def user_recommendation_evaluation(self, referenceUser, maxReferenceArtists=3, recommendationLength=10, relevanceLength=None, kneighborhood=1, maxSimilarUsers=3, relevanceAccum=0.95, artistSim='users'):
         '''Evaluates the recommendation of a user'''
         self.artist_sim = artistSim
         # We get the most relevant artists from the reference user apart from the ones chosen for the recommendation
