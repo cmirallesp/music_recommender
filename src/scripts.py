@@ -2,10 +2,18 @@
 
 from recommender_system import RecommenderSystem
 
-minFreqs = [100]
-recommendationLengths = [1,5,20]
-artistSims = ['tags']#, 'users']
-maxReferenceArtists = [3]
-kneighborhood = [1]
-maxSimilarUsers = [1]
+# Example of a recommendation
 
+# parameters
+referenceUser = 'u_511'
+minFreqTag = 100
+recommendationLength = 10
+artistSim = 'users' #'tags'
+kneighborhood = 1
+maxSimilarUsers = 3
+
+#Initialization
+recommender = RecommenderSystem(minFreqTag=minFreqTag)
+
+#Recommendation
+recommender.recommendation(referenceUser, kneighborhood=kneighborhood, maxSimilarUsers=maxSimilarUsers, recommendationLength=recommendationLength, relevanceAccum=0.95, artistSim=artistSim)

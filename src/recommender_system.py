@@ -9,7 +9,7 @@ sns.set_style("whitegrid")
 
 class RecommenderSystem(LastfmNetwork):
 
-    def recommendation(self, referenceUser, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9, showRecommendation=True, recommendationLength=10, artistSim='tags'):
+    def recommendation(self, referenceUser, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9, showRecommendation=True, recommendationLength=10, artistSim='users'):
         '''Recommendation script'''
         self.artist_sim = artistSim
 
@@ -100,7 +100,7 @@ class RecommenderSystem(LastfmNetwork):
 
         return len(recoveredArtists)
 
-    def recommendation_evaluation(self, maxReferenceArtists=5, recommendationLength=10, relevanceLength=None, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.95, numUsers=10, artistSim='tags'):
+    def recommendation_evaluation(self, maxReferenceArtists=5, recommendationLength=10, relevanceLength=None, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.95, numUsers=10, artistSim='users'):
         '''Evaluates the recommendation of several users'''
         self.artist_sim = artistSim
         self.run = 'offline'
