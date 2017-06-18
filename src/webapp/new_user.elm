@@ -17,7 +17,8 @@ import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row 
 import Bootstrap.Button as Button
-
+import Bootstrap.Card as Card
+import Bootstrap.Card exposing (header, block, custom, config)
 main =
   Html.program
     { init = init 
@@ -184,64 +185,93 @@ sendPost msg url decoder body2 =
     Http.post url body2 decoder |> Http.send msg
     
 -- VIEW
+
+showSelection : Model -> Bool
+showSelection model = model.created || model.recommendation /= []
+
 viewAllArtists: Model -> List (Html Msg)
 viewAllArtists model=
   let 
-    title = if model.created || model.recommendation /= [] then "Artists" else ""
+    title = if (showSelection model) then "Artists" else ""
   in
-    [ div []
-      [ h6 [style [("text-align","center")]] [text title]
-      , Grid.container [style [("text-align","center")]]
-                (List.map (\artist -> 
-                    Grid.row []
-                      [ Grid.col [] 
-                          [ label [] [ text artist.full_name ]]
-                      , Grid.col []
-                          [ Button.button 
-                            [ Button.roleLink
-                            , Button.onClick (AddArtist artist)
-                            ] [text "Add"]
-                          ]
-                      ]
-                ) model.artists)
+    if (showSelection model) then
+      [ Card.config []
+          |> Card.header [ class "text-center" ]  
+              [ h3 [ class "mt-2" ] [text title] ]
+          |> Card.block []
+            [ Card.custom <|
+                Grid.container [class "pre-scrollable",style [("text-align","center")]]
+                  (List.map (\artist -> 
+                      Grid.row []
+                        [ Grid.col [] 
+                            [ label [] [ text artist.full_name ]]
+                        , Grid.col []
+                            [ Button.button 
+                              [ Button.roleLink
+                              , Button.onClick (AddArtist artist)
+                              ] [text "Add"]
+                            ]
+                        ]
+                  ) model.artists)
+            ]
+          |> Card.view 
       ]
-  ]
+    else
+      [text ""]
+    
 
 viewSelected: Model -> List (Html Msg) 
 viewSelected model=
   let 
-    title = if model.created || model.recommendation /= [] then "Selection" else ""
+    title = if  (showSelection model) then "Selection" else ""
   in
-    [ div []
-      [ h5 [style [("text-align","center")]] [text title]
-      , Grid.container [style [("text-align","center")]]
-                ( List.map (\artist ->
-                    Grid.row []
-                      [ Grid.col []
-                        [ label [] [text artist.full_name]]
-                      ]
-                ) model.selected)
+    if (showSelection model) then
+      [ Card.config []
+          |> Card.header [ class "text-center" ]  
+              [ h3 [ class "mt-2" ] [text title] ]
+          |> Card.block []
+            [ Card.custom <|
+                Grid.container [class "pre-scrollable", style [("text-align","center")]]
+                  ( List.map (\artist ->
+                      Grid.row []
+                        [ Grid.col []
+                          [ label [] [text artist.full_name]]
+                        ]
+                  ) model.selected)
+            ]
+          |> Card.view 
       ]
-    ]
+    else
+      [text ""]
+    
 
 viewRecommendation: Model -> List (Html Msg) 
 viewRecommendation model=
   let 
-    title = if model.created || model.recommendation /= [] then "Recommendation" else ""
+    title = if (showSelection model) then "Recommendation" else ""
   in
-    [ div []
-      [ h4 [style [("text-align","center")]] [text title]
-      , Grid.container [style [("text-align","center")]]
-                ( List.map (\{full_name,score} ->
-                    Grid.row []
-                      [ Grid.col []
-                        [ label [] [text full_name]]
-                      , Grid.col []
-                        [ label [] [text score]]
-                      ]
-                ) model.recommendation)
+    if (showSelection model) then
+      [ 
+        Card.config []
+          |> Card.header [ class "text-center" ]  
+              [ h3 [ class "mt-2" ] [text title] ]
+          |> Card.block []
+            [ Card.custom <|
+               Grid.container [class "pre-scrollable", style [("text-align","center")]]
+                        ( List.map (\{full_name,score} ->
+                            Grid.row []
+                              [ Grid.col []
+                                [ label [] [text full_name]]
+                              , Grid.col []
+                                [ label [] [text score]]
+                              ]
+                        ) model.recommendation)
+            ]
+          |> Card.view 
       ]
-    ]
+    else
+      [text ""]
+    
 
 
 view : Model -> Html Msg
