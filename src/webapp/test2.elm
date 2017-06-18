@@ -32,9 +32,9 @@ subscriptions model =
 -- MODEL
 type alias NewUser =
   { user_id: String
-  , artists: List Artist
+  , artists: List (Artist)
   }
-
+  
 type alias Artist =
   { id : String
   , full_name : String
@@ -120,13 +120,24 @@ update msg model =
      -- Boilerplate: Mdl action handler.
 
 
+encodeSelectedArtists: List Artist -> Value
+encodeSelectedArtists selectionList =
+  Json.Encode.list 
+    ( List.map (\{id} -> (encodeSelectedArtist id)) selectionList)
+
+encodeSelectedArtist: String -> Value
+encodeSelectedArtist id = 
+  object
+    [ ("id", Json.Encode.string id)
+    , ("times", Json.Encode.int 1) --TODO: edit times
+    ]
 
 saveUser : Model -> Cmd Msg
 saveUser model = 
   let 
     json = Http.jsonBody <| 
       object
-        [ ( "selected", Json.Encode.list (List.map (\{id} -> Json.Encode.string id) model.selected  ) )
+        [ ( "selected", (encodeSelectedArtists model.selected))
         , ( "user_id",  (Json.Encode.string model.user_id ))
         ]
   in 
@@ -136,7 +147,7 @@ saveUser model =
 
 getAllArtists : String -> Cmd Msg
 getAllArtists _=
-  sendGet LoadArtists ("http://localhost:8887/artists") newUserDecoder
+  sendGet LoadArtists ("http://localhost:8887/new_user") newUserDecoder
 
 sendGet : (Result Error a -> msg) -> String -> Decoder a -> Cmd msg
 sendGet msg url decoder =

@@ -10896,6 +10896,36 @@ var _user$project$Main$sendGet = F3(
 			msg,
 			A2(_elm_lang$http$Http$get, url, decoder));
 	});
+var _user$project$Main$encodeSelectedArtist = function (id) {
+	return _elm_lang$core$Json_Encode$object(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'id',
+				_1: _elm_lang$core$Json_Encode$string(id)
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'times',
+					_1: _elm_lang$core$Json_Encode$int(1)
+				},
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Main$encodeSelectedArtists = function (selectionList) {
+	return _elm_lang$core$Json_Encode$list(
+		A2(
+			_elm_lang$core$List$map,
+			function (_p0) {
+				var _p1 = _p0;
+				return _user$project$Main$encodeSelectedArtist(_p1.id);
+			},
+			selectionList));
+};
 var _user$project$Main$model = {
 	user_id: '',
 	artists: {ctor: '[]'},
@@ -10940,14 +10970,7 @@ var _user$project$Main$saveUser = function (model) {
 				_0: {
 					ctor: '_Tuple2',
 					_0: 'selected',
-					_1: _elm_lang$core$Json_Encode$list(
-						A2(
-							_elm_lang$core$List$map,
-							function (_p0) {
-								var _p1 = _p0;
-								return _elm_lang$core$Json_Encode$string(_p1.id);
-							},
-							model.selected))
+					_1: _user$project$Main$encodeSelectedArtists(model.selected)
 				},
 				_1: {
 					ctor: '::',
@@ -11067,7 +11090,7 @@ var _user$project$Main$LoadArtists = function (a) {
 	return {ctor: 'LoadArtists', _0: a};
 };
 var _user$project$Main$getAllArtists = function (_p2) {
-	return A3(_user$project$Main$sendGet, _user$project$Main$LoadArtists, 'http://localhost:8887/artists', _user$project$Main$newUserDecoder);
+	return A3(_user$project$Main$sendGet, _user$project$Main$LoadArtists, 'http://localhost:8887/new_user', _user$project$Main$newUserDecoder);
 };
 var _user$project$Main$update = F2(
 	function (msg, model) {
