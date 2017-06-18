@@ -4,13 +4,15 @@ import Json.Decode exposing (field, int, string, list, Decoder)
 import Json.Encode exposing (encode, object,string, int, Value)
 
 import Html exposing (text, div, input, button, p, select,label,h1,h2,h3,h4,h5,h6,fieldset, Html)
-import Html.Attributes exposing (value,multiple,style)
+import Html.Attributes exposing (value,multiple,style,placeholder,class)
 import Html.Events exposing (onClick, onInput)
 import Html exposing (program)
 import Http exposing (get, post, request, jsonBody, Error, Response, Error(..), Body)
 import Task  exposing (Task, succeed, fail, andThen, mapError)   
 
 import Bootstrap.CDN as CDN
+import Bootstrap.Form as Form
+import Bootstrap.Form.Input as Input
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row 
@@ -30,7 +32,7 @@ subscriptions model =
 
 
 -- MODEL
-type alias NewUser =
+type alias User =
   { user_id: String
   , artists: List (Artist)
   }
@@ -42,6 +44,7 @@ type alias Artist =
 
 type alias Model =
   { user_id: String
+  , user_name: String
   , artists : List Artist
   , selected: List Artist
   , created: Bool
@@ -49,7 +52,8 @@ type alias Model =
 
 model : Model
 model =
-  { user_id = ""
+  { user_id=""
+  , user_name =""
   , artists=[] 
   , selected=[]
   , created = False
@@ -59,9 +63,9 @@ init : (Model, Cmd Msg)
 init =
   ( model, Cmd.none )
 
-newUserDecoder : Decoder NewUser
-newUserDecoder =
-    Json.Decode.map2 NewUser
+userDecoder : Decoder User
+userDecoder =
+    Json.Decode.map2 User
       (field "user_id" Json.Decode.string)
       (field "artists" listArtistsDecoder)
 
@@ -75,90 +79,89 @@ artistDecoder =
         (field "id"   Json.Decode.string)
         (field "full_name"  Json.Decode.string)
 
-
-
 -- update
 
 type Msg
-  = GetAllArtists
+  = CreateUser
+  | ChgName String
   | AddArtist (Artist)
-  | LoadArtists (Result Http.Error (NewUser))
+  | UserCreated (Result Http.Error (User))
   | Cancel
-  | Save
+  | SaveArtistsOfUser
   | SaveArtist (Result Http.Error String)
+
 
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    AddArtist artist->
+    CreateUser ->
+      (model, saveUser model.user_name )
+    
+    ChgName name ->
+      ({model| user_name = name}, Cmd.none)
+
+    AddArtist artist ->
       if (List.member artist model.selected) then
         (model, Cmd.none)
       else
         ({model | selected=artist::model.selected} , Cmd.none)  
         
-    GetAllArtists ->
-      (model, getAllArtists "")
-
-    LoadArtists (Ok new_user) ->
+    UserCreated (Ok new_user) ->
       ( { model | user_id= new_user.user_id, artists=new_user.artists, created = True }, Cmd.none)
 
-    LoadArtists (Err _) ->
+    UserCreated (Err _) ->
       ( model, Cmd.none)
 
     Cancel ->
-      ({ model | selected = [], created = False }, Cmd.none)
+      ({ model | artists=[], selected = [], created = False }, Cmd.none)
 
     SaveArtist (Ok _) ->
-      ({model | selected=[]}, Cmd.none)
+      ({model | artists=[], selected=[], created = False}, Cmd.none)
 
 
     SaveArtist (Err _) ->
       (model, Cmd.none)
 
-    Save ->
-      (model, saveUser model)            
+    SaveArtistsOfUser ->
+      (model, saveArtistsOfUser model)            
      -- Boilerplate: Mdl action handler.
 
 
 encodeSelectedArtists: List Artist -> Value
 encodeSelectedArtists selectionList =
-  Json.Encode.list 
-    ( List.map (\{id} -> (encodeSelectedArtist id)) selectionList)
+  object    
+      ( List.map (\{id} -> ( id,Json.Encode.int 1)) selectionList)
+    
 
-encodeSelectedArtist: String -> Value
-encodeSelectedArtist id = 
-  object
-    [ ("id", Json.Encode.string id)
-    , ("times", Json.Encode.int 1) --TODO: edit times
-    ]
 
-saveUser : Model -> Cmd Msg
-saveUser model = 
+saveArtistsOfUser : Model -> Cmd Msg
+saveArtistsOfUser model = 
   let 
     json = Http.jsonBody <| 
       object
-        [ ( "selected", (encodeSelectedArtists model.selected))
-        , ( "user_id",  (Json.Encode.string model.user_id ))
+        [ ( "selected", (encodeSelectedArtists model.selected)),
+          ( "user_id", (Json.Encode.string model.user_id))
         ]
   in 
-    sendPost SaveArtist ("http://localhost:8887/user") Json.Decode.string json
+    sendPost SaveArtist ("http://localhost:8887/user_artists") Json.Decode.string json
 
-
-
-getAllArtists : String -> Cmd Msg
-getAllArtists _=
-  sendGet LoadArtists ("http://localhost:8887/new_user") newUserDecoder
+saveUser : String -> Cmd Msg
+saveUser name=
+  let
+    json =Http.jsonBody <|
+      object
+      [ ("user_name", (Json.Encode.string name))]
+  in      
+    sendPost UserCreated ("http://localhost:8887/user") userDecoder json
 
 sendGet : (Result Error a -> msg) -> String -> Decoder a -> Cmd msg
 sendGet msg url decoder =
   Http.get url decoder |> Http.send msg
 
-sendPost : (Result Error String -> msg) -> String -> Decoder String -> Body -> Cmd msg
+sendPost : (Result Error a -> msg) -> String -> Decoder a -> Body -> Cmd msg
 sendPost msg url decoder body2 =
     Http.post url body2 decoder |> Http.send msg
     
-
-
 -- VIEW
 viewAllArtists: Model -> List (Html Msg)
 viewAllArtists model=
@@ -203,41 +206,51 @@ viewSelected model=
 viewButtons: Model -> List (Grid.Column Msg)
 viewButtons model = 
   let 
-    st = if model.created then (style [("display","visible")]) 
-        else (style [("display","visible")])
+    st = if model.created then (style [("display","hidden")]) 
+        else (style [("display","hidden")])
   in
-    [ Grid.col [Col.xs6, Col.attrs [st]]
-          [ Button.button 
-            [ Button.small
-            , Button.primary
-            , Button.onClick Save
-            ] 
-            [ text "Save" ] 
-          ]
-    , Grid.col [Col.xs6, Col.attrs [st]]
-          [ Button.button 
-            [ Button.small
-            , Button.danger
-            , Button.onClick Cancel 
-            ] 
-            [ text "Cancel" ] ]
-    ]
+    if model.created then
+      [ Grid.col [Col.xs6, Col.attrs [st]]
+            [ Button.button 
+              [ Button.small
+              , Button.primary
+              , Button.onClick SaveArtistsOfUser
+              ] 
+              [ text "Save" ] 
+            ]
+      , Grid.col [Col.xs6, Col.attrs [st]]
+            [ Button.button 
+              [ Button.small
+              , Button.danger
+              , Button.onClick Cancel 
+              ] 
+              [ text "Cancel" ] ]
+      ]
+    else
+      [Grid.col [] []]
 
 view : Model -> Html Msg
 view model =
-  Grid.container []
-  [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
-  , Grid.row []
-      [ Grid.col [Col.xs12]
-        [ Button.button [Button.primary, Button.onClick GetAllArtists ] [ text "New User" ] ]
-      ]
-  , Grid.row []
-      [ Grid.col [Col.xs6 ]
-        (viewAllArtists model)  
+  div []
+  [ Grid.container []
+    [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
+    , Grid.row []      
 
-      , Grid.col [ Col.xs6]
-        (viewSelected model)
-      ]
-  , Grid.row []
-      (viewButtons model)
+        [ Grid.col [] 
+          [ Form.formInline [] 
+            [ Input.text [ Input.attrs [placeholder "User name"], Input.onInput ChgName]  
+            , Button.button [Button.primary, Button.onClick CreateUser, Button.attrs [ class "ml-sm-2 my-2" ] ] [ text "New User" ] 
+            ]
+          ]
+        ]
+    , Grid.row []
+        [ Grid.col [Col.xs6 ]
+          (viewAllArtists model)  
+
+        , Grid.col [ Col.xs6]
+          (viewSelected model)
+        ]
+    , Grid.row []
+        (viewButtons model)
+    ]
   ]

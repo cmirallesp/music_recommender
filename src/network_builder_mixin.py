@@ -14,15 +14,15 @@ class NetworkBuilderMixin(object):
 
     def _normalize_weights_user_user(self, user=None):
         for uid in self.users_iter():
-            if user is None or user==uid:
+            if user is None or user == uid:
                 friend_ids = list(self.user_user_iter(uid))
                 N = len(friend_ids)
                 for f_id in friend_ids:
-                        w = self.user_user_weight(uid, f_id)
-                        norm_w = w / N
-                        self._graph[uid][f_id]['norm_weight'] = norm_w
-                        self._graph[uid][f_id]['walking_weight'] = norm_w * self.r
-                
+                    w = self.user_user_weight(uid, f_id)
+                    norm_w = w / N
+                    self._graph[uid][f_id]['norm_weight'] = norm_w
+                    self._graph[uid][f_id]['walking_weight'] = norm_w * self.r
+
                 if user is not None:
                     break
 
@@ -30,14 +30,13 @@ class NetworkBuilderMixin(object):
         # For each artist in the network normalizes their weights
         # with respect to their listeners
         for aid in self.artists_iter():
-            if artist is None or artist==aid:
+            if artist is None or artist == aid:
                 sum_ = self.total_artist_users_weights(aid)
                 for user_id in self.artist_users_iter(aid):
                     weight = self.artist_user_weight(aid, user_id)
                     norm_w = weight / sum_
                     self._graph[aid][user_id]['norm_weight'] = norm_w
                     self._graph[aid][user_id]['walking_weight'] = norm_w
-                
                 if artist is not None:
                     break
 
@@ -45,43 +44,43 @@ class NetworkBuilderMixin(object):
         # For each user in the network normalizes their weights
         #  with respect to their artists
         for uid in self.users_iter():
-            if user is None or user==uid:
+            if user is None or user == uid:
                 sum_ = self.total_user_artists_weights(uid)
                 for artist_id in self.user_artists_iter(uid):
                     weight = self.user_artist_weight(uid, artist_id)
                     norm_w = weight / sum_
                     self._graph[uid][artist_id]['norm_weight'] = norm_w
                     self._graph[uid][artist_id]['walking_weight'] = norm_w * (1 - self.r)
-                    
+
                 if user is not None:
                     break
 
     def _normalize_weights_artist_tag(self, artist=None):
         # set the absoulte weight
         for aid in self.artists_iter():
-            if artist is None or artist==aid:
+            if artist is None or artist == aid:
                 sum_ = self.total_artist_tags_weights(aid)
                 for tag_id in self.artist_tags_iter(aid):
                     weight = self.artist_tag_weight(aid, tag_id)
                     norm_w = weight / sum_
-    
+
                     self._graph[aid][tag_id]['norm_weight'] = norm_w
                     self._graph[aid][tag_id]['walking_weight'] = norm_w
-                    
+
                 if artist is not None:
                     break
 
     def _normalize_weights_tag_artist(self, tag=None):
         # set the absolute weight
         for tid in self.tags_iter():
-            if tag is None or tag==tid:
+            if tag is None or tag == tid:
                 sum_ = self.total_tag_artists_weights(tid)
                 for aid in self.tag_artists_iter(tid):
                     weight = self.tag_artist_weight(tid, aid)
                     norm_w = weight / sum_
                     self._graph[tid][aid]['norm_weight'] = norm_w
                     self._graph[tid][aid]['walking_weight'] = norm_w
-                    
+
                 if tag is not None:
                     break
 
@@ -242,12 +241,56 @@ class NetworkBuilderMixin(object):
             return 0
         return inter * 1.0 / denom
 
-    def add_user(self, friends, listens):
-        # Update users existing in the system
+    def new_user(self, name):
+        # TODO do something with the name!
         new_id = max(self.users_id) + 1
         self.users_id.append(new_id)
         k = self.key_user(new_id)
+        self._graph.add_node(k)
+        return k
 
+    def add_artists_and_friends_to_user(self, user_id, listens, friends):
+        # Add friendship connections
+
+        for fid in friends:
+            k2 = self.key_user(fid)
+            print "{}-{}".format(user_id, k2)
+            self._graph.add_edge(user_id, k2, weight=1., type='uu')
+            self._normalize_weights_user_user(user=user_id)
+            self._normalize_weights_user_user(user=k2)
+
+        # Add listens connections
+        for aid, times in listens.iteritems():
+            ka = self.key_artist(aid)
+            self._graph.add_edge(user_id, ka, weight=times, type='ua')
+            self._graph.add_edge(ka, user_id, weight=times, type='au')
+            self._normalize_weights_user_artist(user=user_id)
+            self._normalize_weights_artist_user(artist=ka)
+
+        # Update user similarity matrix
+        aux_sim = self.user_similarities.copy()
+        aux_sim = aux_sim.tocoo()
+
+        aux_sim._shape = (self._user_similarities._shape[0] + 1, self._user_similarities._shape[1] + 1)
+
+        for j, user in enumerate(self.users_id):
+            s = self._sim(user_id, user, self.user_artists_iter)
+            if s > 0:
+                aux_sim.data = np.append(aux_sim.data, s)
+                aux_sim.row = np.append(aux_sim.row, self.user_similarities.shape[0])
+                aux_sim.col = np.append(aux_sim.col, j)
+
+        self._user_similarities = aux_sim.tolil()
+
+    def add_user(self, friends, listens, user_id=None):
+        # Update users existing in the system
+        if users_id is None:
+            new_id = max(self.users_id) + 1
+        else:
+            new_id = user_id
+        self.users_id.append(new_id)
+        k = self.key_user(new_id)
+        self._graph.add_node(k)
         # Add friendship connections
         for fid in friends:
             k2 = self.key_user(fid)
@@ -277,7 +320,7 @@ class NetworkBuilderMixin(object):
                 aux_sim.col = np.append(aux_sim.col, j)
 
         self._user_similarities = aux_sim.tolil()
-        
+
     def add_artist(self):
         # Update artists existing in the system
         new_id = max(self.artists_id) + 1
@@ -290,7 +333,7 @@ class NetworkBuilderMixin(object):
         aux_sim = aux_sim.tocoo()
         aux_sim._shape = (self.user_similarities._shape[0] + 1, self.user_similarities._shape[1] + 1)
         self._user_similarities = aux_sim.tolil()
-        
+
     def add_tag(self):
         # Update tags existing in the system
         new_id = max(self.tags_id) + 1

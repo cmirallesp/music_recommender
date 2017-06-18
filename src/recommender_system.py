@@ -11,7 +11,7 @@ class RecommenderSystem(LastfmNetwork):
     def recommendation(self, referenceUser, kneighborhood=None, maxSimilarUsers=5, relevanceAccum=0.9, showRecommendation=True, recommendationLength=10, artistSim='tags'):
         '''Recommendation script'''
         self.artist_sim = artistSim
-        
+
         if self.run == 'offline':
             self.node2indexUserDict = {self.key_user(user): idx for idx, user in enumerate(self.users_id)}
             self.node2indexArtistDict = {self.key_artist(artist): idx for idx, artist in enumerate(self.artists_id)}
@@ -110,8 +110,8 @@ class RecommenderSystem(LastfmNetwork):
                 recoveries.append(numberOfRecoveries)
             else:
                 noValid += 1
-        execution = 'kN=' + str(kneighborhood) + ',SU=' + str(maxSimilarUsers) + ',RA=' + str(maxReferenceArtists)+',RL=' + str(recommendationLength)
-        execution= 'FT=' + str(self.minFreqTag) + ','+execution if self.artist_sim=='tags' else execution
+        execution = 'kN=' + str(kneighborhood) + ',SU=' + str(maxSimilarUsers) + ',RA=' + str(maxReferenceArtists) + ',RL=' + str(recommendationLength)
+        execution = 'FT=' + str(self.minFreqTag) + ',' + execution if self.artist_sim == 'tags' else execution
         print '\n__________________________________________________________\n'
         print str(self.artist_sim) + ',' + execution
         print '\nEvaluation performed over %d users; %d selected users did not have enough relevant artists to be evaluated' % (len(recoveries), noValid)
@@ -125,9 +125,9 @@ class RecommenderSystem(LastfmNetwork):
         plt.xticks(range(np.min(recoveries), np.max(recoveries) + 1))
         # ax.yaxis.set_major_locator(MaxNLocator(integer=True))
         plt.hist(recoveries, weights=len(recoveries) * [1. / len(recoveries)], range=(np.min(recoveries) - 0.5, np.max(recoveries) + 0.5), bins=np.max(recoveries) + 1 - np.min(recoveries))
-        plt.suptitle('Distribution of Relevant Artist Recoveries (Sim. over '+str(self.artist_sim)+')', fontweight='bold', fontsize=12)
-        plt.title(r'$'+execution+'$', fontsize=11, loc='left')
-        plt.title(r'$\mu \pm \sigma= %.3f \pm %.3f$' %(np.mean(recoveries),np.std(recoveries)), fontsize=11, loc='right')
+        plt.suptitle('Distribution of Relevant Artist Recoveries (Sim. over ' + str(self.artist_sim) + ')', fontweight='bold', fontsize=12)
+        plt.title(r'$' + execution + '$', fontsize=11, loc='left')
+        plt.title(r'$\mu \pm \sigma= %.3f \pm %.3f$' % (np.mean(recoveries), np.std(recoveries)), fontsize=11, loc='right')
         plt.xlabel("Number of Recoveries")
         plt.ylabel("Relative Frequency")
         plt.savefig('plots/' + str(self.artist_sim) + ',' + execution, bbox_inches='tight')
@@ -182,7 +182,7 @@ class RecommenderSystem(LastfmNetwork):
             cluster1 = set(self.artist_tags_iter(node1))
             cluster2 = set(self.artist_tags_iter(node2))
             return self._sim_over_clusters(cluster1, cluster2)
-    
+
     def get_artist_artist_similarity_users(self, node1, node2):
         '''given two artistIDs, return the computed similarity between them'''
         if self.run == 'offline':
@@ -235,7 +235,7 @@ class RecommenderSystem(LastfmNetwork):
         # with respect to the ones that the reference user has listened to
         relevantSimilarUserArtists = set(self.get_relevant_artists_from_user(similarUser, similarUserArtists, relevanceAccum))
         return list(relevantSimilarUserArtists.difference(referenceUserArtists))
-    
+
     def get_scores_for_candidate_artists(self, referenceArtists, candidateArtists):
         '''Retrieves for each candidate artist the maximum similarity score with respect to any
         reference artist'''

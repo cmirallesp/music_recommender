@@ -172,21 +172,24 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         else:
             return nx.Graph(net, directed=False)
 
+    def _is_string(self, _id):
+        return isinstance(_id, str) or isinstance(_id, unicode)
+
     def key_user(self, _id):
-        if isinstance(_id, str) and "u_" in _id:
-            return _id
+        if self._is_string(_id) and "u_" in _id:
+            return str(_id)
         else:
             return "u_{}".format(_id)
 
     def key_artist(self, _id):
-        if isinstance(_id, str) and "a_" in _id:
-            return _id
+        if self._is_string(_id) and "a_" in _id:
+            return str(_id)
         else:
             return "a_{}".format(_id)
 
     def key_tag(self, _id):
-        if isinstance(_id, str) and "t_" in str(_id):
-            return _id
+        if self._is_string(_id) and "t_" in str(_id):
+            return str(_id)
         else:
             return "t_{}".format(_id)
 
