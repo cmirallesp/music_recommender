@@ -11230,6 +11230,157 @@ var _rundis$elm_bootstrap$Bootstrap_Card$imgBottom = F3(
 								children)))
 				}));
 	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$roleOption = function (role) {
+	var _p0 = role;
+	switch (_p0.ctor) {
+		case 'Default':
+			return 'badge-default';
+		case 'Primary':
+			return 'badge-primary';
+		case 'Success':
+			return 'badge-success';
+		case 'Info':
+			return 'badge-info';
+		case 'Warning':
+			return 'badge-warning';
+		default:
+			return 'badge-danger';
+	}
+};
+var _rundis$elm_bootstrap$Bootstrap_Badge$badgeClass = function (option) {
+	return _elm_lang$html$Html_Attributes$class(
+		function () {
+			var _p1 = option;
+			if (_p1.ctor === 'Pill') {
+				return 'badge-pill';
+			} else {
+				return _rundis$elm_bootstrap$Bootstrap_Badge$roleOption(_p1._0);
+			}
+		}());
+};
+var _rundis$elm_bootstrap$Bootstrap_Badge$badgeAttributes = function (options) {
+	return {
+		ctor: '::',
+		_0: _elm_lang$html$Html_Attributes$class('badge'),
+		_1: A2(_elm_lang$core$List$map, _rundis$elm_bootstrap$Bootstrap_Badge$badgeClass, options)
+	};
+};
+var _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal = F3(
+	function (options, attributes, children) {
+		return A2(
+			_elm_lang$html$Html$span,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				_rundis$elm_bootstrap$Bootstrap_Badge$badgeAttributes(options),
+				attributes),
+			children);
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$Danger = {ctor: 'Danger'};
+var _rundis$elm_bootstrap$Bootstrap_Badge$Warning = {ctor: 'Warning'};
+var _rundis$elm_bootstrap$Bootstrap_Badge$Info = {ctor: 'Info'};
+var _rundis$elm_bootstrap$Bootstrap_Badge$Success = {ctor: 'Success'};
+var _rundis$elm_bootstrap$Bootstrap_Badge$Primary = {ctor: 'Primary'};
+var _rundis$elm_bootstrap$Bootstrap_Badge$Default = {ctor: 'Default'};
+var _rundis$elm_bootstrap$Bootstrap_Badge$Pill = {ctor: 'Pill'};
+var _rundis$elm_bootstrap$Bootstrap_Badge$Roled = function (a) {
+	return {ctor: 'Roled', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_Badge$badge = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Default),
+		_1: {ctor: '[]'}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$badgePrimary = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Primary),
+		_1: {ctor: '[]'}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$badgeSuccess = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Success),
+		_1: {ctor: '[]'}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$badgeInfo = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Info),
+		_1: {ctor: '[]'}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$badgeWarning = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Warning),
+		_1: {ctor: '[]'}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$badgeDanger = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Danger),
+		_1: {ctor: '[]'}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$pill = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Default),
+		_1: {
+			ctor: '::',
+			_0: _rundis$elm_bootstrap$Bootstrap_Badge$Pill,
+			_1: {ctor: '[]'}
+		}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$pillPrimary = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Primary),
+		_1: {
+			ctor: '::',
+			_0: _rundis$elm_bootstrap$Bootstrap_Badge$Pill,
+			_1: {ctor: '[]'}
+		}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$pillSuccess = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Success),
+		_1: {
+			ctor: '::',
+			_0: _rundis$elm_bootstrap$Bootstrap_Badge$Pill,
+			_1: {ctor: '[]'}
+		}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$pillInfo = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Info),
+		_1: {
+			ctor: '::',
+			_0: _rundis$elm_bootstrap$Bootstrap_Badge$Pill,
+			_1: {ctor: '[]'}
+		}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$pillWarning = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Warning),
+		_1: {
+			ctor: '::',
+			_0: _rundis$elm_bootstrap$Bootstrap_Badge$Pill,
+			_1: {ctor: '[]'}
+		}
+	});
+var _rundis$elm_bootstrap$Bootstrap_Badge$pillDanger = _rundis$elm_bootstrap$Bootstrap_Badge$badgeInternal(
+	{
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Badge$Roled(_rundis$elm_bootstrap$Bootstrap_Badge$Danger),
+		_1: {
+			ctor: '::',
+			_0: _rundis$elm_bootstrap$Bootstrap_Badge$Pill,
+			_1: {ctor: '[]'}
+		}
+	});
 var _rundis$elm_bootstrap$Bootstrap_Internal_Button$roleClass = function (role) {
 	var _p0 = role;
 	switch (_p0.ctor) {
@@ -12743,98 +12894,6 @@ var _rundis$elm_bootstrap$Bootstrap_Grid$col = F2(
 var _user$project$Main$showSelection = function (model) {
 	return true;
 };
-var _user$project$Main$viewSelected = function (model) {
-	var title = _user$project$Main$showSelection(model) ? 'Selection' : '';
-	return _user$project$Main$showSelection(model) ? {
-		ctor: '::',
-		_0: _rundis$elm_bootstrap$Bootstrap_Card$view(
-			A3(
-				_rundis$elm_bootstrap$Bootstrap_Card$block,
-				{ctor: '[]'},
-				{
-					ctor: '::',
-					_0: _rundis$elm_bootstrap$Bootstrap_Card$custom(
-						A2(
-							_rundis$elm_bootstrap$Bootstrap_Grid$container,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('pre-scrollable'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$style(
-										{
-											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
-											_1: {
-												ctor: '::',
-												_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.8rem'},
-												_1: {ctor: '[]'}
-											}
-										}),
-									_1: {ctor: '[]'}
-								}
-							},
-							A2(
-								_elm_lang$core$List$map,
-								function (artist) {
-									return A2(
-										_rundis$elm_bootstrap$Bootstrap_Grid$row,
-										{ctor: '[]'},
-										{
-											ctor: '::',
-											_0: A2(
-												_rundis$elm_bootstrap$Bootstrap_Grid$col,
-												{ctor: '[]'},
-												{
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$label,
-														{ctor: '[]'},
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html$text(artist.full_name),
-															_1: {ctor: '[]'}
-														}),
-													_1: {ctor: '[]'}
-												}),
-											_1: {ctor: '[]'}
-										});
-								},
-								model.selected))),
-					_1: {ctor: '[]'}
-				},
-				A3(
-					_rundis$elm_bootstrap$Bootstrap_Card$header,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('text-center'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$h3,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('mt-2'),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(title),
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					},
-					_rundis$elm_bootstrap$Bootstrap_Card$config(
-						{ctor: '[]'})))),
-		_1: {ctor: '[]'}
-	} : {
-		ctor: '::',
-		_0: _elm_lang$html$Html$text(''),
-		_1: {ctor: '[]'}
-	};
-};
 var _user$project$Main$viewRecommendation = function (model) {
 	var title = _user$project$Main$showSelection(model) ? 'Recommendation' : '';
 	return _user$project$Main$showSelection(model) ? {
@@ -13004,30 +13063,32 @@ var _user$project$Main$User = F2(
 	function (a, b) {
 		return {user_id: a, artists: b};
 	});
-var _user$project$Main$Artist = F2(
-	function (a, b) {
-		return {id: a, full_name: b};
+var _user$project$Main$Artist = F3(
+	function (a, b, c) {
+		return {id: a, full_name: b, n: c};
 	});
-var _user$project$Main$artistDecoder = A3(
-	_elm_lang$core$Json_Decode$map2,
+var _user$project$Main$artistDecoder = A4(
+	_elm_lang$core$Json_Decode$map3,
 	_user$project$Main$Artist,
 	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode$field, 'full_name', _elm_lang$core$Json_Decode$string));
+	A2(_elm_lang$core$Json_Decode$field, 'full_name', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'n', _elm_lang$core$Json_Decode$int));
 var _user$project$Main$listArtistsDecoder = _elm_lang$core$Json_Decode$list(_user$project$Main$artistDecoder);
 var _user$project$Main$userDecoder = A3(
 	_elm_lang$core$Json_Decode$map2,
 	_user$project$Main$User,
 	A2(_elm_lang$core$Json_Decode$field, 'user_id', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'artists', _user$project$Main$listArtistsDecoder));
-var _user$project$Main$Tag = F2(
-	function (a, b) {
-		return {id: a, full_name: b};
+var _user$project$Main$Tag = F3(
+	function (a, b, c) {
+		return {id: a, full_name: b, n_artists: c};
 	});
-var _user$project$Main$tagsDecoder = A3(
-	_elm_lang$core$Json_Decode$map2,
+var _user$project$Main$tagsDecoder = A4(
+	_elm_lang$core$Json_Decode$map3,
 	_user$project$Main$Tag,
 	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode$field, 'full_name', _elm_lang$core$Json_Decode$string));
+	A2(_elm_lang$core$Json_Decode$field, 'full_name', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'n', _elm_lang$core$Json_Decode$int));
 var _user$project$Main$listTagsDecoder = _elm_lang$core$Json_Decode$list(_user$project$Main$tagsDecoder);
 var _user$project$Main$Model = F8(
 	function (a, b, c, d, e, f, g, h) {
@@ -13045,6 +13106,169 @@ var _user$project$Main$model = {
 	radioState: _user$project$Main$Users
 };
 var _user$project$Main$Tags = {ctor: 'Tags'};
+var _user$project$Main$DelSelection = function (a) {
+	return {ctor: 'DelSelection', _0: a};
+};
+var _user$project$Main$viewSelected = function (model) {
+	var title = _user$project$Main$showSelection(model) ? 'Selection' : '';
+	return _user$project$Main$showSelection(model) ? {
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Card$view(
+			A3(
+				_rundis$elm_bootstrap$Bootstrap_Card$block,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Card$custom(
+						A2(
+							_rundis$elm_bootstrap$Bootstrap_Grid$container,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('pre-scrollable'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$style(
+										{
+											ctor: '::',
+											_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
+											_1: {
+												ctor: '::',
+												_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.8rem'},
+												_1: {ctor: '[]'}
+											}
+										}),
+									_1: {ctor: '[]'}
+								}
+							},
+							A2(
+								_elm_lang$core$List$map,
+								function (artist) {
+									return A2(
+										_rundis$elm_bootstrap$Bootstrap_Grid$row,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: A2(
+												_rundis$elm_bootstrap$Bootstrap_Grid$col,
+												{ctor: '[]'},
+												{
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$label,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$style(
+																{
+																	ctor: '::',
+																	_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.8rem'},
+																	_1: {ctor: '[]'}
+																}),
+															_1: {ctor: '[]'}
+														},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text(artist.full_name),
+															_1: {ctor: '[]'}
+														}),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_rundis$elm_bootstrap$Bootstrap_Grid$col,
+													{
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$attrs(
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Attributes$style(
+																	{
+																		ctor: '::',
+																		_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'right'},
+																		_1: {ctor: '[]'}
+																	}),
+																_1: {ctor: '[]'}
+															}),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: A2(
+															_rundis$elm_bootstrap$Bootstrap_Button$button,
+															{
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$roleLink,
+																_1: {
+																	ctor: '::',
+																	_0: _rundis$elm_bootstrap$Bootstrap_Button$small,
+																	_1: {
+																		ctor: '::',
+																		_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(
+																			_user$project$Main$DelSelection(artist)),
+																		_1: {
+																			ctor: '::',
+																			_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																				{
+																					ctor: '::',
+																					_0: _elm_lang$html$Html_Attributes$style(
+																						{
+																							ctor: '::',
+																							_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.5rem'},
+																							_1: {ctor: '[]'}
+																						}),
+																					_1: {ctor: '[]'}
+																				}),
+																			_1: {ctor: '[]'}
+																		}
+																	}
+																}
+															},
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html$text('X'),
+																_1: {ctor: '[]'}
+															}),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}
+										});
+								},
+								model.selected))),
+					_1: {ctor: '[]'}
+				},
+				A3(
+					_rundis$elm_bootstrap$Bootstrap_Card$header,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('text-center'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$h3,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('mt-2'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(title),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					},
+					_rundis$elm_bootstrap$Bootstrap_Card$config(
+						{ctor: '[]'})))),
+		_1: {ctor: '[]'}
+	} : {
+		ctor: '::',
+		_0: _elm_lang$html$Html$text(''),
+		_1: {ctor: '[]'}
+	};
+};
 var _user$project$Main$RadioMsg = function (a) {
 	return {ctor: 'RadioMsg', _0: a};
 };
@@ -13119,7 +13343,17 @@ var _user$project$Main$viewAllTags = function (model) {
 														},
 														{
 															ctor: '::',
-															_0: _elm_lang$html$Html$text(tag.full_name),
+															_0: _elm_lang$html$Html$text(
+																A2(
+																	_elm_lang$core$Basics_ops['++'],
+																	tag.full_name,
+																	A2(
+																		_elm_lang$core$Basics_ops['++'],
+																		'(',
+																		A2(
+																			_elm_lang$core$Basics_ops['++'],
+																			_elm_lang$core$Basics$toString(tag.n_artists),
+																			')')))),
 															_1: {ctor: '[]'}
 														}),
 													_1: {ctor: '[]'}
@@ -13233,7 +13467,7 @@ var _user$project$Main$update = F2(
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							artists: {ctor: '[]'},
+							selected: {ctor: '[]'},
 							recommendation: {ctor: '[]'},
 							created: false
 						}),
@@ -13289,12 +13523,27 @@ var _user$project$Main$update = F2(
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
-			default:
+			case 'RadioMsg':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{radioState: _p4._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							selected: A2(
+								_elm_lang$core$List$filter,
+								function (e) {
+									return !_elm_lang$core$Native_Utils.eq(e, _p4._0);
+								},
+								model.selected)
+						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}
@@ -13353,7 +13602,17 @@ var _user$project$Main$viewAllArtists = function (model) {
 														},
 														{
 															ctor: '::',
-															_0: _elm_lang$html$Html$text(artist.full_name),
+															_0: _elm_lang$html$Html$text(
+																A2(
+																	_elm_lang$core$Basics_ops['++'],
+																	artist.full_name,
+																	A2(
+																		_elm_lang$core$Basics_ops['++'],
+																		'(',
+																		A2(
+																			_elm_lang$core$Basics_ops['++'],
+																			_elm_lang$core$Basics$toString(artist.n),
+																			')')))),
 															_1: {ctor: '[]'}
 														}),
 													_1: {ctor: '[]'}
@@ -13362,7 +13621,21 @@ var _user$project$Main$viewAllArtists = function (model) {
 												ctor: '::',
 												_0: A2(
 													_rundis$elm_bootstrap$Bootstrap_Grid$col,
-													{ctor: '[]'},
+													{
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$attrs(
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Attributes$style(
+																	{
+																		ctor: '::',
+																		_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'right'},
+																		_1: {ctor: '[]'}
+																	}),
+																_1: {ctor: '[]'}
+															}),
+														_1: {ctor: '[]'}
+													},
 													{
 														ctor: '::',
 														_0: A2(
@@ -13383,11 +13656,7 @@ var _user$project$Main$viewAllArtists = function (model) {
 																					{
 																						ctor: '::',
 																						_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.8rem'},
-																						_1: {
-																							ctor: '::',
-																							_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'right'},
-																							_1: {ctor: '[]'}
-																						}
+																						_1: {ctor: '[]'}
 																					}),
 																				_1: {ctor: '[]'}
 																			}),

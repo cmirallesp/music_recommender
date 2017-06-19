@@ -9,7 +9,7 @@ import Html.Events exposing (onClick, onInput)
 import Html exposing (program)
 import Http exposing (get, post, request, jsonBody, Error, Response, Error(..), Body)
 import Task  exposing (Task, succeed, fail, andThen, mapError)   
-
+import Basics
 import Bootstrap.CDN as CDN
 import Bootstrap.Form as Form
 import Bootstrap.Form.Input as Input
@@ -20,6 +20,7 @@ import Bootstrap.Button as Button
 import Bootstrap.Card as Card
 import Bootstrap.Card exposing (header, block, custom, config)
 import Bootstrap.ButtonGroup as ButtonGroup
+import Bootstrap.Badge as Badge
 
 
 main =
@@ -50,11 +51,13 @@ type alias User =
 type alias Artist =
   { id : String
   , full_name : String
+  , n: Int
   }
 
 type alias Tag =
   { id : String
   , full_name : String
+  , n_artists: Int
   }
 
 --type RadioState = Tags | Artists
@@ -111,9 +114,10 @@ listArtistsDecoder=
 
 artistDecoder : Decoder Artist
 artistDecoder =
-    Json.Decode.map2 Artist
+    Json.Decode.map3 Artist
         (field "id"   Json.Decode.string)
         (field "full_name"  Json.Decode.string)
+        (field "n"  Json.Decode.int)
 
 listTagsDecoder: Decoder (List Tag)
 listTagsDecoder=
@@ -121,9 +125,10 @@ listTagsDecoder=
 
 tagsDecoder : Decoder Tag
 tagsDecoder =
-    Json.Decode.map2 Tag
+    Json.Decode.map3 Tag
         (field "id"   Json.Decode.string)
         (field "full_name"  Json.Decode.string)
+        (field "n"  Json.Decode.int)
 
 -- update
 
@@ -139,7 +144,7 @@ type Msg
   | GetArtistsResponse (Result Http.Error (List Artist))
   | GetArtistsRequest (Tag)
   | RadioMsg (RadioState)
-
+  | DelSelection (Artist)
 
 
 
@@ -157,7 +162,7 @@ update msg model =
         ({model | selected=artist::model.selected} , Cmd.none)  
         
     Cancel ->
-      ({ model | artists=[],  recommendation=[],created = False }, Cmd.none)
+      ({ model | selected=[],  recommendation=[],created = False }, Cmd.none)
 
     RecommendationResponse (Ok res) ->
       ({model | recommendation=res, created = False}, Cmd.none)
@@ -189,6 +194,8 @@ update msg model =
     RadioMsg (rs) ->
       ({model|radioState = rs},Cmd.none)
 
+    DelSelection (artists) ->
+      ({model| selected=(List.filter (\e -> e /= artists) model.selected)}, Cmd.none)
     
 
 encodeSelectedArtists: List Artist -> Value
@@ -250,7 +257,8 @@ viewAllTags model=
                               [ Button.roleLink
                               , Button.onClick (GetArtistsRequest tag)
                               , Button.attrs [ style [("font-size","0.8rem")]]
-                              ] [text tag.full_name]
+                              ] [text (tag.full_name++"("++(Basics.toString tag.n_artists)++")")]
+                            --, Badge.pill [ class "ml-1",style [("font-size","0.5rem")] ] [ text (Basics.toString tag.n_artists) ] 
                             ]
                         ]
                   ) model.tags)
@@ -276,12 +284,14 @@ viewAllArtists model=
                   (List.map (\artist -> 
                       Grid.row []
                         [ Grid.col [] 
-                            [ label [style [("font-size","0.8rem"), ("text-align","left")]] [ text artist.full_name ]]
-                        , Grid.col []
+                            [ label [style [("font-size","0.8rem"), ("text-align","left")]] [ text (artist.full_name++"("++(Basics.toString artist.n)++")") ]
+                            --, Badge.pill [ class "ml-1",style [("font-size","0.5rem")] ] [ text (Basics.toString artist.n)]
+                            ]
+                        , Grid.col [Col.attrs [style [("text-align","right")]]]
                             [ Button.button 
                               [ Button.roleLink
                               , Button.onClick (AddArtist artist)
-                              , Button.attrs [style [("font-size","0.8rem"), ("text-align","right")]]
+                              , Button.attrs [style [("font-size","0.8rem")]]
                               ] [text "Add"]
                             ]
                         ]
@@ -308,7 +318,15 @@ viewSelected model=
                   ( List.map (\artist ->
                       Grid.row []
                         [ Grid.col []
-                          [ label [] [text artist.full_name]]
+                          [ label [style [("font-size","0.8rem")]] [text artist.full_name]]
+                        , Grid.col [Col.attrs [style [("text-align","right")]]]
+                          [ Button.button 
+                              [ Button.roleLink
+                              , Button.small
+                              , Button.onClick (DelSelection artist)
+                              , Button.attrs [style [("font-size","0.5rem")]]
+                              ] [text "X"]
+                          ]
                         ]
                   ) model.selected)
             ]

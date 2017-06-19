@@ -12,6 +12,19 @@ from tornado.options import define, options
 define("port", default=8887, help="run on the given port", type=int)
 
 
+def sort(iterator, g):
+    r = []
+    if id:
+        for t in iterator:
+            r.append({
+                "id": t['id'],
+                "full_name": t['full_name'],
+                "n": g.degree(t['id'])
+            })
+
+    return sorted(r, key=lambda s: s["n"], reverse=True)
+
+
 class TagsHandler(tornado.web.RequestHandler):
 
     def initialize(self, recommender_system, ):
@@ -25,8 +38,7 @@ class TagsHandler(tornado.web.RequestHandler):
         self.set_header("Content-type", "application/json")
 
     def get(self):
-        print "herreeee"
-        tags = sorted(list(self.rs.tags_names_iter()))
+        tags = sort(self.rs.tags_names_iter(), self.rs._graph)
         self.write(json.dumps(tags))
 
     def options(self):
@@ -47,8 +59,9 @@ class RecommendationHandler(tornado.web.RequestHandler):
         self.set_header("Content-type", "application/json")
 
     def get(self, tag_id):
-        artists = self.rs.tag_artists_iter(str(tag_id))
-        artists = list(self.rs.artists_names_iter(artists))
+        artists = self.rs.tag_artists_iter(tag_id)
+        artists = sort(self.rs.artists_names_iter(artists), self.rs._graph)
+        # artists = list(self.rs.artists_names_iter(artists))
         self.write(json.dumps(artists))
 
     def post(self):
