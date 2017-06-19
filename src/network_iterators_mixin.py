@@ -92,3 +92,13 @@ class NetworkIteratorsMixin(object):
         for aid in i:
             yield {'id': aid,
                    'full_name': self.artistID2artist[aid].decode('utf8')}
+
+    def tags_names_iter(self):
+        for tid in self.tags_iter():
+            try:
+                t = self.tagID2tag[tid].decode('ISO-8859-1')
+            except Exception as e:
+                print tid
+            # if tid in self.tagID2tag.keys():
+            yield {'id': tid,
+                   'full_name': t}

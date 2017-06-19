@@ -12547,7 +12547,11 @@ var _user$project$Main$viewSelected = function (model) {
 										{
 											ctor: '::',
 											_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
-											_1: {ctor: '[]'}
+											_1: {
+												ctor: '::',
+												_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.8rem'},
+												_1: {ctor: '[]'}
+											}
 										}),
 									_1: {ctor: '[]'}
 								}
@@ -12629,16 +12633,7 @@ var _user$project$Main$viewRecommendation = function (model) {
 							{
 								ctor: '::',
 								_0: _elm_lang$html$Html_Attributes$class('pre-scrollable'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$style(
-										{
-											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}
+								_1: {ctor: '[]'}
 							},
 							A2(
 								_elm_lang$core$List$map,
@@ -12656,7 +12651,20 @@ var _user$project$Main$viewRecommendation = function (model) {
 													ctor: '::',
 													_0: A2(
 														_elm_lang$html$Html$label,
-														{ctor: '[]'},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$style(
+																{
+																	ctor: '::',
+																	_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.8rem'},
+																	_1: {
+																		ctor: '::',
+																		_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'left'},
+																		_1: {ctor: '[]'}
+																	}
+																}),
+															_1: {ctor: '[]'}
+														},
 														{
 															ctor: '::',
 															_0: _elm_lang$html$Html$text(_p1.full_name),
@@ -12673,7 +12681,20 @@ var _user$project$Main$viewRecommendation = function (model) {
 														ctor: '::',
 														_0: A2(
 															_elm_lang$html$Html$label,
-															{ctor: '[]'},
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Attributes$style(
+																	{
+																		ctor: '::',
+																		_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.8rem'},
+																		_1: {
+																			ctor: '::',
+																			_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'right'},
+																			_1: {ctor: '[]'}
+																		}
+																	}),
+																_1: {ctor: '[]'}
+															},
 															{
 																ctor: '::',
 																_0: _elm_lang$html$Html$text(_p1.score),
@@ -12754,7 +12775,8 @@ var _user$project$Main$model = {
 	artists: {ctor: '[]'},
 	selected: {ctor: '[]'},
 	recommendation: {ctor: '[]'},
-	created: false
+	created: false,
+	tags: {ctor: '[]'}
 };
 var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Main$model, _1: _elm_lang$core$Platform_Cmd$none};
 var _user$project$Main$subscriptions = function (model) {
@@ -12789,10 +12811,138 @@ var _user$project$Main$userDecoder = A3(
 	_user$project$Main$User,
 	A2(_elm_lang$core$Json_Decode$field, 'user_id', _elm_lang$core$Json_Decode$string),
 	A2(_elm_lang$core$Json_Decode$field, 'artists', _user$project$Main$listArtistsDecoder));
-var _user$project$Main$Model = F6(
-	function (a, b, c, d, e, f) {
-		return {user_id: a, user_name: b, artists: c, selected: d, recommendation: e, created: f};
+var _user$project$Main$Tag = F2(
+	function (a, b) {
+		return {id: a, full_name: b};
 	});
+var _user$project$Main$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {user_id: a, user_name: b, artists: c, selected: d, recommendation: e, created: f, tags: g};
+	});
+var _user$project$Main$GetArtistsRequest = function (a) {
+	return {ctor: 'GetArtistsRequest', _0: a};
+};
+var _user$project$Main$viewAllTags = function (model) {
+	var title = _user$project$Main$showSelection(model) ? 'Tags' : '';
+	return _user$project$Main$showSelection(model) ? {
+		ctor: '::',
+		_0: _rundis$elm_bootstrap$Bootstrap_Card$view(
+			A3(
+				_rundis$elm_bootstrap$Bootstrap_Card$block,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: _rundis$elm_bootstrap$Bootstrap_Card$custom(
+						A2(
+							_rundis$elm_bootstrap$Bootstrap_Grid$container,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('pre-scrollable'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$style(
+										{
+											ctor: '::',
+											_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'left'},
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}
+							},
+							A2(
+								_elm_lang$core$List$map,
+								function (tag) {
+									return A2(
+										_rundis$elm_bootstrap$Bootstrap_Grid$row,
+										{ctor: '[]'},
+										{
+											ctor: '::',
+											_0: A2(
+												_rundis$elm_bootstrap$Bootstrap_Grid$col,
+												{ctor: '[]'},
+												{
+													ctor: '::',
+													_0: A2(
+														_rundis$elm_bootstrap$Bootstrap_Button$button,
+														{
+															ctor: '::',
+															_0: _rundis$elm_bootstrap$Bootstrap_Button$roleLink,
+															_1: {
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(
+																	_user$project$Main$GetArtistsRequest(tag)),
+																_1: {
+																	ctor: '::',
+																	_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																		{
+																			ctor: '::',
+																			_0: _elm_lang$html$Html_Attributes$style(
+																				{
+																					ctor: '::',
+																					_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.8rem'},
+																					_1: {ctor: '[]'}
+																				}),
+																			_1: {ctor: '[]'}
+																		}),
+																	_1: {ctor: '[]'}
+																}
+															}
+														},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html$text(tag.full_name),
+															_1: {ctor: '[]'}
+														}),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										});
+								},
+								model.tags))),
+					_1: {ctor: '[]'}
+				},
+				A3(
+					_rundis$elm_bootstrap$Bootstrap_Card$header,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('text-center'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$h3,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('mt-2'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(title),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					},
+					_rundis$elm_bootstrap$Bootstrap_Card$config(
+						{ctor: '[]'})))),
+		_1: {ctor: '[]'}
+	} : {
+		ctor: '::',
+		_0: _elm_lang$html$Html$text(''),
+		_1: {ctor: '[]'}
+	};
+};
+var _user$project$Main$GetArtistsResponse = function (a) {
+	return {ctor: 'GetArtistsResponse', _0: a};
+};
+var _user$project$Main$getArtists = function (tag_id) {
+	return A3(
+		_user$project$Main$sendGet,
+		_user$project$Main$GetArtistsResponse,
+		A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8887/artists/', tag_id),
+		_user$project$Main$listArtistsDecoder);
+};
 var _user$project$Main$SaveArtist = function (a) {
 	return {ctor: 'SaveArtist', _0: a};
 };
@@ -12873,7 +13023,7 @@ var _user$project$Main$update = F2(
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
-							{user_id: _p6.user_id, artists: _p6.artists, created: true}),
+							{user_id: _p6.user_id, tags: _p6.artists, created: true}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
@@ -12904,12 +13054,30 @@ var _user$project$Main$update = F2(
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
-			default:
+			case 'SaveArtistsOfUser':
 				return model.created ? {
 					ctor: '_Tuple2',
 					_0: model,
 					_1: _user$project$Main$saveArtistsOfUser(model)
 				} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'GetArtistsRequest':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: _user$project$Main$getArtists(_p4._0.id)
+				};
+			default:
+				if (_p4._0.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{artists: _p4._0._0}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
 		}
 	});
 var _user$project$Main$AddArtist = function (a) {
@@ -12931,16 +13099,7 @@ var _user$project$Main$viewAllArtists = function (model) {
 							{
 								ctor: '::',
 								_0: _elm_lang$html$Html_Attributes$class('pre-scrollable'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$style(
-										{
-											ctor: '::',
-											_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'center'},
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}
+								_1: {ctor: '[]'}
 							},
 							A2(
 								_elm_lang$core$List$map,
@@ -12957,7 +13116,16 @@ var _user$project$Main$viewAllArtists = function (model) {
 													ctor: '::',
 													_0: A2(
 														_elm_lang$html$Html$label,
-														{ctor: '[]'},
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$style(
+																{
+																	ctor: '::',
+																	_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'left'},
+																	_1: {ctor: '[]'}
+																}),
+															_1: {ctor: '[]'}
+														},
 														{
 															ctor: '::',
 															_0: _elm_lang$html$Html$text(artist.full_name),
@@ -12981,7 +13149,21 @@ var _user$project$Main$viewAllArtists = function (model) {
 																	ctor: '::',
 																	_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(
 																		_user$project$Main$AddArtist(artist)),
-																	_1: {ctor: '[]'}
+																	_1: {
+																		ctor: '::',
+																		_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																			{
+																				ctor: '::',
+																				_0: _elm_lang$html$Html_Attributes$style(
+																					{
+																						ctor: '::',
+																						_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'right'},
+																						_1: {ctor: '[]'}
+																					}),
+																				_1: {ctor: '[]'}
+																			}),
+																		_1: {ctor: '[]'}
+																	}
 																}
 															},
 															{
@@ -13179,31 +13361,42 @@ var _user$project$Main$view = function (model) {
 										_rundis$elm_bootstrap$Bootstrap_Grid$col,
 										{
 											ctor: '::',
-											_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs4,
+											_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs3,
 											_1: {ctor: '[]'}
 										},
-										_user$project$Main$viewAllArtists(model)),
+										_user$project$Main$viewAllTags(model)),
 									_1: {
 										ctor: '::',
 										_0: A2(
 											_rundis$elm_bootstrap$Bootstrap_Grid$col,
 											{
 												ctor: '::',
-												_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs4,
+												_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs3,
 												_1: {ctor: '[]'}
 											},
-											_user$project$Main$viewSelected(model)),
+											_user$project$Main$viewAllArtists(model)),
 										_1: {
 											ctor: '::',
 											_0: A2(
 												_rundis$elm_bootstrap$Bootstrap_Grid$col,
 												{
 													ctor: '::',
-													_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs4,
+													_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs3,
 													_1: {ctor: '[]'}
 												},
-												_user$project$Main$viewRecommendation(model)),
-											_1: {ctor: '[]'}
+												_user$project$Main$viewSelected(model)),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_rundis$elm_bootstrap$Bootstrap_Grid$col,
+													{
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs3,
+														_1: {ctor: '[]'}
+													},
+													_user$project$Main$viewRecommendation(model)),
+												_1: {ctor: '[]'}
+											}
 										}
 									}
 								}),

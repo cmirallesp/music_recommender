@@ -1,8 +1,9 @@
 src/.ipynb_checkpoints/
 *.pyc
 logging.log
-report/
 *.pickle
+report/
+report2/
 scripts.py
 rename_plts.py
 ProjectCN_BeltranBernardezMiralles.zip

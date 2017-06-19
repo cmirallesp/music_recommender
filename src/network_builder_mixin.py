@@ -8,7 +8,8 @@ import pdb
 
 class NetworkBuilderMixin(object):
     # This Mixin class contains all the methods to build
-    # the network:
+
+    # the  network:
     #  tag, artists and user nodes
     #  tag-artist, artist-tag, artist-user, user-artist and user-user edges
     #  weights in edges

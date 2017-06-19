@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import cPickle as pickle
 import os.path
+import pdb
 
 
 class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
@@ -65,6 +66,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         self.tags_id = [tid for tid in tags['tagID']]
 
         self.artistID2artist = {self.key_artist(self.artists_id[idx]): name for idx, name in enumerate(artists['name'])}
+        self.tagID2tag = {self.key_tag(self.tags_id[idx]): name for idx, name in enumerate(tags['tagValue'])}
 
         self._artists_tags = None
         self._user_similarities = None

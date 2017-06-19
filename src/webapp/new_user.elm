@@ -19,6 +19,8 @@ import Bootstrap.Grid.Row as Row
 import Bootstrap.Button as Button
 import Bootstrap.Card as Card
 import Bootstrap.Card exposing (header, block, custom, config)
+
+
 main =
   Html.program
     { init = init 
@@ -49,6 +51,11 @@ type alias Artist =
   , full_name : String
   }
 
+type alias Tag =
+  { id : String
+  , full_name : String
+  }
+
 type alias Model =
   { user_id: String
   , user_name: String
@@ -56,6 +63,7 @@ type alias Model =
   , selected: List Artist
   , recommendation: List ArtistRecommendation
   , created: Bool
+  , tags: List Tag
   }
 
 model : Model
@@ -66,6 +74,7 @@ model =
   , selected=[]
   , recommendation=[]
   , created = False
+  , tags = []
   }
 
 init : (Model, Cmd Msg)
@@ -108,6 +117,10 @@ type Msg
   | Cancel
   | SaveArtistsOfUser
   | SaveArtist (Result Http.Error (List ArtistRecommendation))
+  | GetArtistsResponse (Result Http.Error (List Artist))
+  | GetArtistsRequest (Tag)
+
+
 
 
 update : Msg -> Model -> (Model, Cmd Msg)
@@ -126,7 +139,7 @@ update msg model =
         ({model | selected=artist::model.selected} , Cmd.none)  
         
     UserCreated (Ok new_user) ->
-      ( { model | user_id= new_user.user_id, artists=new_user.artists, created = True }, Cmd.none)
+      ( { model | user_id= new_user.user_id, tags=new_user.artists, created = True }, Cmd.none)
 
     UserCreated (Err _) ->
       ( model, Cmd.none)
@@ -146,15 +159,21 @@ update msg model =
         (model, saveArtistsOfUser model)            
       else
         (model, Cmd.none)
-     -- Boilerplate: Mdl action handler.
 
+    GetArtistsRequest (tag) ->
+      (model, getArtists(tag.id))
+
+    GetArtistsResponse (Ok res) ->
+      ({model|artists = res}, Cmd.none)
+
+    GetArtistsResponse (Err r_) ->
+      (model, Cmd.none)    
 
 encodeSelectedArtists: List Artist -> Value
 encodeSelectedArtists selectionList =
   object    
       ( List.map (\{id} -> ( id,Json.Encode.int 1)) selectionList)
     
-
 
 saveArtistsOfUser : Model -> Cmd Msg
 saveArtistsOfUser model = 
@@ -176,6 +195,10 @@ saveUser name=
   in      
     sendPost UserCreated ("http://localhost:8887/user") userDecoder json
 
+getArtists: String -> Cmd Msg
+getArtists tag_id =
+  sendGet GetArtistsResponse ("http://localhost:8887/artists/"++ tag_id) listArtistsDecoder
+
 sendGet : (Result Error a -> msg) -> String -> Decoder a -> Cmd msg
 sendGet msg url decoder =
   Http.get url decoder |> Http.send msg
@@ -189,6 +212,36 @@ sendPost msg url decoder body2 =
 showSelection : Model -> Bool
 showSelection model = model.created || model.recommendation /= []
 
+viewAllTags: Model -> List (Html Msg)
+viewAllTags model=
+  let 
+    title = if (showSelection model) then "Tags" else ""
+  in
+    if (showSelection model) then
+      [ Card.config []
+          |> Card.header [ class "text-center" ]  
+              [ h3 [ class "mt-2" ] [text title] ]
+          |> Card.block []
+            [ Card.custom <|
+                Grid.container [class "pre-scrollable",style [("text-align","left")]]
+                  (List.map (\tag -> 
+                      Grid.row []
+                        [ Grid.col []
+                            [ Button.button 
+                              [ Button.roleLink
+                              , Button.onClick (GetArtistsRequest tag)
+                              , Button.attrs [ style [("font-size","0.8rem")]]
+                              ] [text tag.full_name]
+                            ]
+                        ]
+                  ) model.tags)
+            ]
+          |> Card.view 
+      ]
+    else
+      [text ""]
+    
+
 viewAllArtists: Model -> List (Html Msg)
 viewAllArtists model=
   let 
@@ -200,15 +253,16 @@ viewAllArtists model=
               [ h3 [ class "mt-2" ] [text title] ]
           |> Card.block []
             [ Card.custom <|
-                Grid.container [class "pre-scrollable",style [("text-align","center")]]
+                Grid.container [class "pre-scrollable"]
                   (List.map (\artist -> 
                       Grid.row []
                         [ Grid.col [] 
-                            [ label [] [ text artist.full_name ]]
+                            [ label [style [("text-align","left")]] [ text artist.full_name ]]
                         , Grid.col []
                             [ Button.button 
                               [ Button.roleLink
                               , Button.onClick (AddArtist artist)
+                              , Button.attrs [style [("text-align","right")]]
                               ] [text "Add"]
                             ]
                         ]
@@ -231,7 +285,7 @@ viewSelected model=
               [ h3 [ class "mt-2" ] [text title] ]
           |> Card.block []
             [ Card.custom <|
-                Grid.container [class "pre-scrollable", style [("text-align","center")]]
+                Grid.container [class "pre-scrollable", style [("text-align","center"),("font-size","0.8rem")]]
                   ( List.map (\artist ->
                       Grid.row []
                         [ Grid.col []
@@ -257,13 +311,13 @@ viewRecommendation model=
               [ h3 [ class "mt-2" ] [text title] ]
           |> Card.block []
             [ Card.custom <|
-               Grid.container [class "pre-scrollable", style [("text-align","center")]]
+               Grid.container [class "pre-scrollable"]
                         ( List.map (\{full_name,score} ->
                             Grid.row []
                               [ Grid.col []
-                                [ label [] [text full_name]]
+                                [ label [style [("font-size","0.8rem"),("text-align","left")]] [text full_name]]
                               , Grid.col []
-                                [ label [] [text score]]
+                                [ label [style [("font-size","0.8rem"),("text-align","right")]] [text score]]
                               ]
                         ) model.recommendation)
             ]
@@ -291,13 +345,15 @@ view model =
           ]
         ]
     , Grid.row []
-        [ Grid.col [Col.xs4 ]
+        [ Grid.col [Col.xs3 ]
+          (viewAllTags model)  
+        , Grid.col [Col.xs3 ]
           (viewAllArtists model)  
 
-        , Grid.col [ Col.xs4]
+        , Grid.col [ Col.xs3]
           (viewSelected model)
         
-        , Grid.col [ Col.xs4]
+        , Grid.col [ Col.xs3]
           (viewRecommendation model)
         ]
     ]
