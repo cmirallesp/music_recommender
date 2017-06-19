@@ -2,7 +2,7 @@
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from recommender_system import RecommenderSystem
 import json
-import pdb
+
 import tornado.ioloop
 import tornado.web
 import tornado.httpserver
@@ -15,7 +15,6 @@ define("port", default=8887, help="run on the given port", type=int)
 class NewUserHandler(tornado.web.RequestHandler):
 
     def initialize(self, recommender_system, ):
-        print "NewUserHandler"
         self.rs = recommender_system
 
     def set_default_headers(self):
@@ -40,7 +39,6 @@ class NewUserHandler(tornado.web.RequestHandler):
 class SaveArtistsHandler(tornado.web.RequestHandler):
 
     def initialize(self, recommender_system, ):
-        print "SaveArtist"
         self.rs = recommender_system
 
     def set_default_headers(self):
@@ -57,7 +55,7 @@ class SaveArtistsHandler(tornado.web.RequestHandler):
         print "adding user, recalculating similarities"
         uid = str(data['user_id'])  # comes in unicode
         st = time.clock()
-        self.rs.add_artists_and_friends_to_user(uid, listens=data['selected'], friends={})
+        self.rs.add_artists_and_friends_to_user(uid, listens=data['selected'])
         print "user added ({})".format(time.clock() - st)
         # recommendation
         st = time.clock()
@@ -71,6 +69,8 @@ class SaveArtistsHandler(tornado.web.RequestHandler):
             )
 
         self.write(json.dumps(result))
+        # undo changes
+        self.rs.remove_artists_and_friends_from_user(uid, data['selected'])
 
     def options(self):
         # no body
@@ -126,7 +126,7 @@ def make_app():
         (r"/user", NewUserHandler, dict(recommender_system=rs)),
         (r"/user_artists", SaveArtistsHandler, dict(recommender_system=rs)),
         (r"/recommendation", RecommendationHandler, dict(recommender_system=rs))
-    ])
+    ], autoreload=True, debug=True)
 
 
 if __name__ == "__main__":

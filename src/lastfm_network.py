@@ -77,7 +77,7 @@ class LastfmNetwork(NetworkBuilderMixin, NetworkIteratorsMixin, object):
         if os.path.isfile('network' + name + '.pickle'):
             self._graph = nx.read_gpickle('network' + name + '.pickle')
         else:
-            # multilayer graph to hold the entire data
+            # a graph to hold the entire data
             self._graph = nx.DiGraph()
 
             self._build_user_friends(user_friends)

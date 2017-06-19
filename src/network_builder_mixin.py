@@ -3,11 +3,12 @@ import scipy as sp
 from logging import info
 import time
 import networkx as nx
+import pdb
 
 
 class NetworkBuilderMixin(object):
     # This Mixin class contains all the methods to build
-    # the multilayer network:
+    # the network:
     #  tag, artists and user nodes
     #  tag-artist, artist-tag, artist-user, user-artist and user-user edges
     #  weights in edges
@@ -252,12 +253,11 @@ class NetworkBuilderMixin(object):
         print "in nodes_iter? {}".format(k in list(self._graph.nodes_iter()))
         return k
 
-    def add_artists_and_friends_to_user(self, user_id, listens, friends):
+    def add_artists_and_friends_to_user(self, user_id, listens, friends={}):
         # Add friendship connections
 
         for fid in friends:
             k2 = self.key_user(fid)
-            print "{}-{}".format(user_id, k2)
             self._graph.add_edge(user_id, k2, weight=1., type='uu')
             self._normalize_weights_user_user(user=user_id)
             self._normalize_weights_user_user(user=k2)
@@ -270,20 +270,17 @@ class NetworkBuilderMixin(object):
             self._normalize_weights_user_artist(user=user_id)
             self._normalize_weights_artist_user(artist=ka)
 
-        # Update user similarity matrix
-        # aux_sim = self.user_similarities.copy()
-        # aux_sim = aux_sim.tocoo()
+    def remove_artists_and_friends_from_user(self, user_id, listens, friends={}):
+        for fid in friends:
+            k2 = self.key_user(fid)
+            self._graph.remove_edge(user_id, k2)
 
-        # aux_sim._shape = (self._user_similarities._shape[0] + 1, self._user_similarities._shape[1] + 1)
+        for aid, times in listens.iteritems():
+            ka = self.key_artist(aid)
+            self._graph.remove_edge(user_id, ka)
+            self._graph.remove_edge(ka, user_id)
 
-        # for j, user in enumerate(self.users_id):
-        #     s = self._sim(user_id, user, self.user_artists_iter)
-        #     if s > 0:
-        #         aux_sim.data = np.append(aux_sim.data, s)
-        #         aux_sim.row = np.append(aux_sim.row, self.user_similarities.shape[0])
-        #         aux_sim.col = np.append(aux_sim.col, j)
-
-        # self._user_similarities = aux_sim.tolil()
+        self._graph.remove_node(user_id)
 
     def add_user(self, friends, listens, user_id=None):
         # Update users existing in the system
