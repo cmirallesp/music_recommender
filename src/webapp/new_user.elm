@@ -19,6 +19,7 @@ import Bootstrap.Grid.Row as Row
 import Bootstrap.Button as Button
 import Bootstrap.Card as Card
 import Bootstrap.Card exposing (header, block, custom, config)
+import Bootstrap.ButtonGroup as ButtonGroup
 
 
 main =
@@ -56,6 +57,11 @@ type alias Tag =
   , full_name : String
   }
 
+--type RadioState = Tags | Artists
+type RadioState
+    = Tags
+    | Users
+    
 type alias Model =
   { user_id: String
   , user_name: String
@@ -64,6 +70,7 @@ type alias Model =
   , recommendation: List ArtistRecommendation
   , created: Bool
   , tags: List Tag
+  , radioState: RadioState
   }
 
 model : Model
@@ -75,11 +82,12 @@ model =
   , recommendation=[]
   , created = False
   , tags = []
+  , radioState = Users
   }
 
 init : (Model, Cmd Msg)
 init =
-  ( model, Cmd.none )
+  ( model, getTags )
 
 artistRecommendationDecoder: Decoder ArtistRecommendation
 artistRecommendationDecoder = 
@@ -107,18 +115,30 @@ artistDecoder =
         (field "id"   Json.Decode.string)
         (field "full_name"  Json.Decode.string)
 
+listTagsDecoder: Decoder (List Tag)
+listTagsDecoder=
+  Json.Decode.list tagsDecoder
+
+tagsDecoder : Decoder Tag
+tagsDecoder =
+    Json.Decode.map2 Tag
+        (field "id"   Json.Decode.string)
+        (field "full_name"  Json.Decode.string)
+
 -- update
 
 type Msg
-  = CreateUser
-  | ChgName String
+  = 
+  ChgName String
   | AddArtist (Artist)
-  | UserCreated (Result Http.Error (User))
   | Cancel
-  | SaveArtistsOfUser
-  | SaveArtist (Result Http.Error (List ArtistRecommendation))
+  | GetTagsRequest
+  | GetTagsResponse (Result Http.Error (List Tag))
+  | RecommendationRequest
+  | RecommendationResponse (Result Http.Error (List ArtistRecommendation))
   | GetArtistsResponse (Result Http.Error (List Artist))
   | GetArtistsRequest (Tag)
+  | RadioMsg (RadioState)
 
 
 
@@ -126,8 +146,6 @@ type Msg
 update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    CreateUser ->
-      (model, saveUser model.user_name )
     
     ChgName name ->
       ({model| user_name = name}, Cmd.none)
@@ -138,28 +156,18 @@ update msg model =
       else
         ({model | selected=artist::model.selected} , Cmd.none)  
         
-    UserCreated (Ok new_user) ->
-      ( { model | user_id= new_user.user_id, tags=new_user.artists, created = True }, Cmd.none)
-
-    UserCreated (Err _) ->
-      ( model, Cmd.none)
-
     Cancel ->
-      ({ model | artists=[], selected = [], recommendation=[],created = False }, Cmd.none)
+      ({ model | artists=[],  recommendation=[],created = False }, Cmd.none)
 
-    SaveArtist (Ok res) ->
+    RecommendationResponse (Ok res) ->
       ({model | recommendation=res, created = False}, Cmd.none)
 
-
-    SaveArtist (Err _) ->
+    RecommendationResponse (Err _) ->
       (model, Cmd.none)
 
-    SaveArtistsOfUser ->
-      if model.created then
-        (model, saveArtistsOfUser model)            
-      else
-        (model, Cmd.none)
-
+    RecommendationRequest ->
+      (model, recommendation model)            
+      
     GetArtistsRequest (tag) ->
       (model, getArtists(tag.id))
 
@@ -169,35 +177,46 @@ update msg model =
     GetArtistsResponse (Err r_) ->
       (model, Cmd.none)    
 
+    GetTagsRequest ->
+      (model, getTags)
+
+    GetTagsResponse (Ok res) ->
+      ({model|tags = res}, Cmd.none)
+
+    GetTagsResponse (Err r_) ->
+      (model, Cmd.none)    
+
+    RadioMsg (rs) ->
+      ({model|radioState = rs},Cmd.none)
+
+    
+
 encodeSelectedArtists: List Artist -> Value
 encodeSelectedArtists selectionList =
   object    
       ( List.map (\{id} -> ( id,Json.Encode.int 1)) selectionList)
     
 
-saveArtistsOfUser : Model -> Cmd Msg
-saveArtistsOfUser model = 
+recommendation : Model -> Cmd Msg
+recommendation model = 
   let 
+    kindOfSim = if model.radioState==Users then "users" else "tags"
     json = Http.jsonBody <| 
       object
         [ ( "selected", (encodeSelectedArtists model.selected)),
-          ( "user_id", (Json.Encode.string model.user_id))
+          ( "kindOfSim", (Json.Encode.string kindOfSim))
         ]
   in 
-    sendPost SaveArtist ("http://localhost:8887/user_artists") recommendationDecorder json
+    sendPost RecommendationResponse ("http://localhost:8887/recommendation") recommendationDecorder json
 
-saveUser : String -> Cmd Msg
-saveUser name=
-  let
-    json =Http.jsonBody <|
-      object
-      [ ("user_name", (Json.Encode.string name))]
-  in      
-    sendPost UserCreated ("http://localhost:8887/user") userDecoder json
 
 getArtists: String -> Cmd Msg
 getArtists tag_id =
   sendGet GetArtistsResponse ("http://localhost:8887/artists/"++ tag_id) listArtistsDecoder
+
+getTags:  Cmd Msg
+getTags =
+  sendGet GetTagsResponse ("http://localhost:8887/tags") listTagsDecoder
 
 sendGet : (Result Error a -> msg) -> String -> Decoder a -> Cmd msg
 sendGet msg url decoder =
@@ -210,7 +229,7 @@ sendPost msg url decoder body2 =
 -- VIEW
 
 showSelection : Model -> Bool
-showSelection model = model.created || model.recommendation /= []
+showSelection model = True --model.created || model.recommendation /= []
 
 viewAllTags: Model -> List (Html Msg)
 viewAllTags model=
@@ -257,12 +276,12 @@ viewAllArtists model=
                   (List.map (\artist -> 
                       Grid.row []
                         [ Grid.col [] 
-                            [ label [style [("text-align","left")]] [ text artist.full_name ]]
+                            [ label [style [("font-size","0.8rem"), ("text-align","left")]] [ text artist.full_name ]]
                         , Grid.col []
                             [ Button.button 
                               [ Button.roleLink
                               , Button.onClick (AddArtist artist)
-                              , Button.attrs [style [("text-align","right")]]
+                              , Button.attrs [style [("font-size","0.8rem"), ("text-align","right")]]
                               ] [text "Add"]
                             ]
                         ]
@@ -296,17 +315,15 @@ viewSelected model=
           |> Card.view 
       ]
     else
-      [text ""]
-    
+      [text ""]    
 
-viewRecommendation: Model -> List (Html Msg) 
+viewRecommendation: Model -> List (Html Msg)
 viewRecommendation model=
   let 
     title = if (showSelection model) then "Recommendation" else ""
   in
     if (showSelection model) then
-      [ 
-        Card.config []
+        [ Card.config []
           |> Card.header [ class "text-center" ]  
               [ h3 [ class "mt-2" ] [text title] ]
           |> Card.block []
@@ -322,11 +339,9 @@ viewRecommendation model=
                         ) model.recommendation)
             ]
           |> Card.view 
-      ]
+        ]
     else
-      [text ""]
-    
-
+      [ text ""]
 
 view : Model -> Html Msg
 view model =
@@ -334,14 +349,22 @@ view model =
   [ Grid.container []
     [ CDN.stylesheet -- creates an inline style node with the Bootstrap CSS
     , Grid.row []      
-
-        [ Grid.col [] 
-          [ Form.formInline [] 
-            [ Input.text [ Input.attrs [placeholder "User name"], Input.onInput ChgName]  
-            , Button.button [Button.primary, Button.onClick CreateUser, Button.attrs [ class "ml-sm-2 my-2" ] ] [ text "New User" ] 
-            , Button.button [ Button.info, Button.onClick SaveArtistsOfUser,Button.attrs [ class "ml-sm-2 my-2" ] ] [ text "Recommend" ] 
-            , Button.button [ Button.danger, Button.onClick Cancel,Button.attrs [ class "ml-sm-2 my-2" ] ] [ text "Clear" ] 
-            ]
+        [ Grid.col [Col.xs8] 
+          []
+        , Grid.col [Col.xs4, Col.attrs [ style [("float","right")]]]
+          [ 
+            Button.button [ Button.small, Button.success, Button.onClick RecommendationRequest,Button.attrs [ class "ml-sm-2 my-2" ] ] [ text "Recommend" ] 
+          , ButtonGroup.radioButtonGroup []
+              [ ButtonGroup.radioButton
+                  (model.radioState == Users)
+                  [ Button.small, Button.primary, Button.attrs [ class "ml-sm-2 my-2" ], Button.onClick (RadioMsg Users) ]
+                  [ text "Users" ]
+              , ButtonGroup.radioButton
+                  (model.radioState == Tags)
+                  [ Button.small, Button.primary, Button.attrs [ class "ml-sm-2 my-2" ], Button.onClick (RadioMsg Tags) ]
+                  [ text "Tags" ]
+              ]
+          , Button.button [ Button.small, Button.danger, Button.onClick Cancel,Button.attrs [ class "ml-sm-2 my-2" ] ] [ text "Clear" ]               
           ]
         ]
     , Grid.row []
@@ -354,7 +377,8 @@ view model =
           (viewSelected model)
         
         , Grid.col [ Col.xs3]
-          (viewRecommendation model)
+           (viewRecommendation model)
+          
         ]
     ]
   ]

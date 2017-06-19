@@ -244,14 +244,10 @@ class NetworkBuilderMixin(object):
         return inter * 1.0 / denom
 
     def new_user(self, name):
-        # TODO do something with the name!
         new_id = max(self.users_id) + 1
         self.users_id.append(new_id)
         k = self.key_user(new_id)
-        print "Before Adding user: {} lenght:{}".format(k, len(list(self._graph.nodes_iter())))
         self._graph.add_node(k)
-        print "After Adding user: {} lenght:{}".format(k, len(list(self._graph.nodes_iter())))
-        print "in nodes_iter? {}".format(k in list(self._graph.nodes_iter()))
         return k
 
     def add_artists_and_friends_to_user(self, user_id, listens, friends={}):

@@ -11534,6 +11534,226 @@ var _rundis$elm_bootstrap$Bootstrap_Button$button = F2(
 			_rundis$elm_bootstrap$Bootstrap_Internal_Button$buttonAttributes(options),
 			children);
 	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$defaultOptions = {
+	size: _elm_lang$core$Maybe$Nothing,
+	vertical: false,
+	attributes: {ctor: '[]'}
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$applyModifier = F2(
+	function (modifier, options) {
+		var _p0 = modifier;
+		switch (_p0.ctor) {
+			case 'Size':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						size: _elm_lang$core$Maybe$Just(_p0._0)
+					});
+			case 'Vertical':
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{vertical: true});
+			default:
+				return _elm_lang$core$Native_Utils.update(
+					options,
+					{
+						attributes: A2(_elm_lang$core$Basics_ops['++'], options.attributes, _p0._0)
+					});
+		}
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$groupAttributes = function (modifiers) {
+	var options = A3(_elm_lang$core$List$foldl, _rundis$elm_bootstrap$Bootstrap_ButtonGroup$applyModifier, _rundis$elm_bootstrap$Bootstrap_ButtonGroup$defaultOptions, modifiers);
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		{
+			ctor: '::',
+			_0: A2(_elm_lang$html$Html_Attributes$attribute, 'role', 'group'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$classList(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'btn-group', _1: true},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'btn-group-vertical', _1: options.vertical},
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(_elm_lang$html$Html_Attributes$attribute, 'data-toggle', 'buttons'),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			function () {
+				var _p1 = A2(_elm_lang$core$Maybe$andThen, _rundis$elm_bootstrap$Bootstrap_Grid_Internal$screenSizeOption, options.size);
+				if (_p1.ctor === 'Just') {
+					return {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class(
+							A2(_elm_lang$core$Basics_ops['++'], 'btn-group-', _p1._0)),
+						_1: {ctor: '[]'}
+					};
+				} else {
+					return {ctor: '[]'};
+				}
+			}(),
+			options.attributes));
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup = function (_p2) {
+	var _p3 = _p2;
+	return _p3._0;
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$toolbar = F2(
+	function (attributes, items) {
+		return A2(
+			_elm_lang$html$Html$div,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				{
+					ctor: '::',
+					_0: A2(_elm_lang$html$Html_Attributes$attribute, 'role', 'toolbar'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('btn-toolbar'),
+						_1: {ctor: '[]'}
+					}
+				},
+				attributes),
+			A2(_elm_lang$core$List$map, _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup, items));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Options = F3(
+	function (a, b, c) {
+		return {size: a, vertical: b, attributes: c};
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Attrs = function (a) {
+	return {ctor: 'Attrs', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$attrs = function (attrs) {
+	return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Attrs(attrs);
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Vertical = {ctor: 'Vertical'};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$vertical = _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Vertical;
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Size = function (a) {
+	return {ctor: 'Size', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$small = _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Size(_rundis$elm_bootstrap$Bootstrap_Grid_Internal$SM);
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$large = _rundis$elm_bootstrap$Bootstrap_ButtonGroup$Size(_rundis$elm_bootstrap$Bootstrap_Grid_Internal$LG);
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$GroupItem = function (a) {
+	return {ctor: 'GroupItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$buttonGroupItem = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$GroupItem(
+			A2(
+				_elm_lang$html$Html$div,
+				_rundis$elm_bootstrap$Bootstrap_ButtonGroup$groupAttributes(options),
+				A2(
+					_elm_lang$core$List$map,
+					function (_p4) {
+						var _p5 = _p4;
+						return _p5._0;
+					},
+					items)));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$buttonGroup = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup(
+			A2(_rundis$elm_bootstrap$Bootstrap_ButtonGroup$buttonGroupItem, options, items));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$linkButtonGroupItem = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$GroupItem(
+			A2(
+				_elm_lang$html$Html$div,
+				_rundis$elm_bootstrap$Bootstrap_ButtonGroup$groupAttributes(options),
+				A2(
+					_elm_lang$core$List$map,
+					function (_p6) {
+						var _p7 = _p6;
+						return _p7._0;
+					},
+					items)));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$linkButtonGroup = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup(
+			A2(_rundis$elm_bootstrap$Bootstrap_ButtonGroup$linkButtonGroupItem, options, items));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroupItem = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$GroupItem(
+			A2(
+				_elm_lang$html$Html$div,
+				_rundis$elm_bootstrap$Bootstrap_ButtonGroup$groupAttributes(options),
+				A2(
+					_elm_lang$core$List$map,
+					function (_p8) {
+						var _p9 = _p8;
+						return _p9._0;
+					},
+					items)));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroup = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup(
+			A2(_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroupItem, options, items));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroupItem = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$GroupItem(
+			A2(
+				_elm_lang$html$Html$div,
+				_rundis$elm_bootstrap$Bootstrap_ButtonGroup$groupAttributes(options),
+				A2(
+					_elm_lang$core$List$map,
+					function (_p10) {
+						var _p11 = _p10;
+						return _p11._0;
+					},
+					items)));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroup = F2(
+	function (options, items) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$renderGroup(
+			A2(_rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButtonGroupItem, options, items));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$ButtonItem = function (a) {
+	return {ctor: 'ButtonItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$button = F2(
+	function (options, children) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$ButtonItem(
+			A2(_rundis$elm_bootstrap$Bootstrap_Button$button, options, children));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$LinkButtonItem = function (a) {
+	return {ctor: 'LinkButtonItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$linkButton = F2(
+	function (options, children) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$LinkButtonItem(
+			A2(_rundis$elm_bootstrap$Bootstrap_Button$linkButton, options, children));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$RadioButtonItem = function (a) {
+	return {ctor: 'RadioButtonItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton = F3(
+	function (checked, options, children) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$RadioButtonItem(
+			A3(_rundis$elm_bootstrap$Bootstrap_Button$radioButton, checked, options, children));
+	});
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$CheckboxButtonItem = function (a) {
+	return {ctor: 'CheckboxButtonItem', _0: a};
+};
+var _rundis$elm_bootstrap$Bootstrap_ButtonGroup$checkboxButton = F3(
+	function (checked, options, children) {
+		return _rundis$elm_bootstrap$Bootstrap_ButtonGroup$CheckboxButtonItem(
+			A3(_rundis$elm_bootstrap$Bootstrap_Button$checkboxButton, checked, options, children));
+	});
 var _rundis$elm_bootstrap$Bootstrap_CDN$fontAwesome = A3(
 	_elm_lang$html$Html$node,
 	'link',
@@ -12521,9 +12741,7 @@ var _rundis$elm_bootstrap$Bootstrap_Grid$col = F2(
 			{options: options, children: children});
 	});
 var _user$project$Main$showSelection = function (model) {
-	return model.created || (!_elm_lang$core$Native_Utils.eq(
-		model.recommendation,
-		{ctor: '[]'}));
+	return true;
 };
 var _user$project$Main$viewSelected = function (model) {
 	var title = _user$project$Main$showSelection(model) ? 'Selection' : '';
@@ -12769,16 +12987,6 @@ var _user$project$Main$encodeSelectedArtists = function (selectionList) {
 			},
 			selectionList));
 };
-var _user$project$Main$model = {
-	user_id: '',
-	user_name: '',
-	artists: {ctor: '[]'},
-	selected: {ctor: '[]'},
-	recommendation: {ctor: '[]'},
-	created: false,
-	tags: {ctor: '[]'}
-};
-var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Main$model, _1: _elm_lang$core$Platform_Cmd$none};
 var _user$project$Main$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
@@ -12815,10 +13023,31 @@ var _user$project$Main$Tag = F2(
 	function (a, b) {
 		return {id: a, full_name: b};
 	});
-var _user$project$Main$Model = F7(
-	function (a, b, c, d, e, f, g) {
-		return {user_id: a, user_name: b, artists: c, selected: d, recommendation: e, created: f, tags: g};
+var _user$project$Main$tagsDecoder = A3(
+	_elm_lang$core$Json_Decode$map2,
+	_user$project$Main$Tag,
+	A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'full_name', _elm_lang$core$Json_Decode$string));
+var _user$project$Main$listTagsDecoder = _elm_lang$core$Json_Decode$list(_user$project$Main$tagsDecoder);
+var _user$project$Main$Model = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {user_id: a, user_name: b, artists: c, selected: d, recommendation: e, created: f, tags: g, radioState: h};
 	});
+var _user$project$Main$Users = {ctor: 'Users'};
+var _user$project$Main$model = {
+	user_id: '',
+	user_name: '',
+	artists: {ctor: '[]'},
+	selected: {ctor: '[]'},
+	recommendation: {ctor: '[]'},
+	created: false,
+	tags: {ctor: '[]'},
+	radioState: _user$project$Main$Users
+};
+var _user$project$Main$Tags = {ctor: 'Tags'};
+var _user$project$Main$RadioMsg = function (a) {
+	return {ctor: 'RadioMsg', _0: a};
+};
 var _user$project$Main$GetArtistsRequest = function (a) {
 	return {ctor: 'GetArtistsRequest', _0: a};
 };
@@ -12943,10 +13172,11 @@ var _user$project$Main$getArtists = function (tag_id) {
 		A2(_elm_lang$core$Basics_ops['++'], 'http://localhost:8887/artists/', tag_id),
 		_user$project$Main$listArtistsDecoder);
 };
-var _user$project$Main$SaveArtist = function (a) {
-	return {ctor: 'SaveArtist', _0: a};
+var _user$project$Main$RecommendationResponse = function (a) {
+	return {ctor: 'RecommendationResponse', _0: a};
 };
-var _user$project$Main$saveArtistsOfUser = function (model) {
+var _user$project$Main$recommendation = function (model) {
+	var kindOfSim = _elm_lang$core$Native_Utils.eq(model.radioState, _user$project$Main$Users) ? 'users' : 'tags';
 	var json = _elm_lang$http$Http$jsonBody(
 		_elm_lang$core$Json_Encode$object(
 			{
@@ -12960,43 +13190,24 @@ var _user$project$Main$saveArtistsOfUser = function (model) {
 					ctor: '::',
 					_0: {
 						ctor: '_Tuple2',
-						_0: 'user_id',
-						_1: _elm_lang$core$Json_Encode$string(model.user_id)
+						_0: 'kindOfSim',
+						_1: _elm_lang$core$Json_Encode$string(kindOfSim)
 					},
 					_1: {ctor: '[]'}
 				}
 			}));
-	return A4(_user$project$Main$sendPost, _user$project$Main$SaveArtist, 'http://localhost:8887/user_artists', _user$project$Main$recommendationDecorder, json);
+	return A4(_user$project$Main$sendPost, _user$project$Main$RecommendationResponse, 'http://localhost:8887/recommendation', _user$project$Main$recommendationDecorder, json);
 };
-var _user$project$Main$SaveArtistsOfUser = {ctor: 'SaveArtistsOfUser'};
-var _user$project$Main$Cancel = {ctor: 'Cancel'};
-var _user$project$Main$UserCreated = function (a) {
-	return {ctor: 'UserCreated', _0: a};
+var _user$project$Main$RecommendationRequest = {ctor: 'RecommendationRequest'};
+var _user$project$Main$GetTagsResponse = function (a) {
+	return {ctor: 'GetTagsResponse', _0: a};
 };
-var _user$project$Main$saveUser = function (name) {
-	var json = _elm_lang$http$Http$jsonBody(
-		_elm_lang$core$Json_Encode$object(
-			{
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: 'user_name',
-					_1: _elm_lang$core$Json_Encode$string(name)
-				},
-				_1: {ctor: '[]'}
-			}));
-	return A4(_user$project$Main$sendPost, _user$project$Main$UserCreated, 'http://localhost:8887/user', _user$project$Main$userDecoder, json);
-};
+var _user$project$Main$getTags = A3(_user$project$Main$sendGet, _user$project$Main$GetTagsResponse, 'http://localhost:8887/tags', _user$project$Main$listTagsDecoder);
+var _user$project$Main$init = {ctor: '_Tuple2', _0: _user$project$Main$model, _1: _user$project$Main$getTags};
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p4 = msg;
 		switch (_p4.ctor) {
-			case 'CreateUser':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: _user$project$Main$saveUser(model.user_name)
-				};
 			case 'ChgName':
 				return {
 					ctor: '_Tuple2',
@@ -13016,19 +13227,6 @@ var _user$project$Main$update = F2(
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'UserCreated':
-				if (_p4._0.ctor === 'Ok') {
-					var _p6 = _p4._0._0;
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{user_id: _p6.user_id, tags: _p6.artists, created: true}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
 			case 'Cancel':
 				return {
 					ctor: '_Tuple2',
@@ -13036,13 +13234,12 @@ var _user$project$Main$update = F2(
 						model,
 						{
 							artists: {ctor: '[]'},
-							selected: {ctor: '[]'},
 							recommendation: {ctor: '[]'},
 							created: false
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
-			case 'SaveArtist':
+			case 'RecommendationResponse':
 				if (_p4._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
@@ -13054,19 +13251,19 @@ var _user$project$Main$update = F2(
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
-			case 'SaveArtistsOfUser':
-				return model.created ? {
+			case 'RecommendationRequest':
+				return {
 					ctor: '_Tuple2',
 					_0: model,
-					_1: _user$project$Main$saveArtistsOfUser(model)
-				} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					_1: _user$project$Main$recommendation(model)
+				};
 			case 'GetArtistsRequest':
 				return {
 					ctor: '_Tuple2',
 					_0: model,
 					_1: _user$project$Main$getArtists(_p4._0.id)
 				};
-			default:
+			case 'GetArtistsResponse':
 				if (_p4._0.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
@@ -13078,8 +13275,32 @@ var _user$project$Main$update = F2(
 				} else {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				}
+			case 'GetTagsRequest':
+				return {ctor: '_Tuple2', _0: model, _1: _user$project$Main$getTags};
+			case 'GetTagsResponse':
+				if (_p4._0.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{tags: _p4._0._0}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{radioState: _p4._0}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
+var _user$project$Main$GetTagsRequest = {ctor: 'GetTagsRequest'};
+var _user$project$Main$Cancel = {ctor: 'Cancel'};
 var _user$project$Main$AddArtist = function (a) {
 	return {ctor: 'AddArtist', _0: a};
 };
@@ -13121,8 +13342,12 @@ var _user$project$Main$viewAllArtists = function (model) {
 															_0: _elm_lang$html$Html_Attributes$style(
 																{
 																	ctor: '::',
-																	_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'left'},
-																	_1: {ctor: '[]'}
+																	_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.8rem'},
+																	_1: {
+																		ctor: '::',
+																		_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'left'},
+																		_1: {ctor: '[]'}
+																	}
 																}),
 															_1: {ctor: '[]'}
 														},
@@ -13157,8 +13382,12 @@ var _user$project$Main$viewAllArtists = function (model) {
 																				_0: _elm_lang$html$Html_Attributes$style(
 																					{
 																						ctor: '::',
-																						_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'right'},
-																						_1: {ctor: '[]'}
+																						_0: {ctor: '_Tuple2', _0: 'font-size', _1: '0.8rem'},
+																						_1: {
+																							ctor: '::',
+																							_0: {ctor: '_Tuple2', _0: 'text-align', _1: 'right'},
+																							_1: {ctor: '[]'}
+																						}
 																					}),
 																				_1: {ctor: '[]'}
 																			}),
@@ -13212,10 +13441,6 @@ var _user$project$Main$viewAllArtists = function (model) {
 		_1: {ctor: '[]'}
 	};
 };
-var _user$project$Main$ChgName = function (a) {
-	return {ctor: 'ChgName', _0: a};
-};
-var _user$project$Main$CreateUser = {ctor: 'CreateUser'};
 var _user$project$Main$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -13237,26 +13462,137 @@ var _user$project$Main$view = function (model) {
 								ctor: '::',
 								_0: A2(
 									_rundis$elm_bootstrap$Bootstrap_Grid$col,
-									{ctor: '[]'},
 									{
 										ctor: '::',
-										_0: A2(
-											_rundis$elm_bootstrap$Bootstrap_Form$formInline,
-											{ctor: '[]'},
-											{
+										_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs8,
+										_1: {ctor: '[]'}
+									},
+									{ctor: '[]'}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_rundis$elm_bootstrap$Bootstrap_Grid$col,
+										{
+											ctor: '::',
+											_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$xs4,
+											_1: {
 												ctor: '::',
-												_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$text(
+												_0: _rundis$elm_bootstrap$Bootstrap_Grid_Col$attrs(
 													{
 														ctor: '::',
-														_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$attrs(
+														_0: _elm_lang$html$Html_Attributes$style(
 															{
 																ctor: '::',
-																_0: _elm_lang$html$Html_Attributes$placeholder('User name'),
+																_0: {ctor: '_Tuple2', _0: 'float', _1: 'right'},
+																_1: {ctor: '[]'}
+															}),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_rundis$elm_bootstrap$Bootstrap_Button$button,
+												{
+													ctor: '::',
+													_0: _rundis$elm_bootstrap$Bootstrap_Button$small,
+													_1: {
+														ctor: '::',
+														_0: _rundis$elm_bootstrap$Bootstrap_Button$success,
+														_1: {
+															ctor: '::',
+															_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(_user$project$Main$RecommendationRequest),
+															_1: {
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																	{
+																		ctor: '::',
+																		_0: _elm_lang$html$Html_Attributes$class('ml-sm-2 my-2'),
+																		_1: {ctor: '[]'}
+																	}),
+																_1: {ctor: '[]'}
+															}
+														}
+													}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('Recommend'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButtonGroup,
+													{ctor: '[]'},
+													{
+														ctor: '::',
+														_0: A3(
+															_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+															_elm_lang$core$Native_Utils.eq(model.radioState, _user$project$Main$Users),
+															{
+																ctor: '::',
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$small,
+																_1: {
+																	ctor: '::',
+																	_0: _rundis$elm_bootstrap$Bootstrap_Button$primary,
+																	_1: {
+																		ctor: '::',
+																		_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																			{
+																				ctor: '::',
+																				_0: _elm_lang$html$Html_Attributes$class('ml-sm-2 my-2'),
+																				_1: {ctor: '[]'}
+																			}),
+																		_1: {
+																			ctor: '::',
+																			_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(
+																				_user$project$Main$RadioMsg(_user$project$Main$Users)),
+																			_1: {ctor: '[]'}
+																		}
+																	}
+																}
+															},
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html$text('Users'),
 																_1: {ctor: '[]'}
 															}),
 														_1: {
 															ctor: '::',
-															_0: _rundis$elm_bootstrap$Bootstrap_Form_Input$onInput(_user$project$Main$ChgName),
+															_0: A3(
+																_rundis$elm_bootstrap$Bootstrap_ButtonGroup$radioButton,
+																_elm_lang$core$Native_Utils.eq(model.radioState, _user$project$Main$Tags),
+																{
+																	ctor: '::',
+																	_0: _rundis$elm_bootstrap$Bootstrap_Button$small,
+																	_1: {
+																		ctor: '::',
+																		_0: _rundis$elm_bootstrap$Bootstrap_Button$primary,
+																		_1: {
+																			ctor: '::',
+																			_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
+																				{
+																					ctor: '::',
+																					_0: _elm_lang$html$Html_Attributes$class('ml-sm-2 my-2'),
+																					_1: {ctor: '[]'}
+																				}),
+																			_1: {
+																				ctor: '::',
+																				_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(
+																					_user$project$Main$RadioMsg(_user$project$Main$Tags)),
+																				_1: {ctor: '[]'}
+																			}
+																		}
+																	}
+																},
+																{
+																	ctor: '::',
+																	_0: _elm_lang$html$Html$text('Tags'),
+																	_1: {ctor: '[]'}
+																}),
 															_1: {ctor: '[]'}
 														}
 													}),
@@ -13266,37 +13602,13 @@ var _user$project$Main$view = function (model) {
 														_rundis$elm_bootstrap$Bootstrap_Button$button,
 														{
 															ctor: '::',
-															_0: _rundis$elm_bootstrap$Bootstrap_Button$primary,
+															_0: _rundis$elm_bootstrap$Bootstrap_Button$small,
 															_1: {
 																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(_user$project$Main$CreateUser),
+																_0: _rundis$elm_bootstrap$Bootstrap_Button$danger,
 																_1: {
 																	ctor: '::',
-																	_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-																		{
-																			ctor: '::',
-																			_0: _elm_lang$html$Html_Attributes$class('ml-sm-2 my-2'),
-																			_1: {ctor: '[]'}
-																		}),
-																	_1: {ctor: '[]'}
-																}
-															}
-														},
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html$text('New User'),
-															_1: {ctor: '[]'}
-														}),
-													_1: {
-														ctor: '::',
-														_0: A2(
-															_rundis$elm_bootstrap$Bootstrap_Button$button,
-															{
-																ctor: '::',
-																_0: _rundis$elm_bootstrap$Bootstrap_Button$info,
-																_1: {
-																	ctor: '::',
-																	_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(_user$project$Main$SaveArtistsOfUser),
+																	_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(_user$project$Main$Cancel),
 																	_1: {
 																		ctor: '::',
 																		_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
@@ -13308,47 +13620,19 @@ var _user$project$Main$view = function (model) {
 																		_1: {ctor: '[]'}
 																	}
 																}
-															},
-															{
-																ctor: '::',
-																_0: _elm_lang$html$Html$text('Recommend'),
-																_1: {ctor: '[]'}
-															}),
-														_1: {
+															}
+														},
+														{
 															ctor: '::',
-															_0: A2(
-																_rundis$elm_bootstrap$Bootstrap_Button$button,
-																{
-																	ctor: '::',
-																	_0: _rundis$elm_bootstrap$Bootstrap_Button$danger,
-																	_1: {
-																		ctor: '::',
-																		_0: _rundis$elm_bootstrap$Bootstrap_Button$onClick(_user$project$Main$Cancel),
-																		_1: {
-																			ctor: '::',
-																			_0: _rundis$elm_bootstrap$Bootstrap_Button$attrs(
-																				{
-																					ctor: '::',
-																					_0: _elm_lang$html$Html_Attributes$class('ml-sm-2 my-2'),
-																					_1: {ctor: '[]'}
-																				}),
-																			_1: {ctor: '[]'}
-																		}
-																	}
-																},
-																{
-																	ctor: '::',
-																	_0: _elm_lang$html$Html$text('Clear'),
-																	_1: {ctor: '[]'}
-																}),
+															_0: _elm_lang$html$Html$text('Clear'),
 															_1: {ctor: '[]'}
-														}
-													}
+														}),
+													_1: {ctor: '[]'}
 												}
-											}),
-										_1: {ctor: '[]'}
-									}),
-								_1: {ctor: '[]'}
+											}
+										}),
+									_1: {ctor: '[]'}
+								}
 							}),
 						_1: {
 							ctor: '::',
@@ -13409,6 +13693,9 @@ var _user$project$Main$view = function (model) {
 };
 var _user$project$Main$main = _elm_lang$html$Html$program(
 	{init: _user$project$Main$init, view: _user$project$Main$view, update: _user$project$Main$update, subscriptions: _user$project$Main$subscriptions})();
+var _user$project$Main$ChgName = function (a) {
+	return {ctor: 'ChgName', _0: a};
+};
 var Elm = {};
 Elm['Main'] = Elm['Main'] || {};
 if (typeof _user$project$Main$main !== 'undefined') {
